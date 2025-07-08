@@ -41,7 +41,7 @@ const Home = () => {
 
   const testimonials = [
     {
-      quote: "AI FrontDesk Pro transformed our customer service. We now handle 10x more inquiries without hiring additional staff.",
+      quote: "AI Receptionist transformed our customer service. We now handle 10x more inquiries without hiring additional staff.",
       author: "Sarah Johnson",
       role: "CEO",
       company: "TechStart Inc",
@@ -196,7 +196,7 @@ const Home = () => {
               Trusted by Thousands of Businesses
             </h2>
             <p className="text-xl text-muted-foreground">
-              See how AI FrontDesk Pro is transforming customer service across industries.
+              See how AI Receptionist is transforming customer service across industries.
             </p>
           </div>
 
@@ -216,7 +216,7 @@ const Home = () => {
               Ready to Transform Your Customer Service?
             </h2>
             <p className="text-xl text-muted-foreground mb-8">
-              Join thousands of businesses already using AI FrontDesk Pro. 
+              Join thousands of businesses already using AI Receptionist. 
               Start your free trial today – no credit card required.
             </p>
             

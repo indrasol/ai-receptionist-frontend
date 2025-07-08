@@ -173,7 +173,7 @@ const Features = () => {
               AI vs Traditional Front Desk
             </h2>
             <p className="text-xl text-muted-foreground">
-              See how AI FrontDesk Pro compares to traditional customer service solutions.
+              See how AI Receptionist compares to traditional customer service solutions.
             </p>
           </div>
 
@@ -187,7 +187,7 @@ const Features = () => {
                 <h3 className="font-heading font-semibold text-center">Traditional Front Desk</h3>
               </div>
               <div className="p-6 border-b bg-green-50 dark:bg-green-950/20">
-                <h3 className="font-heading font-semibold text-center gradient-primary-text">AI FrontDesk Pro</h3>
+                <h3 className="font-heading font-semibold text-center gradient-primary-text">AI Receptionist</h3>
               </div>
 
               {/* Comparison Rows */}
@@ -279,7 +279,7 @@ const Features = () => {
             Ready to Experience These Features?
           </h2>
           <p className="text-xl text-muted-foreground mb-8">
-            Start your free trial today and see how AI FrontDesk Pro can transform your customer service.
+            Start your free trial today and see how AI Receptionist can transform your customer service.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="gradient-primary hover-glow text-white">
