@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { 
@@ -84,7 +83,7 @@ const Home = () => {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-heading font-bold mb-6 animate-fade-in-up">
-              Your AI Front Desk That{' '}
+              Your AI Receptionist That{' '}
               <span className="gradient-primary-text">Never Sleeps</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed animate-fade-in-up">

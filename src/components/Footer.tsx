@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,7 +31,7 @@ const Footer = () => {
         <div className="glass-card rounded-2xl p-8 mb-12">
           <div className="text-center max-w-2xl mx-auto">
             <h3 className="text-2xl font-heading font-semibold mb-4">
-              Stay Updated with AI Front Desk
+              Stay Updated with Your AI Receptionist
             </h3>
             <p className="text-muted-foreground mb-6">
               Get the latest updates, tips, and insights delivered to your inbox.
@@ -59,7 +58,7 @@ const Footer = () => {
               <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold">AI</span>
               </div>
-              <span>FrontDesk Pro</span>
+              <span>AI Receptionist</span>
             </Link>
             <p className="text-muted-foreground mb-6 max-w-sm">
               Transform your business with AI-powered customer service that never sleeps. 
@@ -107,7 +106,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center">
           <p className="text-muted-foreground text-sm">
-            © 2024 AI FrontDesk Pro. All rights reserved.
+            © 2024 AI Receptionist. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 sm:mt-0">
             <Link to="/privacy" className="text-sm text-muted-foreground hover:text-primary">
