@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Moon, Sun } from 'lucide-react';
+import { Menu, X, Moon, Sun, Phone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const Navigation = () => {
@@ -62,11 +62,16 @@ const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 font-heading font-bold text-xl gradient-primary-text">
-            <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold">AI</span>
+          <Link to="/" className="flex items-center space-x-3 font-heading font-bold text-xl gradient-primary-text">
+            <div className="relative">
+              <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-lg">
+                <Phone className="w-5 h-5 text-white" />
+              </div>
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+              </div>
             </div>
-            <span>FrontDesk Pro</span>
+            <span>AI Receptionist</span>
           </Link>
 
           {/* Desktop Navigation */}
