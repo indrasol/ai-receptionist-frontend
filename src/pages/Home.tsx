@@ -1,0 +1,254 @@
+
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
+import { 
+  Phone, 
+  MessageSquare, 
+  Calendar, 
+  Clock, 
+  Users, 
+  TrendingUp,
+  ArrowRight,
+  Play,
+  CheckCircle
+} from 'lucide-react';
+import FeatureRow from '@/components/FeatureRow';
+import TestimonialCard from '@/components/TestimonialCard';
+
+const Home = () => {
+  const features = [
+    {
+      icon: <Phone className="w-6 h-6" />,
+      title: "24/7 Phone Support",
+      description: "Never miss a call again with AI that handles customer inquiries round the clock."
+    },
+    {
+      icon: <MessageSquare className="w-6 h-6" />,
+      title: "Smart Chat Integration",
+      description: "Seamlessly handle website chat, SMS, and social media messages."
+    },
+    {
+      icon: <Calendar className="w-6 h-6" />,
+      title: "Appointment Booking",
+      description: "Automatically schedule appointments and sync with your calendar."
+    },
+    {
+      icon: <Clock className="w-6 h-6" />,
+      title: "Instant Response",
+      description: "Respond to customers in under 3 seconds, even during peak hours."
+    }
+  ];
+
+  const testimonials = [
+    {
+      quote: "AI FrontDesk Pro transformed our customer service. We now handle 10x more inquiries without hiring additional staff.",
+      author: "Sarah Johnson",
+      role: "CEO",
+      company: "TechStart Inc",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
+      rating: 5
+    },
+    {
+      quote: "The setup was incredibly easy and the results were immediate. Our customer satisfaction scores increased by 40%.",
+      author: "Michael Chen",
+      role: "Operations Manager",
+      company: "RetailMax",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+      rating: 5
+    },
+    {
+      quote: "Best investment we've made for our business. The AI is so natural, customers can't tell it's not human.",
+      author: "Emily Rodriguez",
+      role: "Founder",
+      company: "ServicePro",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+      rating: 5
+    }
+  ];
+
+  const stats = [
+    { value: "10M+", label: "Calls Handled" },
+    { value: "99.9%", label: "Uptime" },
+    { value: "3s", label: "Avg Response" },
+    { value: "50K+", label: "Happy Customers" }
+  ];
+
+  return (
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden py-20 lg:py-32">
+        {/* Background Blobs */}
+        <div className="blob-bg w-96 h-96 gradient-primary top-20 -left-48"></div>
+        <div className="blob-bg w-80 h-80 bg-aquamarine top-40 -right-40"></div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-heading font-bold mb-6 animate-fade-in-up">
+              Your AI Front Desk That{' '}
+              <span className="gradient-primary-text">Never Sleeps</span>
+            </h1>
+            <p className="text-xl text-muted-foreground mb-8 leading-relaxed animate-fade-in-up">
+              Transform your business with AI-powered customer service that handles calls, 
+              messages, and appointments 24/7. Increase satisfaction while reducing costs.
+            </p>
+            
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-fade-in-up">
+              <Button size="lg" className="gradient-primary hover-glow text-white text-lg px-8 py-4">
+                Start Free Trial
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+              <Button size="lg" variant="outline" className="text-lg px-8 py-4">
+                <Play className="w-5 h-5 mr-2" />
+                Watch Demo
+              </Button>
+            </div>
+
+            {/* Hero Animation Placeholder */}
+            <div className="glass-card rounded-3xl p-8 mb-16 animate-float">
+              <div className="aspect-video bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-24 h-24 gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Phone className="w-12 h-12 text-white" />
+                  </div>
+                  <p className="text-lg font-medium">AI Receptionist Animation</p>
+                  <p className="text-muted-foreground">Interactive demo coming soon</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-16 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center">
+                <div className="text-3xl lg:text-4xl font-heading font-bold gradient-primary-text mb-2">
+                  {stat.value}
+                </div>
+                <div className="text-muted-foreground">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-heading font-bold mb-6">
+              Everything You Need to Automate Customer Service
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Our AI front desk combines the best of human conversation with the reliability 
+              of automation to deliver exceptional customer experiences.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+            {features.map((feature, index) => (
+              <div key={index} className="glass-card rounded-2xl p-8 hover-glow">
+                <div className="flex items-start space-x-4">
+                  <div className="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center text-white flex-shrink-0">
+                    {feature.icon}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-heading font-semibold mb-3">
+                      {feature.title}
+                    </h3>
+                    <p className="text-muted-foreground">
+                      {feature.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Feature Rows */}
+          <div className="space-y-20">
+            <FeatureRow
+              icon={<Users className="w-6 h-6" />}
+              heading="Scale Your Customer Support"
+              description="Handle unlimited simultaneous conversations without compromising quality. Our AI learns from every interaction to provide increasingly personalized responses that feel genuinely human."
+              image="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&h=400&fit=crop"
+            />
+            <FeatureRow
+              icon={<TrendingUp className="w-6 h-6" />}
+              heading="Boost Business Growth"
+              description="Never lose a potential customer to missed calls or delayed responses. Our AI captures leads 24/7, schedules appointments, and follows up automatically to maximize your conversion rates."
+              image="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop"
+              reverse
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-heading font-bold mb-6">
+              Trusted by Thousands of Businesses
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              See how AI FrontDesk Pro is transforming customer service across industries.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <TestimonialCard key={index} {...testimonial} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="glass-card rounded-3xl p-12">
+            <h2 className="text-3xl lg:text-4xl font-heading font-bold mb-6">
+              Ready to Transform Your Customer Service?
+            </h2>
+            <p className="text-xl text-muted-foreground mb-8">
+              Join thousands of businesses already using AI FrontDesk Pro. 
+              Start your free trial today – no credit card required.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" className="gradient-primary hover-glow text-white text-lg px-8 py-4">
+                Start Free Trial
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+              <Button size="lg" variant="outline" className="text-lg px-8 py-4">
+                Schedule Demo
+              </Button>
+            </div>
+
+            <div className="flex items-center justify-center space-x-6 mt-8 text-sm text-muted-foreground">
+              <div className="flex items-center">
+                <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                Free 14-day trial
+              </div>
+              <div className="flex items-center">
+                <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                No setup fees
+              </div>
+              <div className="flex items-center">
+                <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                Cancel anytime
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default Home;
