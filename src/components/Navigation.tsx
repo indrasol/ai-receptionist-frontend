@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -42,16 +43,6 @@ const Navigation = () => {
     }
   };
 
-  const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/features', label: 'Features' },
-    { href: '/pricing', label: 'Pricing' },
-    { href: '/white-label', label: 'White Label' },
-    { href: '/integrations', label: 'Integrations' },
-    { href: '/tutorials', label: 'Tutorials' },
-    { href: '/contact', label: 'Contact' },
-  ];
-
   return (
     <nav className={cn(
       "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
@@ -69,24 +60,18 @@ const Navigation = () => {
                 <Phone className="w-2 h-2 text-white" />
               </div>
             </div>
-            <span>AI Receptionist</span>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
-                  location.pathname === link.href ? "text-primary" : "text-muted-foreground"
-                )}
+            <div className="flex items-end space-x-2">
+              <span>AI Receptionist</span>
+              <a 
+                href="https://www.indrasol.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors pb-1"
               >
-                {link.label}
-              </Link>
-            ))}
-          </div>
+                by Indrasol
+              </a>
+            </div>
+          </Link>
 
           {/* CTA and Theme Toggle */}
           <div className="hidden md:flex items-center space-x-4">
@@ -131,21 +116,8 @@ const Navigation = () => {
       {isOpen && (
         <div className="md:hidden glass-card border-t animate-slide-in-right">
           <div className="px-4 py-6 space-y-4">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                onClick={() => setIsOpen(false)}
-                className={cn(
-                  "block text-base font-medium transition-colors hover:text-primary",
-                  location.pathname === link.href ? "text-primary" : "text-muted-foreground"
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
             <Link to="/start-free">
-              <Button className="w-full gradient-primary hover-glow text-white font-medium mt-4">
+              <Button className="w-full gradient-primary hover-glow text-white font-medium">
                 Start Free
               </Button>
             </Link>

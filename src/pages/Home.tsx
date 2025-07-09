@@ -1,18 +1,18 @@
+
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { 
   Phone, 
-  MessageSquare, 
   Calendar, 
   Clock, 
   Users, 
   TrendingUp,
   ArrowRight,
   Play,
-  CheckCircle
+  CheckCircle,
+  Star
 } from 'lucide-react';
 import FeatureRow from '@/components/FeatureRow';
-import TestimonialCard from '@/components/TestimonialCard';
 import { 
   Dialog,
   DialogContent,
@@ -33,46 +33,9 @@ const Home = () => {
       description: "Never miss a call again with AI that handles customer inquiries round the clock."
     },
     {
-      icon: <MessageSquare className="w-6 h-6" />,
-      title: "Smart Chat Integration",
-      description: "Seamlessly handle website chat, SMS, and social media messages."
-    },
-    {
       icon: <Calendar className="w-6 h-6" />,
       title: "Appointment Booking",
       description: "Automatically schedule appointments and sync with your calendar."
-    },
-    {
-      icon: <Clock className="w-6 h-6" />,
-      title: "Instant Response",
-      description: "Respond to customers in under 3 seconds, even during peak hours."
-    }
-  ];
-
-  const testimonials = [
-    {
-      quote: "AI Receptionist transformed our customer service. We now handle 10x more inquiries without hiring additional staff.",
-      author: "Sarah Johnson",
-      role: "CEO",
-      company: "TechStart Inc",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
-      rating: 5
-    },
-    {
-      quote: "The setup was incredibly easy and the results were immediate. Our customer satisfaction scores increased by 40%.",
-      author: "Michael Chen",
-      role: "Operations Manager",
-      company: "RetailMax",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-      rating: 5
-    },
-    {
-      quote: "Best investment we've made for our business. The AI is so natural, customers can't tell it's not human.",
-      author: "Emily Rodriguez",
-      role: "Founder",
-      company: "ServicePro",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-      rating: 5
     }
   ];
 
@@ -231,22 +194,48 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* Early Access Section */}
       <section className="py-20 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-heading font-bold mb-6">
-              Trusted by Thousands of Businesses
+              Be Among the First to Experience AI Reception
             </h2>
             <p className="text-xl text-muted-foreground">
-              See how AI Receptionist is transforming customer service across industries.
+              Join our early access program and get exclusive benefits when we launch.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <TestimonialCard key={index} {...testimonial} />
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="glass-card rounded-2xl p-8 text-center">
+              <div className="w-16 h-16 gradient-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                <Star className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-heading font-semibold mb-4">Early Access</h3>
+              <p className="text-muted-foreground">
+                Be the first to try our revolutionary AI receptionist technology before public launch.
+              </p>
+            </div>
+
+            <div className="glass-card rounded-2xl p-8 text-center">
+              <div className="w-16 h-16 gradient-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-heading font-semibold mb-4">Exclusive Benefits</h3>
+              <p className="text-muted-foreground">
+                Get lifetime discounts and premium features reserved for early adopters.
+              </p>
+            </div>
+
+            <div className="glass-card rounded-2xl p-8 text-center">
+              <div className="w-16 h-16 gradient-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                <Users className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-heading font-semibold mb-4">Shape the Future</h3>
+              <p className="text-muted-foreground">
+                Your feedback will directly influence the final product features and design.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -259,14 +248,14 @@ const Home = () => {
               Ready to Transform Your Customer Service?
             </h2>
             <p className="text-xl text-muted-foreground mb-8">
-              Join thousands of businesses already using AI Receptionist. 
-              Start your free trial today – no credit card required.
+              Join our early access program and be among the first to experience 
+              the future of AI-powered customer service.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/start-free">
                 <Button size="lg" className="gradient-primary hover-glow text-white text-lg px-8 py-4">
-                  Start Free Trial
+                  Join Early Access
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </Link>
@@ -278,15 +267,15 @@ const Home = () => {
             <div className="flex items-center justify-center space-x-6 mt-8 text-sm text-muted-foreground">
               <div className="flex items-center">
                 <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                Free 14-day trial
+                Free early access
               </div>
               <div className="flex items-center">
                 <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                No setup fees
+                No commitment
               </div>
               <div className="flex items-center">
                 <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                Cancel anytime
+                Exclusive benefits
               </div>
             </div>
           </div>
