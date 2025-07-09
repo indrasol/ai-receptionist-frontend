@@ -18,7 +18,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 45 100% 50%;
+    --primary: 43 96% 56%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 210 40% 96.1%;
@@ -42,7 +42,7 @@
     /* Custom brand colors - Fixed HSL values */
     --teal: 168 53% 57%; /* Teal #5ac3b0 */
     --coral-red: 9 78% 53%; /* Coral Red #de5935 */
-    --golden-yellow: 45 100% 50%; /* Darker Golden Yellow #ffcc00 */
+    --golden-yellow: 43 96% 56%; /* Golden Yellow #f1c40f */
     --aquamarine: 177 100% 40%; /* #00CFC8 */
     --mocha: 22 38% 50%; /* #B17A50 */
   }
@@ -57,7 +57,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 45 100% 50%;
+    --primary: 43 96% 56%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -104,11 +104,11 @@
 
 @layer utilities {
   .gradient-primary {
-    background: #ffcc00;
+    background: #f1c40f;
   }
   
   .gradient-primary-text {
-    color: #ffcc00;
+    color: #f1c40f;
   }
 
   .bg-coral {
@@ -120,11 +120,11 @@
   }
 
   .bg-golden {
-    background: #ffcc00;
+    background: #f1c40f;
   }
 
   .text-golden {
-    color: #ffcc00;
+    color: #f1c40f;
   }
 
   .bg-teal {
@@ -159,7 +159,7 @@
   }
 
   .hover-glow:hover {
-    box-shadow: 0 0 40px rgba(255, 204, 0, 0.4);
+    box-shadow: 0 0 40px rgba(241, 196, 15, 0.4);
     transform: translateY(-2px);
   }
 
@@ -169,7 +169,7 @@
   }
 
   .hover-glow-golden:hover {
-    box-shadow: 0 0 40px rgba(255, 204, 0, 0.4);
+    box-shadow: 0 0 40px rgba(241, 196, 15, 0.4);
     transform: translateY(-2px);
   }
 }
