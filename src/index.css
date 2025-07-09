@@ -40,8 +40,8 @@
     --radius: 0.5rem;
 
     /* Custom brand colors */
-    --gradient-start: 168 53% 57%; /* Teal #5ac3b0 */
-    --gradient-end: 9 78% 53%; /* Coral Red #de5935 */
+    --teal: 168 53% 57%; /* Teal #5ac3b0 */
+    --coral-red: 9 78% 53%; /* Coral Red #de5935 */
     --golden-yellow: 48 91% 63%; /* #f7cd46 */
     --aquamarine: 177 100% 40%; /* #00CFC8 */
     --mocha: 22 38% 50%; /* #B17A50 */
@@ -104,14 +104,11 @@
 
 @layer utilities {
   .gradient-primary {
-    background: linear-gradient(135deg, hsl(var(--gradient-start)), hsl(var(--gradient-end)));
+    background: hsl(var(--primary));
   }
   
   .gradient-primary-text {
-    background: linear-gradient(135deg, hsl(var(--gradient-start)), hsl(var(--gradient-end)));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: hsl(var(--primary));
   }
 
   .glass-card {
@@ -138,7 +135,7 @@
   }
 
   .hover-glow:hover {
-    box-shadow: 0 0 40px rgba(76, 81, 224, 0.3);
+    box-shadow: 0 0 40px rgba(90, 195, 176, 0.3);
     transform: translateY(-2px);
   }
 }
