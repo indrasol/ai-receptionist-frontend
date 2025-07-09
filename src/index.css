@@ -104,11 +104,35 @@
 
 @layer utilities {
   .gradient-primary {
-    background: hsl(var(--primary));
+    background: hsl(var(--teal));
   }
   
   .gradient-primary-text {
-    color: hsl(var(--primary));
+    color: hsl(var(--teal));
+  }
+
+  .bg-coral {
+    background: hsl(var(--coral-red));
+  }
+
+  .text-coral {
+    color: hsl(var(--coral-red));
+  }
+
+  .bg-golden {
+    background: hsl(var(--golden-yellow));
+  }
+
+  .text-golden {
+    color: hsl(var(--golden-yellow));
+  }
+
+  .bg-teal {
+    background: hsl(var(--teal));
+  }
+
+  .text-teal {
+    color: hsl(var(--teal));
   }
 
   .glass-card {
@@ -136,6 +160,16 @@
 
   .hover-glow:hover {
     box-shadow: 0 0 40px rgba(90, 195, 176, 0.3);
+    transform: translateY(-2px);
+  }
+
+  .hover-glow-coral:hover {
+    box-shadow: 0 0 40px rgba(222, 89, 53, 0.3);
+    transform: translateY(-2px);
+  }
+
+  .hover-glow-golden:hover {
+    box-shadow: 0 0 40px rgba(247, 205, 70, 0.3);
     transform: translateY(-2px);
   }
 }
