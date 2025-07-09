@@ -14,6 +14,13 @@ import Tutorials from "./pages/Tutorials";
 import StartFree from "./pages/StartFree";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
+import Onboard from "./pages/Onboard";
+import ConsoleLayout from "./components/console/ConsoleLayout";
+import Dashboard from "./pages/console/Dashboard";
+import VoiceRouting from "./pages/console/VoiceRouting";
+import Appointments from "./pages/console/Appointments";
+import KnowledgeBase from "./pages/console/KnowledgeBase";
+import Settings from "./pages/console/Settings";
 
 const queryClient = new QueryClient();
 
@@ -23,20 +30,33 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/features" element={<Features />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/white-label" element={<WhiteLabel />} />
-            <Route path="/integrations" element={<Integrations />} />
-            <Route path="/tutorials" element={<Tutorials />} />
-            <Route path="/start-free" element={<StartFree />} />
-            <Route path="/contact" element={<Contact />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
+        <Routes>
+          {/* Public routes with main layout */}
+          <Route path="/" element={<Layout><Home /></Layout>} />
+          <Route path="/features" element={<Layout><Features /></Layout>} />
+          <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
+          <Route path="/white-label" element={<Layout><WhiteLabel /></Layout>} />
+          <Route path="/integrations" element={<Layout><Integrations /></Layout>} />
+          <Route path="/tutorials" element={<Layout><Tutorials /></Layout>} />
+          <Route path="/start-free" element={<Layout><StartFree /></Layout>} />
+          <Route path="/contact" element={<Layout><Contact /></Layout>} />
+          
+          {/* Onboarding - no main layout */}
+          <Route path="/onboard" element={<Onboard />} />
+          
+          {/* Console routes with console layout */}
+          <Route path="/app/:slug" element={<ConsoleLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="voice-routing" element={<VoiceRouting />} />
+            <Route path="appointments" element={<Appointments />} />
+            <Route path="knowledge-base" element={<KnowledgeBase />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
+          
+          {/* Catch-all route */}
+          <Route path="*" element={<Layout><NotFound /></Layout>} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

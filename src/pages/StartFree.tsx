@@ -1,200 +1,224 @@
 
-import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Star, Sparkles } from 'lucide-react';
+import { Check, ArrowRight, Phone, Bot, Zap, Clock, Users, Shield } from 'lucide-react';
 
 const StartFree = () => {
-  const [formData, setFormData] = useState({
-    businessName: '',
-    businessType: '',
-    website: ''
-  });
+  const navigate = useNavigate();
 
-  const testimonials = [
+  const features = [
+    'No setup fees or hidden costs',
+    '24/7 AI receptionist service',
+    'Unlimited call handling',
+    'Smart call routing',
+    'Appointment scheduling',
+    'Real-time analytics',
+    'Knowledge base integration',
+    'Cancel anytime'
+  ];
+
+  const benefits = [
     {
-      quote: "Our AI receptionist has been a game-changer. We used to miss calls when we were under the hood, but now every customer gets immediate attention. Bookings are up 40%!",
-      author: "Sarah Johnson",
-      business: "Johnson's Auto Repair",
-      rating: 5,
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face"
+      icon: Phone,
+      title: 'Never Miss a Call',
+      description: 'Your AI receptionist answers every call instantly, 24/7'
     },
     {
-      quote: "The appointment scheduling feature is incredible. Patients can book 24/7, and the AI handles rescheduling perfectly. It's like having a full-time receptionist at a fraction of the cost.",
-      author: "Mike Chen",
-      business: "Smile Dental",
-      rating: 5,
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
+      icon: Zap,
+      title: 'Instant Setup',
+      description: 'Get started in minutes with our simple onboarding process'
     },
     {
-      quote: "I was skeptical at first, but clients love how professional and quick the responses are. The AI perfectly answers all my customer's questions and allows me to focus on running my salon!",
-      author: "Lisa Rodriguez",
-      business: "Bella Beauty Salon",
-      rating: 5,
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face"
+      icon: Clock,
+      title: 'Save Time',
+      description: 'Automate routine calls and focus on growing your business'
+    },
+    {
+      icon: Users,
+      title: 'Improve Experience',
+      description: 'Provide consistent, professional service to every caller'
     }
   ];
 
-  const businessTypes = [
-    "Restaurant",
-    "Dental Office", 
-    "Auto Repair",
-    "Beauty Salon",
-    "Medical Practice",
-    "Law Firm",
-    "Real Estate",
-    "Fitness Center",
-    "Pet Services",
-    "Home Services",
-    "Retail Store",
-    "Other"
-  ];
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Handle form submission here
-  };
-
   return (
-    <div className="min-h-screen gradient-primary">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-2 gap-8 items-start">
-          {/* Left Side - Testimonials */}
-          <div className="text-white space-y-6">
-            {/* Trust Badge */}
-            <div className="flex items-center space-x-2 mb-8">
-              <div className="flex items-center space-x-1">
-                <Sparkles className="w-5 h-5 text-yellow-300" />
-                <span className="text-sm font-medium">Trusted by 1,000+ businesses</span>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+          <div className="text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="flex justify-center mb-6">
+                <div className="relative">
+                  <div className="w-20 h-20 gradient-primary rounded-2xl flex items-center justify-center shadow-2xl">
+                    <Bot className="w-10 h-10 text-white" />
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
+                    <Phone className="w-4 h-4 text-white" />
+                  </div>
+                </div>
               </div>
-            </div>
 
-            {/* Main Heading */}
-            <div className="mb-8">
-              <h1 className="text-4xl lg:text-5xl font-heading font-bold mb-4">
-                <span className="text-yellow-300">Double your revenue</span> with AI Receptionist.
+              <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+                Start Your <span className="gradient-primary-text">Free Trial</span>
               </h1>
-            </div>
+              
+              <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                Transform your business with an AI receptionist that never sleeps. 
+                Handle unlimited calls, book appointments, and provide 24/7 customer service.
+              </p>
 
-            {/* Testimonials */}
-            <div className="space-y-6">
-              {testimonials.map((testimonial, index) => (
-                <Card key={index} className="bg-white/10 backdrop-blur-md border-white/20 text-white">
-                  <CardContent className="p-6">
-                    {/* Stars */}
-                    <div className="flex space-x-1 mb-4">
-                      {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-yellow-300 text-yellow-300" />
-                      ))}
-                    </div>
-                    
-                    {/* Quote */}
-                    <p className="text-sm leading-relaxed mb-4 italic">
-                      "{testimonial.quote}"
-                    </p>
-                    
-                    {/* Author */}
-                    <div className="flex items-center space-x-3">
-                      <img 
-                        src={testimonial.avatar} 
-                        alt={testimonial.author}
-                        className="w-10 h-10 rounded-full"
-                      />
-                      <div>
-                        <p className="font-semibold text-sm">{testimonial.author}</p>
-                        <p className="text-xs text-white/80">{testimonial.business}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+                <Button
+                  size="lg"
+                  className="gradient-primary hover-glow text-white text-lg px-8 py-4"
+                  onClick={() => navigate('/onboard')}
+                >
+                  Start Free Trial
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+                <Button variant="outline" size="lg" className="text-lg px-8 py-4">
+                  Watch Demo
+                </Button>
+              </div>
+
+              <div className="flex items-center justify-center space-x-6 text-sm text-gray-500">
+                <div className="flex items-center">
+                  <Shield className="w-4 h-4 mr-2 text-green-500" />
+                  No credit card required
+                </div>
+                <div className="flex items-center">
+                  <Check className="w-4 h-4 mr-2 text-green-500" />
+                  14-day free trial
+                </div>
+                <div className="flex items-center">
+                  <Check className="w-4 h-4 mr-2 text-green-500" />
+                  Cancel anytime
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </div>
+
+      {/* Features Grid */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            Everything you need to get started
+          </h2>
+          <p className="text-lg text-gray-600">
+            Your free trial includes all premium features
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+          {benefits.map((benefit, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 * index }}
+            >
+              <Card className="text-center hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="w-12 h-12 gradient-primary rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <benefit.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <CardTitle className="text-lg">{benefit.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>{benefit.description}</CardDescription>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Features List */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            <h3 className="text-2xl font-bold text-gray-900 mb-6">
+              What's included in your free trial
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {features.map((feature, index) => (
+                <div key={index} className="flex items-center space-x-3">
+                  <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">{feature}</span>
+                </div>
               ))}
             </div>
-          </div>
+          </motion.div>
 
-          {/* Right Side - Form */}
-          <div className="lg:sticky lg:top-8">
-            <Card className="glass-card border-white/20">
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-heading">Start for Free Today</CardTitle>
-                <CardDescription>
-                  Get your AI receptionist up and running in just 5 minutes
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <Card className="gradient-primary text-white p-8">
+              <CardHeader className="text-center pb-6">
+                <CardTitle className="text-2xl text-white">Ready to get started?</CardTitle>
+                <CardDescription className="text-blue-100">
+                  Join thousands of businesses already using AI receptionists
                 </CardDescription>
               </CardHeader>
-              
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="businessName">Business Name *</Label>
-                    <Input
-                      id="businessName"
-                      placeholder="Enter your business name"
-                      value={formData.businessName}
-                      onChange={(e) => setFormData({...formData, businessName: e.target.value})}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="businessType">Business Type *</Label>
-                    <Select 
-                      value={formData.businessType} 
-                      onValueChange={(value) => setFormData({...formData, businessType: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="e.g., Restaurant, Dental Office, Auto Repair" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {businessTypes.map((type) => (
-                          <SelectItem key={type} value={type.toLowerCase().replace(' ', '-')}>
-                            {type}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="website">Website</Label>
-                    <Input
-                      id="website"
-                      type="url"
-                      placeholder="https://your-website.com"
-                      value={formData.website}
-                      onChange={(e) => setFormData({...formData, website: e.target.value})}
-                    />
-                  </div>
-
-                  <Button 
-                    type="submit" 
-                    className="w-full gradient-primary hover-glow text-white font-semibold py-3 text-lg"
-                  >
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    Build My Receptionist
-                  </Button>
-
-                  {/* Benefits */}
-                  <div className="space-y-3 pt-4">
-                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>No credit card required</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Setup in 5 minutes</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Keep your existing phone number</span>
-                    </div>
-                  </div>
-                </form>
+              <CardContent className="text-center">
+                <div className="space-y-4 mb-6">
+                  <div className="text-4xl font-bold">14 Days</div>
+                  <div className="text-blue-100">Completely free trial</div>
+                </div>
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  className="w-full text-lg py-3"
+                  onClick={() => navigate('/onboard')}
+                >
+                  Start Your Free Trial
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+                <p className="text-sm text-blue-100 mt-4">
+                  No setup fees • No contracts • Cancel anytime
+                </p>
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Social Proof */}
+      <div className="bg-white border-t">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="text-center"
+          >
+            <p className="text-gray-500 mb-8">Trusted by growing businesses worldwide</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center opacity-60">
+              {/* Placeholder for company logos */}
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                  <span className="text-gray-400 font-medium">Company {i}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>
