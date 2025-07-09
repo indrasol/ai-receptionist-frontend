@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -43,6 +42,12 @@ const Navigation = () => {
     }
   };
 
+  const handleIndrasolClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Ensure the link opens properly
+    e.stopPropagation();
+    window.open('https://indrasol.com', '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <nav className={cn(
       "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
@@ -66,7 +71,8 @@ const Navigation = () => {
                 href="https://indrasol.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors pb-1"
+                onClick={handleIndrasolClick}
+                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors pb-1 cursor-pointer"
               >
                 by Indrasol
               </a>
