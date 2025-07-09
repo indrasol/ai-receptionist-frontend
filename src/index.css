@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,7 +6,7 @@
 /* Import Google Fonts - Professional Tech Stack */
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-/* Design system with Pastel Lilac → Solar Dawn gradient theme */
+/* Design system with Future Dusk → Cherry Red gradient theme */
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -38,9 +39,9 @@
 
     --radius: 0.5rem;
 
-    /* Custom brand colors - Updated to Pastel Lilac → Solar Dawn */
-    --gradient-start: 270 50% 80%; /* Pastel Lilac #C7A6E8 */
-    --gradient-end: 30 100% 70%; /* Solar Dawn #FFB84D */
+    /* Custom brand colors */
+    --gradient-start: 245 82% 67%; /* Future Dusk #4C51E0 */
+    --gradient-end: 348 100% 60%; /* Cherry Red #FF3355 */
     --butter-yellow: 48 96% 77%; /* #FCE38A */
     --aquamarine: 177 100% 40%; /* #00CFC8 */
     --mocha: 22 38% 50%; /* #B17A50 */
