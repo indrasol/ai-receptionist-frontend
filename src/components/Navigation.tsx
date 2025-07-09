@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Moon, Sun, Phone } from 'lucide-react';
+import { Menu, X, Moon, Sun, Bot, Phone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const Navigation = () => {
@@ -64,10 +63,10 @@ const Navigation = () => {
           <Link to="/" className="flex items-center space-x-3 font-heading font-bold text-xl gradient-primary-text">
             <div className="relative">
               <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-lg">
-                <Phone className="w-5 h-5 text-white" />
+                <Bot className="w-5 h-5 text-white" />
               </div>
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
-                <div className="w-2 h-2 bg-white rounded-full"></div>
+                <Phone className="w-2 h-2 text-white" />
               </div>
             </div>
             <span>AI Receptionist</span>

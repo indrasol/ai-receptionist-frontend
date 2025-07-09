@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Facebook, Twitter, Linkedin, Instagram, Mail } from 'lucide-react';
+import { Facebook, Twitter, Linkedin, Instagram, Mail, Bot, Phone } from 'lucide-react';
 
 const Footer = () => {
   const footerLinks = {
@@ -55,8 +55,13 @@ const Footer = () => {
           {/* Brand Column */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center space-x-2 font-heading font-bold text-xl gradient-primary-text mb-4">
-              <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">AI</span>
+              <div className="relative">
+                <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
+                  <Bot className="w-4 h-4 text-white" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border border-white flex items-center justify-center">
+                  <Phone className="w-1.5 h-1.5 text-white" />
+                </div>
               </div>
               <span>AI Receptionist</span>
             </Link>
