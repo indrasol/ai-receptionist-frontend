@@ -18,8 +18,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 168 53% 57%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 48 88% 63%;
+    --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -57,7 +57,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 168 53% 57%;
+    --primary: 48 88% 63%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -104,11 +104,11 @@
 
 @layer utilities {
   .gradient-primary {
-    background: #5ac3b0;
+    background: #ffcf43;
   }
   
   .gradient-primary-text {
-    color: #5ac3b0;
+    color: #ffcf43;
   }
 
   .bg-coral {
@@ -159,7 +159,7 @@
   }
 
   .hover-glow:hover {
-    box-shadow: 0 0 40px rgba(90, 195, 176, 0.3);
+    box-shadow: 0 0 40px rgba(255, 207, 67, 0.3);
     transform: translateY(-2px);
   }
 
