@@ -6,7 +6,7 @@
 /* Import Google Fonts - Professional Tech Stack */
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-/* Design system with Future Dusk → Cherry Red gradient theme */
+/* Design system with custom color palette */
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -18,7 +18,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 245 82% 67%;
+    --primary: 168 53% 57%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -40,9 +40,9 @@
     --radius: 0.5rem;
 
     /* Custom brand colors */
-    --gradient-start: 245 82% 67%; /* Future Dusk #4C51E0 */
-    --gradient-end: 348 100% 60%; /* Cherry Red #FF3355 */
-    --butter-yellow: 48 96% 77%; /* #FCE38A */
+    --gradient-start: 168 53% 57%; /* Teal #5ac3b0 */
+    --gradient-end: 9 78% 53%; /* Coral Red #de5935 */
+    --golden-yellow: 48 91% 63%; /* #f7cd46 */
     --aquamarine: 177 100% 40%; /* #00CFC8 */
     --mocha: 22 38% 50%; /* #B17A50 */
   }
@@ -57,7 +57,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 245 82% 67%;
+    --primary: 168 53% 57%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 217.2 32.6% 17.5%;
