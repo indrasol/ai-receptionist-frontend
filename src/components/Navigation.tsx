@@ -63,7 +63,7 @@ const Navigation = () => {
             <div className="flex items-end space-x-2">
               <span>AI Receptionist</span>
               <a 
-                href="https://www.indrasol.com" 
+                href="https://indrasol.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors pb-1"
