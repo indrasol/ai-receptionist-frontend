@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +14,6 @@ const Footer = () => {
     ],
     Resources: [
       { href: '/tutorials', label: 'Tutorials' },
-      { href: '/blog', label: 'Blog' },
       { href: '/contact', label: 'Support' },
     ],
     Company: [

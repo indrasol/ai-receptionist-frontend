@@ -11,8 +11,7 @@ import Pricing from "./pages/Pricing";
 import WhiteLabel from "./pages/WhiteLabel";
 import Integrations from "./pages/Integrations";
 import Tutorials from "./pages/Tutorials";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
+import StartFree from "./pages/StartFree";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 
@@ -32,8 +31,7 @@ const App = () => (
             <Route path="/white-label" element={<WhiteLabel />} />
             <Route path="/integrations" element={<Integrations />} />
             <Route path="/tutorials" element={<Tutorials />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:slug" element={<BlogPost />} />
+            <Route path="/start-free" element={<StartFree />} />
             <Route path="/contact" element={<Contact />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

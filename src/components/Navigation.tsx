@@ -50,7 +50,6 @@ const Navigation = () => {
     { href: '/white-label', label: 'White Label' },
     { href: '/integrations', label: 'Integrations' },
     { href: '/tutorials', label: 'Tutorials' },
-    { href: '/blog', label: 'Blog' },
     { href: '/contact', label: 'Contact' },
   ];
 
@@ -100,9 +99,11 @@ const Navigation = () => {
             >
               {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
-            <Button className="gradient-primary hover-glow text-white font-medium">
-              Start Free
-            </Button>
+            <Link to="/start-free">
+              <Button className="gradient-primary hover-glow text-white font-medium">
+                Start Free
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -144,9 +145,11 @@ const Navigation = () => {
                 {link.label}
               </Link>
             ))}
-            <Button className="w-full gradient-primary hover-glow text-white font-medium mt-4">
-              Start Free
-            </Button>
+            <Link to="/start-free">
+              <Button className="w-full gradient-primary hover-glow text-white font-medium mt-4">
+                Start Free
+              </Button>
+            </Link>
           </div>
         </div>
       )}
