@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -38,10 +39,10 @@
 
     --radius: 0.5rem;
 
-    /* Custom brand colors */
+    /* Custom brand colors - Fixed HSL values */
     --teal: 168 53% 57%; /* Teal #5ac3b0 */
     --coral-red: 9 78% 53%; /* Coral Red #de5935 */
-    --golden-yellow: 48 88% 63%; /* #ffcf43 */
+    --golden-yellow: 48 88% 63%; /* Golden Yellow #ffcf43 */
     --aquamarine: 177 100% 40%; /* #00CFC8 */
     --mocha: 22 38% 50%; /* #B17A50 */
   }
@@ -103,35 +104,35 @@
 
 @layer utilities {
   .gradient-primary {
-    background: hsl(var(--teal));
+    background: #5ac3b0;
   }
   
   .gradient-primary-text {
-    color: hsl(var(--teal));
+    color: #5ac3b0;
   }
 
   .bg-coral {
-    background: hsl(var(--coral-red));
+    background: #de5935;
   }
 
   .text-coral {
-    color: hsl(var(--coral-red));
+    color: #de5935;
   }
 
   .bg-golden {
-    background: hsl(var(--golden-yellow));
+    background: #ffcf43;
   }
 
   .text-golden {
-    color: hsl(var(--golden-yellow));
+    color: #ffcf43;
   }
 
   .bg-teal {
-    background: hsl(var(--teal));
+    background: #5ac3b0;
   }
 
   .text-teal {
-    color: hsl(var(--teal));
+    color: #5ac3b0;
   }
 
   .glass-card {
