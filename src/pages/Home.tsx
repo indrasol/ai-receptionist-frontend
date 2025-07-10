@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -140,6 +139,13 @@ const Home = () => {
     }));
   };
 
+  const handleStartFreeTrial = () => {
+    const contactSection = document.getElementById('contact');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   // Progress animation effect
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -191,12 +197,14 @@ const Home = () => {
             
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-fade-in-up">
-              <Link to="/start-free">
-                <Button size="lg" className="gradient-primary hover-glow text-white text-lg px-8 py-4">
-                  Start Free Trial
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-              </Link>
+              <Button 
+                size="lg" 
+                className="gradient-primary hover-glow text-white text-lg px-8 py-4"
+                onClick={handleStartFreeTrial}
+              >
+                Start Free Trial
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
               <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogTrigger asChild>
                   <Button size="lg" variant="outline" className="text-lg px-8 py-4">
@@ -207,7 +215,7 @@ const Home = () => {
                 <DialogContent className="max-w-lg bg-white">
                   <DialogHeader className="text-center">
                     <DialogTitle className="text-xl font-heading text-yellow-800 text-center">
-                      Talk to our 24/7 AI Receptionist
+                      Talk to our AI Receptionist
                     </DialogTitle>
                     <DialogDescription className="text-yellow-700 text-center">
                       See how effortless customer service can sound.
@@ -219,7 +227,7 @@ const Home = () => {
                         <Phone className="w-8 h-8 text-white" />
                       </div>
                       <p className="text-lg font-heading font-bold text-yellow-700 mb-2">
-                        Dial +1 424 404 6372 → Ask anything, get instant answers.
+                        Dial +1 424 404 6372
                       </p>
                       <p className="text-xs text-yellow-600 font-bold mt-4 max-w-xs mx-auto">
                         Available around the clock. Book an appointment, check hours, or just say hello—our AI never misses a call.
