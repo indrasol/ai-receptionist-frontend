@@ -1,8 +1,7 @@
 
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Facebook, Twitter, Linkedin, Instagram, Mail, Bot, Phone } from 'lucide-react';
+import { Facebook, Twitter, Linkedin, Instagram, Bot, Phone } from 'lucide-react';
 
 const Footer = () => {
   const handleIndrasolClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -13,29 +12,6 @@ const Footer = () => {
   return (
     <footer className="bg-background border-t">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Newsletter Section */}
-        <div className="glass-card rounded-2xl p-8 mb-12">
-          <div className="text-center max-w-2xl mx-auto">
-            <h3 className="text-2xl font-heading font-semibold mb-4">
-              Stay Updated with Your AI Receptionist
-            </h3>
-            <p className="text-muted-foreground mb-6">
-              Get the latest updates, tips, and insights delivered to your inbox.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1"
-              />
-              <Button className="gradient-primary hover-glow text-white">
-                <Mail className="w-4 h-4 mr-2" />
-                Subscribe
-              </Button>
-            </div>
-          </div>
-        </div>
-
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Brand Column */}
