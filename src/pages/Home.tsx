@@ -143,28 +143,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Feature Rows */}
-          <div className="space-y-20">
-            <FeatureRow
-              icon={<Users className="w-6 h-6" />}
-              heading="Scale Your Customer Support"
-              description="Handle unlimited simultaneous conversations without compromising quality. Our AI learns from every interaction to provide increasingly personalized responses that feel genuinely human."
-              image="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&h=400&fit=crop"
-            />
-            <FeatureRow
-              icon={<TrendingUp className="w-6 h-6" />}
-              heading="Boost Business Growth"
-              description="Never lose a potential customer to missed calls or delayed responses. Our AI captures leads 24/7, schedules appointments, and follows up automatically to maximize your conversion rates."
-              image="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop"
-              reverse
-            />
-          </div>
-        </div>
-      </section>
-
       {/* Contact Form & Info */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
