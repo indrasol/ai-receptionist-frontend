@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -66,9 +65,7 @@ const Home = () => {
       { value: 'alex-canadian', label: 'Alex . Canadian' },
       { value: 'sean-irish', label: 'Sean . Irish' },
       { value: 'connor-scottish', label: 'Connor . Scottish' },
-      { value: 'arjun-indian', label: 'Arjun . Indian' },
-      { value: 'vikram-indian', label: 'Vikram . Indian' },
-      { value: 'rohan-indian', label: 'Rohan . Indian' }
+      { value: 'arjun-indian', label: 'Arjun . Indian' }
     ],
     female: [
       { value: 'sarah-american', label: 'Sarah . American' },
@@ -77,9 +74,7 @@ const Home = () => {
       { value: 'sophia-canadian', label: 'Sophia . Canadian' },
       { value: 'grace-irish', label: 'Grace . Irish' },
       { value: 'fiona-scottish', label: 'Fiona . Scottish' },
-      { value: 'priya-indian', label: 'Priya . Indian' },
-      { value: 'ananya-indian', label: 'Ananya . Indian' },
-      { value: 'kavya-indian', label: 'Kavya . Indian' }
+      { value: 'priya-indian', label: 'Priya . Indian' }
     ]
   };
 
@@ -300,7 +295,7 @@ const Home = () => {
 
                             {/* Voice Visualization Nodes - Fill Complete Right Side */}
                             <div className="flex items-center space-x-0.5 flex-1">
-                              {Array.from({ length: 20 }, (_, i) => (
+                              {Array.from({ length: 75 }, (_, i) => (
                                 <div 
                                   key={i}
                                   className={`w-1 bg-gradient-to-t from-yellow-400 to-yellow-600 rounded-full transition-all duration-150 ${
