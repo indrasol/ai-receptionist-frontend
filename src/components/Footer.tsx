@@ -5,25 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Facebook, Twitter, Linkedin, Instagram, Mail, Bot, Phone } from 'lucide-react';
 
 const Footer = () => {
-  const footerLinks = {
-    Product: [
-      { href: '/features', label: 'Features' },
-      { href: '/pricing', label: 'Pricing' },
-      { href: '/integrations', label: 'Integrations' },
-      { href: '/white-label', label: 'White Label' },
-    ],
-    Resources: [
-      { href: '/tutorials', label: 'Tutorials' },
-      { href: '/contact', label: 'Support' },
-    ],
-    Company: [
-      { href: '/about', label: 'About Us' },
-      { href: '/careers', label: 'Careers' },
-      { href: '/privacy', label: 'Privacy Policy' },
-      { href: '/terms', label: 'Terms of Service' },
-    ],
-  };
-
   return (
     <footer className="bg-background border-t">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -51,9 +32,9 @@ const Footer = () => {
         </div>
 
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Brand Column */}
-          <div className="lg:col-span-2">
+          <div>
             <Link to="/" className="flex items-center space-x-2 font-heading font-bold text-xl gradient-primary-text mb-4">
               <div className="relative">
                 <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
@@ -88,30 +69,27 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Links Columns */}
-          {Object.entries(footerLinks).map(([category, links]) => (
-            <div key={category}>
-              <h4 className="font-heading font-semibold mb-4">{category}</h4>
-              <ul className="space-y-2">
-                {links.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      to={link.href}
-                      className="text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+          {/* Contact Information */}
+          <div className="lg:text-right">
+            <h4 className="font-heading font-semibold mb-4">Get in Touch</h4>
+            <div className="space-y-3 text-muted-foreground">
+              <p>Ready to experience the future of customer service?</p>
+              <p>We're here to help you get started.</p>
+              <div className="pt-4">
+                <Link to="/contact">
+                  <Button variant="outline" className="hover:gradient-primary hover:text-white">
+                    Contact Us
+                  </Button>
+                </Link>
+              </div>
             </div>
-          ))}
+          </div>
         </div>
 
         {/* Bottom Bar */}
         <div className="border-t mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center">
           <p className="text-muted-foreground text-sm">
-            © 2024 AI Receptionist. All rights reserved.
+            © 2025 AI Receptionist. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 sm:mt-0">
             <Link to="/privacy" className="text-sm text-muted-foreground hover:text-primary">
