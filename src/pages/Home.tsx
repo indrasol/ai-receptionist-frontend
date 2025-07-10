@@ -43,19 +43,6 @@ const Home = () => {
     message: ''
   });
 
-  const features = [
-    {
-      icon: <Phone className="w-6 h-6" />,
-      title: "24/7 Phone Support",
-      description: "Never miss a call again with AI that handles customer inquiries round the clock."
-    },
-    {
-      icon: <Calendar className="w-6 h-6" />,
-      title: "Appointment Booking",
-      description: "Automatically schedule appointments and sync with your calendar."
-    }
-  ];
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission here
@@ -159,26 +146,6 @@ const Home = () => {
       {/* Features Section */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-            {features.map((feature, index) => (
-              <div key={index} className="glass-card rounded-2xl p-8 hover-glow">
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center text-white flex-shrink-0">
-                    {feature.icon}
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-heading font-semibold mb-3">
-                      {feature.title}
-                    </h3>
-                    <p className="text-muted-foreground">
-                      {feature.description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
           {/* Feature Rows */}
           <div className="space-y-20">
             <FeatureRow
