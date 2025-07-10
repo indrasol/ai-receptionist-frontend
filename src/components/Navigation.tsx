@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -48,6 +49,13 @@ const Navigation = () => {
     window.open('https://indrasol.com', '_blank', 'noopener,noreferrer');
   };
 
+  const handleContactClick = () => {
+    const contactSection = document.querySelector('section:nth-of-type(2)');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <nav className={cn(
       "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
@@ -89,11 +97,12 @@ const Navigation = () => {
             >
               {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
-            <Link to="/start-free">
-              <Button className="gradient-primary hover-glow text-white font-medium">
-                Start Free
-              </Button>
-            </Link>
+            <Button 
+              className="gradient-primary hover-glow text-white font-medium"
+              onClick={handleContactClick}
+            >
+              Contact Us
+            </Button>
           </div>
 
           {/* Mobile menu button */}
@@ -122,11 +131,12 @@ const Navigation = () => {
       {isOpen && (
         <div className="md:hidden glass-card border-t animate-slide-in-right">
           <div className="px-4 py-6 space-y-4">
-            <Link to="/start-free">
-              <Button className="w-full gradient-primary hover-glow text-white font-medium">
-                Start Free
-              </Button>
-            </Link>
+            <Button 
+              className="w-full gradient-primary hover-glow text-white font-medium"
+              onClick={handleContactClick}
+            >
+              Contact Us
+            </Button>
           </div>
         </div>
       )}
