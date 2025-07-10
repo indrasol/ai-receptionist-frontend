@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -34,6 +33,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 
@@ -199,12 +204,12 @@ const Home = () => {
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-lg bg-white">
-                  <DialogHeader>
-                    <DialogTitle className="text-xl font-heading text-yellow-800">
-                      Call our AI Receptionist
+                  <DialogHeader className="text-center">
+                    <DialogTitle className="text-xl font-heading text-yellow-800 text-center">
+                      Talk to our 24/7 AI Receptionist
                     </DialogTitle>
-                    <DialogDescription className="text-yellow-700">
-                      Experience the future of customer service firsthand
+                    <DialogDescription className="text-yellow-700 text-center">
+                      See how effortless customer service can sound.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="flex flex-col space-y-6 py-4">
@@ -212,35 +217,31 @@ const Home = () => {
                       <div className="w-16 h-16 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                         <Phone className="w-8 h-8 text-white" />
                       </div>
-                      <p className="text-sm text-yellow-600 mb-2">Call now to test our AI:</p>
-                      <a 
-                        href="tel:+14244046372" 
-                        className="text-2xl font-heading font-bold text-yellow-700 hover:text-yellow-800 hover:underline transition-colors"
-                      >
-                        +1 424 404 6372
-                      </a>
+                      <p className="text-lg font-heading font-bold text-yellow-700 mb-2">
+                        Dial +1 424 404 6372 → Ask anything, get instant answers.
+                      </p>
                       <p className="text-xs text-yellow-600 mt-4 max-w-xs mx-auto">
-                        Our AI is available 24/7 to demonstrate its capabilities. Try asking about our services or booking a demo!
+                        Available around the clock. Book an appointment, check hours, or just say hello—our AI never misses a call.
                       </p>
                     </div>
 
                     {/* Voice Teaser Section inside Modal */}
                     <div className="border-t border-yellow-200 pt-6">
                       <h3 className="text-lg font-heading font-bold mb-4 text-center text-yellow-800">
-                        Experience Our AI Voice
+                        Choose the Perfect Voice
                       </h3>
                       <p className="text-sm text-yellow-600 mb-6 text-center">
-                        Customize and preview our AI receptionist's voice with different accents and styles.
+                        Pick an accent, hit play, and hear how your brand could greet callers.
                       </p>
                       
                       <div className="space-y-4">
-                        {/* Gender Selection */}
-                        <div>
-                          <label className="block text-sm font-medium mb-3 text-yellow-700 text-center">Gender</label>
+                        {/* Voice Style Selection */}
+                        <div className="flex items-center justify-between">
+                          <label className="text-sm font-medium text-yellow-700">Voice Style</label>
                           <RadioGroup 
                             value={voiceSettings.gender} 
                             onValueChange={handleGenderChange}
-                            className="flex space-x-8 justify-center"
+                            className="flex space-x-4"
                           >
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="male" id="male" className="border-yellow-500 text-yellow-500" />
@@ -253,46 +254,57 @@ const Home = () => {
                           </RadioGroup>
                         </div>
 
-                        {/* Receptionist Selection */}
-                        <div>
-                          <label className="block text-sm font-medium mb-2 text-yellow-700 text-center">Receptionist</label>
-                          <Select 
-                            value={voiceSettings.receptionist}
-                            onValueChange={(value) => setVoiceSettings(prev => ({...prev, receptionist: value}))}
-                            disabled={!voiceSettings.gender}
-                          >
-                            <SelectTrigger className="w-full border-yellow-200 focus:border-yellow-500 text-yellow-700">
-                              <SelectValue placeholder={voiceSettings.gender ? "Select a receptionist" : "Select gender first"} className="text-yellow-500" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-yellow-50 border-yellow-200">
-                              {voiceSettings.gender && receptionistOptions[voiceSettings.gender as keyof typeof receptionistOptions]?.map((option) => (
-                                <SelectItem key={option.value} value={option.value} className="text-yellow-700 hover:bg-yellow-100">
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                        {/* Persona Selection */}
+                        <div className="flex items-center justify-between gap-4">
+                          <label className="text-sm font-medium text-yellow-700 flex-shrink-0">Select a Persona</label>
+                          <div className="flex-1">
+                            <Select 
+                              value={voiceSettings.receptionist}
+                              onValueChange={(value) => setVoiceSettings(prev => ({...prev, receptionist: value}))}
+                              disabled={!voiceSettings.gender}
+                            >
+                              <SelectTrigger className="w-full border-yellow-200 focus:border-yellow-500 text-yellow-700">
+                                <SelectValue placeholder={voiceSettings.gender ? "Select a persona" : "Select voice style first"} className="text-yellow-500" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-yellow-50 border-yellow-200">
+                                {voiceSettings.gender && receptionistOptions[voiceSettings.gender as keyof typeof receptionistOptions]?.map((option) => (
+                                  <SelectItem key={option.value} value={option.value} className="text-yellow-700 hover:bg-yellow-100">
+                                    {option.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
 
                         {/* Voice Preview Section */}
                         <div className="pt-4 space-y-4">
                           {/* Play Icon and Voice Nodes Container */}
                           <div className="flex items-center space-x-3">
-                            {/* Play/Pause Button - Left */}
-                            <Button 
-                              onClick={handleVoicePreview}
-                              className={`w-10 h-10 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex-shrink-0 ${
-                                isPlaying 
-                                  ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700' 
-                                  : 'bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700'
-                              } text-white p-0`}
-                            >
-                              {isPlaying ? (
-                                <Pause className="w-4 h-4" />
-                              ) : (
-                                <Play className="w-4 h-4 ml-0.5" />
-                              )}
-                            </Button>
+                            {/* Play/Pause Button - Left with Tooltip */}
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button 
+                                    onClick={handleVoicePreview}
+                                    className={`w-10 h-10 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex-shrink-0 ${
+                                      isPlaying 
+                                        ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700' 
+                                        : 'bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700'
+                                    } text-white p-0`}
+                                  >
+                                    {isPlaying ? (
+                                      <Pause className="w-4 h-4" />
+                                    ) : (
+                                      <Play className="w-4 h-4 ml-0.5" />
+                                    )}
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Preview Greeting</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
 
                             {/* Voice Visualization Nodes - Right */}
                             <div className="flex items-center space-x-0.5 flex-1 overflow-hidden">
