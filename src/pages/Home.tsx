@@ -206,7 +206,7 @@ const Home = () => {
                       Experience the future of customer service firsthand
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="flex flex-col space-y-6 py-6">
+                  <div className="flex flex-col space-y-6 py-4">
                     <div className="text-center">
                       <div className="w-16 h-16 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                         <Phone className="w-8 h-8 text-white" />
@@ -232,14 +232,14 @@ const Home = () => {
                         Customize and preview our AI receptionist's voice with different accents and styles.
                       </p>
                       
-                      <div className="space-y-4">
+                      <div className="space-y-4 px-2">
                         {/* Gender Selection */}
                         <div>
                           <label className="block text-sm font-medium mb-3 text-yellow-700">Gender</label>
                           <RadioGroup 
                             value={voiceSettings.gender} 
                             onValueChange={handleGenderChange}
-                            className="flex space-x-6"
+                            className="flex space-x-6 justify-center"
                           >
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="male" id="male" className="border-yellow-500 text-yellow-500" />
@@ -260,10 +260,10 @@ const Home = () => {
                             onValueChange={(value) => setVoiceSettings(prev => ({...prev, receptionist: value}))}
                             disabled={!voiceSettings.gender}
                           >
-                            <SelectTrigger className="border-yellow-200 focus:border-yellow-500 text-yellow-700">
+                            <SelectTrigger className="w-full border-yellow-200 focus:border-yellow-500 text-yellow-700">
                               <SelectValue placeholder={voiceSettings.gender ? "Select a receptionist" : "Select gender first"} className="text-yellow-500" />
                             </SelectTrigger>
-                            <SelectContent className="bg-yellow-50 border-yellow-200">
+                            <SelectContent className="bg-yellow-50 border-yellow-200 max-w-[calc(100vw-4rem)]">
                               {voiceSettings.gender && receptionistOptions[voiceSettings.gender as keyof typeof receptionistOptions]?.map((option) => (
                                 <SelectItem key={option.value} value={option.value} className="text-yellow-700 hover:bg-yellow-100">
                                   {option.label}
@@ -276,26 +276,26 @@ const Home = () => {
                         {/* Voice Preview Section */}
                         <div className="pt-4 space-y-4">
                           {/* Play Icon and Voice Nodes Container */}
-                          <div className="flex items-center space-x-4">
+                          <div className="flex items-center space-x-3">
                             {/* Play/Pause Button - Extreme Left */}
                             <Button 
                               onClick={handleVoicePreview}
-                              className={`w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex-shrink-0 ${
+                              className={`w-10 h-10 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex-shrink-0 ${
                                 isPlaying 
                                   ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700' 
                                   : 'bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700'
                               } text-white p-0`}
                             >
                               {isPlaying ? (
-                                <Pause className="w-5 h-5" />
+                                <Pause className="w-4 h-4" />
                               ) : (
-                                <Play className="w-5 h-5 ml-0.5" />
+                                <Play className="w-4 h-4 ml-0.5" />
                               )}
                             </Button>
 
                             {/* Voice Visualization Nodes - Fill Complete Right Side */}
-                            <div className="flex items-center space-x-0.5 flex-1">
-                              {Array.from({ length: 75 }, (_, i) => (
+                            <div className="flex items-center space-x-0.5 flex-1 overflow-hidden">
+                              {Array.from({ length: 70 }, (_, i) => (
                                 <div 
                                   key={i}
                                   className={`w-1 bg-gradient-to-t from-yellow-400 to-yellow-600 rounded-full transition-all duration-150 ${
