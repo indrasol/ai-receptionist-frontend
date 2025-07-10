@@ -1,4 +1,5 @@
 
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,18 +26,18 @@ import {
 } from 'lucide-react';
 import FeatureRow from '@/components/FeatureRow';
 import { 
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
 
 const Home = () => {
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -128,22 +129,22 @@ const Home = () => {
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </Link>
-              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                <SheetTrigger asChild>
+              <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <DialogTrigger asChild>
                   <Button size="lg" variant="outline" className="text-lg px-8 py-4">
                     <Play className="w-5 h-5 mr-2" />
                     Want a Demo
                   </Button>
-                </SheetTrigger>
-                <SheetContent className="w-[400px] sm:w-[540px] bg-white">
-                  <SheetHeader>
-                    <SheetTitle className="text-xl font-heading text-yellow-800">
+                </DialogTrigger>
+                <DialogContent className="max-w-lg bg-white">
+                  <DialogHeader>
+                    <DialogTitle className="text-xl font-heading text-yellow-800">
                       Call our AI Receptionist
-                    </SheetTitle>
-                    <SheetDescription className="text-yellow-700">
+                    </DialogTitle>
+                    <DialogDescription className="text-yellow-700">
                       Experience the future of customer service firsthand
-                    </SheetDescription>
-                  </SheetHeader>
+                    </DialogDescription>
+                  </DialogHeader>
                   <div className="flex flex-col space-y-6 py-6">
                     <div className="text-center">
                       <div className="w-16 h-16 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
@@ -161,7 +162,7 @@ const Home = () => {
                       </p>
                     </div>
 
-                    {/* Voice Teaser Section inside Sheet */}
+                    {/* Voice Teaser Section inside Modal */}
                     <div className="border-t border-yellow-200 pt-6">
                       <h3 className="text-lg font-heading font-bold mb-4 text-center text-yellow-800">
                         Experience Our AI Voice
@@ -240,8 +241,8 @@ const Home = () => {
                       </div>
                     </div>
                   </div>
-                </SheetContent>
-              </Sheet>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </div>
