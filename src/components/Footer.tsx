@@ -5,6 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Facebook, Twitter, Linkedin, Instagram, Mail, Bot, Phone } from 'lucide-react';
 
 const Footer = () => {
+  const handleIndrasolClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.stopPropagation();
+    window.open('https://indrasol.com', '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <footer className="bg-background border-t">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -35,7 +40,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Brand Column */}
           <div>
-            <Link to="/" className="flex items-center space-x-2 font-heading font-bold text-xl gradient-primary-text mb-4">
+            <Link to="/" className="flex items-center space-x-3 font-heading font-bold text-xl gradient-primary-text mb-4">
               <div className="relative">
                 <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
                   <Bot className="w-4 h-4 text-white" />
@@ -44,7 +49,18 @@ const Footer = () => {
                   <Phone className="w-1.5 h-1.5 text-white" />
                 </div>
               </div>
-              <span>AI Receptionist</span>
+              <div className="flex items-end space-x-2">
+                <span>AI Receptionist</span>
+                <a 
+                  href="https://indrasol.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={handleIndrasolClick}
+                  className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors pb-1 cursor-pointer"
+                >
+                  by Indrasol
+                </a>
+              </div>
             </Link>
             <p className="text-muted-foreground mb-6 max-w-sm">
               Transform your business with AI-powered customer service that never sleeps. 

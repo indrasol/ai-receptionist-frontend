@@ -168,14 +168,14 @@ const Contact = () => {
                       <Mail className="w-5 h-5 text-primary mt-0.5" />
                       <div>
                         <p className="font-medium">Email</p>
-                        <p className="text-muted-foreground">hello@aifrontdeskpro.com</p>
+                        <p className="text-muted-foreground">sales@indrasol.com</p>
                       </div>
                     </div>
                     <div className="flex items-start space-x-3">
                       <Phone className="w-5 h-5 text-primary mt-0.5" />
                       <div>
                         <p className="font-medium">Phone</p>
-                        <p className="text-muted-foreground">+1 (555) 123-4567</p>
+                        <p className="text-muted-foreground">+1 (424) 40INDRA</p>
                       </div>
                     </div>
                     <div className="flex items-start space-x-3">
@@ -183,8 +183,7 @@ const Contact = () => {
                       <div>
                         <p className="font-medium">Address</p>
                         <p className="text-muted-foreground">
-                          123 Innovation Drive<br />
-                          San Francisco, CA 94105
+                          San Ramon, California, USA
                         </p>
                       </div>
                     </div>
@@ -216,19 +215,6 @@ const Contact = () => {
                     <a href="#" className="w-10 h-10 glass-card rounded-lg flex items-center justify-center hover:gradient-primary hover:text-white transition-all duration-300">
                       <Facebook className="w-5 h-5" />
                     </a>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Map Placeholder */}
-              <Card className="glass-card">
-                <CardContent className="p-0">
-                  <div className="aspect-video bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg flex items-center justify-center">
-                    <div className="text-center">
-                      <MapPin className="w-12 h-12 text-primary mx-auto mb-2" />
-                      <p className="text-muted-foreground">Interactive Map</p>
-                      <p className="text-sm text-muted-foreground">San Francisco, CA</p>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
