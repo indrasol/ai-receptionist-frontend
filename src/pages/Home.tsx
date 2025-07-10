@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -56,6 +57,32 @@ const Home = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
 
+  // Receptionist options based on gender
+  const receptionistOptions = {
+    male: [
+      { value: 'david-american', label: 'David . American' },
+      { value: 'james-british', label: 'James . British' },
+      { value: 'ryan-australian', label: 'Ryan . Australian' },
+      { value: 'alex-canadian', label: 'Alex . Canadian' },
+      { value: 'sean-irish', label: 'Sean . Irish' },
+      { value: 'connor-scottish', label: 'Connor . Scottish' },
+      { value: 'arjun-indian', label: 'Arjun . Indian' },
+      { value: 'vikram-indian', label: 'Vikram . Indian' },
+      { value: 'rohan-indian', label: 'Rohan . Indian' }
+    ],
+    female: [
+      { value: 'sarah-american', label: 'Sarah . American' },
+      { value: 'emily-british', label: 'Emily . British' },
+      { value: 'olivia-australian', label: 'Olivia . Australian' },
+      { value: 'sophia-canadian', label: 'Sophia . Canadian' },
+      { value: 'grace-irish', label: 'Grace . Irish' },
+      { value: 'fiona-scottish', label: 'Fiona . Scottish' },
+      { value: 'priya-indian', label: 'Priya . Indian' },
+      { value: 'ananya-indian', label: 'Ananya . Indian' },
+      { value: 'kavya-indian', label: 'Kavya . Indian' }
+    ]
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission here
@@ -102,6 +129,13 @@ const Home = () => {
         description: `Playing ${voiceSettings.gender} voice: ${voiceSettings.receptionist}`,
       });
     }
+  };
+
+  const handleGenderChange = (value: string) => {
+    setVoiceSettings(prev => ({
+      gender: value,
+      receptionist: '' // Reset receptionist when gender changes
+    }));
   };
 
   // Progress animation effect
@@ -209,7 +243,7 @@ const Home = () => {
                           <label className="block text-sm font-medium mb-3 text-yellow-700">Gender</label>
                           <RadioGroup 
                             value={voiceSettings.gender} 
-                            onValueChange={(value) => setVoiceSettings(prev => ({...prev, gender: value}))}
+                            onValueChange={handleGenderChange}
                             className="flex space-x-6"
                           >
                             <div className="flex items-center space-x-2">
@@ -226,17 +260,20 @@ const Home = () => {
                         {/* Receptionist Selection */}
                         <div>
                           <label className="block text-sm font-medium mb-2 text-yellow-700">Receptionist</label>
-                          <Select onValueChange={(value) => setVoiceSettings(prev => ({...prev, receptionist: value}))}>
+                          <Select 
+                            value={voiceSettings.receptionist}
+                            onValueChange={(value) => setVoiceSettings(prev => ({...prev, receptionist: value}))}
+                            disabled={!voiceSettings.gender}
+                          >
                             <SelectTrigger className="border-yellow-200 focus:border-yellow-500 text-yellow-700">
-                              <SelectValue placeholder="Select a receptionist" className="text-yellow-500" />
+                              <SelectValue placeholder={voiceSettings.gender ? "Select a receptionist" : "Select gender first"} className="text-yellow-500" />
                             </SelectTrigger>
                             <SelectContent className="bg-yellow-50 border-yellow-200">
-                              <SelectItem value="sarah-american" className="text-yellow-700 hover:bg-yellow-100">Sarah . American</SelectItem>
-                              <SelectItem value="emily-british" className="text-yellow-700 hover:bg-yellow-100">Emily . British</SelectItem>
-                              <SelectItem value="olivia-australian" className="text-yellow-700 hover:bg-yellow-100">Olivia . Australian</SelectItem>
-                              <SelectItem value="sophia-canadian" className="text-yellow-700 hover:bg-yellow-100">Sophia . Canadian</SelectItem>
-                              <SelectItem value="grace-irish" className="text-yellow-700 hover:bg-yellow-100">Grace . Irish</SelectItem>
-                              <SelectItem value="fiona-scottish" className="text-yellow-700 hover:bg-yellow-100">Fiona . Scottish</SelectItem>
+                              {voiceSettings.gender && receptionistOptions[voiceSettings.gender as keyof typeof receptionistOptions]?.map((option) => (
+                                <SelectItem key={option.value} value={option.value} className="text-yellow-700 hover:bg-yellow-100">
+                                  {option.label}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                         </div>
@@ -244,7 +281,7 @@ const Home = () => {
                         {/* Voice Preview Section */}
                         <div className="pt-4 space-y-4">
                           {/* Play Icon and Voice Nodes Container */}
-                          <div className="flex items-center space-x-8">
+                          <div className="flex items-center space-x-4">
                             {/* Play/Pause Button - Extreme Left */}
                             <Button 
                               onClick={handleVoicePreview}
@@ -261,19 +298,19 @@ const Home = () => {
                               )}
                             </Button>
 
-                            {/* Voice Visualization Nodes - Fill Right Side */}
-                            <div className="flex items-center space-x-1 flex-1">
-                              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
+                            {/* Voice Visualization Nodes - Fill Complete Right Side */}
+                            <div className="flex items-center space-x-0.5 flex-1">
+                              {Array.from({ length: 20 }, (_, i) => (
                                 <div 
                                   key={i}
                                   className={`w-1 bg-gradient-to-t from-yellow-400 to-yellow-600 rounded-full transition-all duration-150 ${
                                     isPlaying 
-                                      ? `animate-pulse h-${3 + (i % 4) * 2}` 
+                                      ? `animate-pulse h-${3 + (i % 5) * 2}` 
                                       : 'h-3'
                                   }`}
                                   style={{
-                                    animationDelay: `${(i * 0.08)}s`,
-                                    animationDuration: '0.6s'
+                                    animationDelay: `${(i * 0.05)}s`,
+                                    animationDuration: '0.8s'
                                   }}
                                 />
                               ))}
