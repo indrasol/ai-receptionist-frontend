@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -237,7 +236,7 @@ const Home = () => {
                       
                       <div className="space-y-4">
                         {/* Voice Style Selection */}
-                        <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center justify-between gap-2">
                           <label className="text-sm font-medium text-yellow-700 flex-shrink-0">Voice Style</label>
                           <RadioGroup 
                             value={voiceSettings.gender} 
