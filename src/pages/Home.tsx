@@ -137,22 +137,22 @@ const Home = () => {
                 </SheetTrigger>
                 <SheetContent className="w-[400px] sm:w-[540px] bg-gradient-to-br from-yellow-50 to-yellow-100">
                   <SheetHeader>
-                    <SheetTitle className="text-xl font-heading text-yellow-900">
+                    <SheetTitle className="text-xl font-heading text-yellow-800">
                       Call our AI Receptionist
                     </SheetTitle>
-                    <SheetDescription className="text-yellow-800">
+                    <SheetDescription className="text-yellow-700">
                       Experience the future of customer service firsthand
                     </SheetDescription>
                   </SheetHeader>
                   <div className="flex flex-col space-y-6 py-6">
                     <div className="text-center">
-                      <div className="w-16 h-16 bg-gradient-to-r from-yellow-600 to-yellow-700 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                      <div className="w-16 h-16 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                         <Phone className="w-8 h-8 text-white" />
                       </div>
-                      <p className="text-sm text-yellow-700 mb-2">Call now to test our AI:</p>
+                      <p className="text-sm text-yellow-600 mb-2">Call now to test our AI:</p>
                       <a 
                         href="tel:+14244046372" 
-                        className="text-2xl font-heading font-bold text-yellow-800 hover:text-yellow-900 hover:underline transition-colors"
+                        className="text-2xl font-heading font-bold text-yellow-700 hover:text-yellow-800 hover:underline transition-colors"
                       >
                         +1 424 404 6372
                       </a>
@@ -162,66 +162,66 @@ const Home = () => {
                     </div>
 
                     {/* Voice Teaser Section inside Sheet */}
-                    <div className="border-t border-yellow-300 pt-6">
-                      <h3 className="text-lg font-heading font-bold mb-4 text-center text-yellow-900">
+                    <div className="border-t border-yellow-200 pt-6">
+                      <h3 className="text-lg font-heading font-bold mb-4 text-center text-yellow-800">
                         Experience Our AI Voice
                       </h3>
-                      <p className="text-sm text-yellow-700 mb-6 text-center">
+                      <p className="text-sm text-yellow-600 mb-6 text-center">
                         Customize and preview our AI receptionist's voice with different accents and styles.
                       </p>
                       
                       <div className="space-y-4">
                         {/* Gender Selection */}
                         <div>
-                          <label className="block text-sm font-medium mb-3 text-yellow-800">Gender</label>
+                          <label className="block text-sm font-medium mb-3 text-yellow-700">Gender</label>
                           <RadioGroup 
                             value={voiceSettings.gender} 
                             onValueChange={(value) => setVoiceSettings(prev => ({...prev, gender: value}))}
                             className="flex space-x-6"
                           >
                             <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="male" id="male" className="border-yellow-600 text-yellow-600" />
-                              <label htmlFor="male" className="text-sm font-medium cursor-pointer text-yellow-800">Male</label>
+                              <RadioGroupItem value="male" id="male" className="border-yellow-500 text-yellow-500" />
+                              <label htmlFor="male" className="text-sm font-medium cursor-pointer text-yellow-700">Male</label>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="female" id="female" className="border-yellow-600 text-yellow-600" />
-                              <label htmlFor="female" className="text-sm font-medium cursor-pointer text-yellow-800">Female</label>
+                              <RadioGroupItem value="female" id="female" className="border-yellow-500 text-yellow-500" />
+                              <label htmlFor="female" className="text-sm font-medium cursor-pointer text-yellow-700">Female</label>
                             </div>
                           </RadioGroup>
                         </div>
 
                         {/* Accent Selection */}
                         <div>
-                          <label className="block text-sm font-medium mb-2 text-yellow-800">Accent</label>
+                          <label className="block text-sm font-medium mb-2 text-yellow-700">Accent</label>
                           <Select onValueChange={(value) => setVoiceSettings(prev => ({...prev, accent: value}))}>
-                            <SelectTrigger className="border-yellow-300 focus:border-yellow-600 text-yellow-800">
-                              <SelectValue placeholder="Select an accent" className="text-yellow-600" />
+                            <SelectTrigger className="border-yellow-200 focus:border-yellow-500 text-yellow-700">
+                              <SelectValue placeholder="Select an accent" className="text-yellow-500" />
                             </SelectTrigger>
-                            <SelectContent className="bg-yellow-50 border-yellow-300">
-                              <SelectItem value="american" className="text-yellow-800 hover:bg-yellow-100">American</SelectItem>
-                              <SelectItem value="british" className="text-yellow-800 hover:bg-yellow-100">British</SelectItem>
-                              <SelectItem value="australian" className="text-yellow-800 hover:bg-yellow-100">Australian</SelectItem>
-                              <SelectItem value="canadian" className="text-yellow-800 hover:bg-yellow-100">Canadian</SelectItem>
-                              <SelectItem value="irish" className="text-yellow-800 hover:bg-yellow-100">Irish</SelectItem>
-                              <SelectItem value="scottish" className="text-yellow-800 hover:bg-yellow-100">Scottish</SelectItem>
+                            <SelectContent className="bg-yellow-50 border-yellow-200">
+                              <SelectItem value="american" className="text-yellow-700 hover:bg-yellow-100">American</SelectItem>
+                              <SelectItem value="british" className="text-yellow-700 hover:bg-yellow-100">British</SelectItem>
+                              <SelectItem value="australian" className="text-yellow-700 hover:bg-yellow-100">Australian</SelectItem>
+                              <SelectItem value="canadian" className="text-yellow-700 hover:bg-yellow-100">Canadian</SelectItem>
+                              <SelectItem value="irish" className="text-yellow-700 hover:bg-yellow-100">Irish</SelectItem>
+                              <SelectItem value="scottish" className="text-yellow-700 hover:bg-yellow-100">Scottish</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
 
                         {/* Country Selection */}
                         <div>
-                          <label className="block text-sm font-medium mb-2 text-yellow-800">Country</label>
+                          <label className="block text-sm font-medium mb-2 text-yellow-700">Country</label>
                           <Select onValueChange={(value) => setVoiceSettings(prev => ({...prev, country: value}))}>
-                            <SelectTrigger className="border-yellow-300 focus:border-yellow-600 text-yellow-800">
-                              <SelectValue placeholder="Select a country" className="text-yellow-600" />
+                            <SelectTrigger className="border-yellow-200 focus:border-yellow-500 text-yellow-700">
+                              <SelectValue placeholder="Select a country" className="text-yellow-500" />
                             </SelectTrigger>
-                            <SelectContent className="bg-yellow-50 border-yellow-300">
-                              <SelectItem value="usa" className="text-yellow-800 hover:bg-yellow-100">United States</SelectItem>
-                              <SelectItem value="uk" className="text-yellow-800 hover:bg-yellow-100">United Kingdom</SelectItem>
-                              <SelectItem value="canada" className="text-yellow-800 hover:bg-yellow-100">Canada</SelectItem>
-                              <SelectItem value="australia" className="text-yellow-800 hover:bg-yellow-100">Australia</SelectItem>
-                              <SelectItem value="ireland" className="text-yellow-800 hover:bg-yellow-100">Ireland</SelectItem>
-                              <SelectItem value="scotland" className="text-yellow-800 hover:bg-yellow-100">Scotland</SelectItem>
+                            <SelectContent className="bg-yellow-50 border-yellow-200">
+                              <SelectItem value="usa" className="text-yellow-700 hover:bg-yellow-100">United States</SelectItem>
+                              <SelectItem value="uk" className="text-yellow-700 hover:bg-yellow-100">United Kingdom</SelectItem>
+                              <SelectItem value="canada" className="text-yellow-700 hover:bg-yellow-100">Canada</SelectItem>
+                              <SelectItem value="australia" className="text-yellow-700 hover:bg-yellow-100">Australia</SelectItem>
+                              <SelectItem value="ireland" className="text-yellow-700 hover:bg-yellow-100">Ireland</SelectItem>
+                              <SelectItem value="scotland" className="text-yellow-700 hover:bg-yellow-100">Scotland</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -230,7 +230,7 @@ const Home = () => {
                         <div className="pt-2">
                           <Button 
                             onClick={handleVoicePreview}
-                            className="w-full bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                            className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
                             size="lg"
                           >
                             <Volume2 className="w-5 h-5 mr-2" />
