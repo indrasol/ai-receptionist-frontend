@@ -236,7 +236,7 @@ const Home = () => {
                       
                       <div className="space-y-4">
                         {/* Voice Style Selection */}
-                        <div className="space-y-2">
+                        <div className="flex items-center gap-4">
                           <label className="text-sm font-medium text-yellow-700">Voice Style</label>
                           <RadioGroup 
                             value={voiceSettings.gender} 
