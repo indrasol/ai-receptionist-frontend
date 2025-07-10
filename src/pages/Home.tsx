@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -160,6 +159,85 @@ const Home = () => {
                         Our AI is available 24/7 to demonstrate its capabilities. Try asking about our services or booking a demo!
                       </p>
                     </div>
+
+                    {/* Voice Teaser Section inside Sheet */}
+                    <div className="border-t pt-6">
+                      <h3 className="text-lg font-heading font-bold mb-4 text-center">
+                        Experience Our AI Voice
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-6 text-center">
+                        Customize and preview our AI receptionist's voice with different accents and styles.
+                      </p>
+                      
+                      <div className="space-y-4">
+                        {/* Gender Selection */}
+                        <div>
+                          <label className="block text-sm font-medium mb-3">Gender</label>
+                          <RadioGroup 
+                            value={voiceSettings.gender} 
+                            onValueChange={(value) => setVoiceSettings(prev => ({...prev, gender: value}))}
+                            className="flex space-x-6"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="male" id="male" />
+                              <label htmlFor="male" className="text-sm font-medium cursor-pointer">Male</label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="female" id="female" />
+                              <label htmlFor="female" className="text-sm font-medium cursor-pointer">Female</label>
+                            </div>
+                          </RadioGroup>
+                        </div>
+
+                        {/* Accent Selection */}
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Accent</label>
+                          <Select onValueChange={(value) => setVoiceSettings(prev => ({...prev, accent: value}))}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select an accent" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="american">American</SelectItem>
+                              <SelectItem value="british">British</SelectItem>
+                              <SelectItem value="australian">Australian</SelectItem>
+                              <SelectItem value="canadian">Canadian</SelectItem>
+                              <SelectItem value="irish">Irish</SelectItem>
+                              <SelectItem value="scottish">Scottish</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Country Selection */}
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Country</label>
+                          <Select onValueChange={(value) => setVoiceSettings(prev => ({...prev, country: value}))}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a country" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="usa">United States</SelectItem>
+                              <SelectItem value="uk">United Kingdom</SelectItem>
+                              <SelectItem value="canada">Canada</SelectItem>
+                              <SelectItem value="australia">Australia</SelectItem>
+                              <SelectItem value="ireland">Ireland</SelectItem>
+                              <SelectItem value="scotland">Scotland</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Preview Button */}
+                        <div className="pt-2">
+                          <Button 
+                            onClick={handleVoicePreview}
+                            className="w-full gradient-primary hover-glow text-white"
+                            size="lg"
+                          >
+                            <Volume2 className="w-5 h-5 mr-2" />
+                            Preview Voice
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </SheetContent>
               </Sheet>
@@ -168,100 +246,8 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Voice Teaser Section */}
-      <section className="py-20 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-4xl mx-auto mb-16">
-            <h2 className="text-4xl lg:text-5xl font-heading font-bold mb-6">
-              Experience Our{' '}
-              <span className="gradient-primary-text">AI Voice</span>
-            </h2>
-            <p className="text-xl text-muted-foreground leading-relaxed">
-              Customize and preview our AI receptionist's voice with different accents and styles.
-            </p>
-          </div>
-
-          <div className="max-w-2xl mx-auto">
-            <Card className="glass-card">
-              <CardContent className="p-8">
-                <h3 className="text-2xl font-heading font-bold mb-6 text-center">Voice Teaser</h3>
-                
-                <div className="space-y-6">
-                  {/* Gender Selection */}
-                  <div>
-                    <label className="block text-sm font-medium mb-3">Gender</label>
-                    <RadioGroup 
-                      value={voiceSettings.gender} 
-                      onValueChange={(value) => setVoiceSettings(prev => ({...prev, gender: value}))}
-                      className="flex space-x-6"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="male" id="male" />
-                        <label htmlFor="male" className="text-sm font-medium cursor-pointer">Male</label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="female" id="female" />
-                        <label htmlFor="female" className="text-sm font-medium cursor-pointer">Female</label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-
-                  {/* Accent Selection */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Accent</label>
-                    <Select onValueChange={(value) => setVoiceSettings(prev => ({...prev, accent: value}))}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select an accent" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="american">American</SelectItem>
-                        <SelectItem value="british">British</SelectItem>
-                        <SelectItem value="australian">Australian</SelectItem>
-                        <SelectItem value="canadian">Canadian</SelectItem>
-                        <SelectItem value="irish">Irish</SelectItem>
-                        <SelectItem value="scottish">Scottish</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Country Selection */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Country</label>
-                    <Select onValueChange={(value) => setVoiceSettings(prev => ({...prev, country: value}))}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a country" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="usa">United States</SelectItem>
-                        <SelectItem value="uk">United Kingdom</SelectItem>
-                        <SelectItem value="canada">Canada</SelectItem>
-                        <SelectItem value="australia">Australia</SelectItem>
-                        <SelectItem value="ireland">Ireland</SelectItem>
-                        <SelectItem value="scotland">Scotland</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Preview Button */}
-                  <div className="pt-4">
-                    <Button 
-                      onClick={handleVoicePreview}
-                      className="w-full gradient-primary hover-glow text-white"
-                      size="lg"
-                    >
-                      <Volume2 className="w-5 h-5 mr-2" />
-                      Preview Voice
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
       {/* Contact Form & Info */}
-      <section className="py-20">
+      <section className="py-20" id="contact">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto mb-16">
             <h2 className="text-4xl lg:text-5xl font-heading font-bold mb-6">
