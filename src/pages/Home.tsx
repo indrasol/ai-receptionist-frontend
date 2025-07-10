@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -232,14 +233,14 @@ const Home = () => {
                         Customize and preview our AI receptionist's voice with different accents and styles.
                       </p>
                       
-                      <div className="space-y-4 px-2">
+                      <div className="space-y-4">
                         {/* Gender Selection */}
                         <div>
-                          <label className="block text-sm font-medium mb-3 text-yellow-700">Gender</label>
+                          <label className="block text-sm font-medium mb-3 text-yellow-700 text-center">Gender</label>
                           <RadioGroup 
                             value={voiceSettings.gender} 
                             onValueChange={handleGenderChange}
-                            className="flex space-x-6 justify-center"
+                            className="flex space-x-8 justify-center"
                           >
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="male" id="male" className="border-yellow-500 text-yellow-500" />
@@ -254,7 +255,7 @@ const Home = () => {
 
                         {/* Receptionist Selection */}
                         <div>
-                          <label className="block text-sm font-medium mb-2 text-yellow-700">Receptionist</label>
+                          <label className="block text-sm font-medium mb-2 text-yellow-700 text-center">Receptionist</label>
                           <Select 
                             value={voiceSettings.receptionist}
                             onValueChange={(value) => setVoiceSettings(prev => ({...prev, receptionist: value}))}
@@ -263,7 +264,7 @@ const Home = () => {
                             <SelectTrigger className="w-full border-yellow-200 focus:border-yellow-500 text-yellow-700">
                               <SelectValue placeholder={voiceSettings.gender ? "Select a receptionist" : "Select gender first"} className="text-yellow-500" />
                             </SelectTrigger>
-                            <SelectContent className="bg-yellow-50 border-yellow-200 max-w-[calc(100vw-4rem)]">
+                            <SelectContent className="bg-yellow-50 border-yellow-200">
                               {voiceSettings.gender && receptionistOptions[voiceSettings.gender as keyof typeof receptionistOptions]?.map((option) => (
                                 <SelectItem key={option.value} value={option.value} className="text-yellow-700 hover:bg-yellow-100">
                                   {option.label}
@@ -277,7 +278,7 @@ const Home = () => {
                         <div className="pt-4 space-y-4">
                           {/* Play Icon and Voice Nodes Container */}
                           <div className="flex items-center space-x-3">
-                            {/* Play/Pause Button - Extreme Left */}
+                            {/* Play/Pause Button - Left */}
                             <Button 
                               onClick={handleVoicePreview}
                               className={`w-10 h-10 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex-shrink-0 ${
@@ -293,7 +294,7 @@ const Home = () => {
                               )}
                             </Button>
 
-                            {/* Voice Visualization Nodes - Fill Complete Right Side */}
+                            {/* Voice Visualization Nodes - Right */}
                             <div className="flex items-center space-x-0.5 flex-1 overflow-hidden">
                               {Array.from({ length: 70 }, (_, i) => (
                                 <div 
