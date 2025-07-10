@@ -135,7 +135,7 @@ const Home = () => {
                     Want a Demo
                   </Button>
                 </SheetTrigger>
-                <SheetContent className="w-[400px] sm:w-[540px] bg-gradient-to-br from-yellow-50 to-yellow-100">
+                <SheetContent className="w-[400px] sm:w-[540px] bg-white">
                   <SheetHeader>
                     <SheetTitle className="text-xl font-heading text-yellow-800">
                       Call our AI Receptionist
@@ -424,3 +424,4 @@ const Home = () => {
 };
 
 export default Home;
+
