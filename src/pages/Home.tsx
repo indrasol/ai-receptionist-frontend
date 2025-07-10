@@ -260,24 +260,43 @@ const Home = () => {
                           </Select>
                         </div>
 
-                        {/* Voice Nodes and Preview Section */}
+                        {/* Voice Preview Section */}
                         <div className="pt-4 space-y-4">
-                          {/* Voice Visualization Nodes */}
-                          <div className="flex justify-center items-center space-x-2 mb-4">
-                            {[1, 2, 3, 4, 5].map((i) => (
-                              <div 
-                                key={i}
-                                className={`w-1 bg-gradient-to-t from-yellow-400 to-yellow-600 rounded-full transition-all duration-150 ${
-                                  isPlaying 
-                                    ? `animate-pulse h-${4 + (i % 3) * 2}` 
-                                    : 'h-4'
-                                }`}
-                                style={{
-                                  animationDelay: `${i * 0.1}s`,
-                                  animationDuration: '0.8s'
-                                }}
-                              />
-                            ))}
+                          {/* Play Icon and Voice Nodes Container */}
+                          <div className="flex items-center justify-center space-x-6">
+                            {/* Play/Pause Button */}
+                            <Button 
+                              onClick={handleVoicePreview}
+                              className={`w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ${
+                                isPlaying 
+                                  ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700' 
+                                  : 'bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700'
+                              } text-white p-0`}
+                            >
+                              {isPlaying ? (
+                                <Pause className="w-5 h-5" />
+                              ) : (
+                                <Play className="w-5 h-5 ml-0.5" />
+                              )}
+                            </Button>
+
+                            {/* Voice Visualization Nodes */}
+                            <div className="flex items-center space-x-2">
+                              {[1, 2, 3, 4, 5].map((i) => (
+                                <div 
+                                  key={i}
+                                  className={`w-1 bg-gradient-to-t from-yellow-400 to-yellow-600 rounded-full transition-all duration-150 ${
+                                    isPlaying 
+                                      ? `animate-pulse h-${4 + (i % 3) * 2}` 
+                                      : 'h-4'
+                                  }`}
+                                  style={{
+                                    animationDelay: `${i * 0.1}s`,
+                                    animationDuration: '0.8s'
+                                  }}
+                                />
+                              ))}
+                            </div>
                           </div>
 
                           {/* Progress Bar */}
@@ -293,29 +312,6 @@ const Home = () => {
                               </div>
                             </div>
                           )}
-
-                          {/* Preview Button */}
-                          <Button 
-                            onClick={handleVoicePreview}
-                            className={`w-full shadow-lg hover:shadow-xl transition-all duration-300 ${
-                              isPlaying 
-                                ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700' 
-                                : 'bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700'
-                            } text-white`}
-                            size="lg"
-                          >
-                            {isPlaying ? (
-                              <>
-                                <Pause className="w-5 h-5 mr-2" />
-                                Stop Preview
-                              </>
-                            ) : (
-                              <>
-                                <Play className="w-5 h-5 mr-2" />
-                                Preview Voice
-                              </>
-                            )}
-                          </Button>
                         </div>
                       </div>
                     </div>
