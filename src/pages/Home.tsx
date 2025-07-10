@@ -94,10 +94,19 @@ const Home = () => {
               Your AI Receptionist That{' '}
               <span className="gradient-primary-text">Never Sleeps</span>
             </h1>
-            <p className="text-xl text-muted-foreground mb-8 leading-relaxed animate-fade-in-up">
-              Transform your business with AI-powered customer service that handles calls, 
-              messages, and appointments 24/7. Increase satisfaction while reducing costs.
-            </p>
+            
+            {/* AI Receptionist Animation Card */}
+            <div className="glass-card rounded-3xl p-8 mb-8 animate-float">
+              <div className="aspect-video bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-24 h-24 gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Phone className="w-12 h-12 text-white" />
+                  </div>
+                  <p className="text-lg font-medium">AI Receptionist Animation</p>
+                  <p className="text-muted-foreground">Interactive demo coming soon</p>
+                </div>
+              </div>
+            </div>
             
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-fade-in-up">
@@ -142,19 +151,6 @@ const Home = () => {
                   </div>
                 </DialogContent>
               </Dialog>
-            </div>
-
-            {/* AI Receptionist Animation Card */}
-            <div className="glass-card rounded-3xl p-8 mb-16 animate-float">
-              <div className="aspect-video bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-24 h-24 gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Phone className="w-12 h-12 text-white" />
-                  </div>
-                  <p className="text-lg font-medium">AI Receptionist Animation</p>
-                  <p className="text-muted-foreground">Interactive demo coming soon</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
