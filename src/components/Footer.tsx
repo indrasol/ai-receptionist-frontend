@@ -9,6 +9,13 @@ const Footer = () => {
     window.open('https://indrasol.com', '_blank', 'noopener,noreferrer');
   };
 
+  const handleContactClick = () => {
+    const contactSection = document.querySelector('section:nth-of-type(2)');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <footer className="bg-background border-t">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -68,11 +75,13 @@ const Footer = () => {
               <p>Ready to experience the future of customer service?</p>
               <p>We're here to help you get started.</p>
               <div className="pt-4">
-                <Link to="/contact">
-                  <Button variant="outline" className="hover:gradient-primary hover:text-white">
-                    Contact Us
-                  </Button>
-                </Link>
+                <Button 
+                  variant="outline" 
+                  className="hover:gradient-primary hover:text-white"
+                  onClick={handleContactClick}
+                >
+                  Contact Us
+                </Button>
               </div>
             </div>
           </div>
