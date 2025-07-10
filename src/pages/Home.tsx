@@ -1,11 +1,10 @@
-
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { Link } from 'react-router-dom';
 import { 
   Phone, 
@@ -15,6 +14,7 @@ import {
   TrendingUp,
   ArrowRight,
   Play,
+  Pause,
   CheckCircle,
   Star,
   Mail,
@@ -33,7 +33,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 
 const Home = () => {
@@ -52,6 +52,10 @@ const Home = () => {
     accent: '',
     country: ''
   });
+
+  // Voice preview state
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,11 +91,40 @@ const Home = () => {
       return;
     }
     
-    toast({
-      title: "Voice Preview",
-      description: `Playing ${voiceSettings.gender} voice with ${voiceSettings.accent} accent from ${voiceSettings.country}`,
-    });
+    if (isPlaying) {
+      // Stop playing
+      setIsPlaying(false);
+      setProgress(0);
+    } else {
+      // Start playing
+      setIsPlaying(true);
+      toast({
+        title: "Voice Preview",
+        description: `Playing ${voiceSettings.gender} voice with ${voiceSettings.accent} accent from ${voiceSettings.country}`,
+      });
+    }
   };
+
+  // Progress animation effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (isPlaying) {
+      interval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 100) {
+            setIsPlaying(false);
+            return 0;
+          }
+          return prev + 2;
+        });
+      }, 100);
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isPlaying]);
 
   return (
     <div className="min-h-screen">
@@ -227,15 +260,61 @@ const Home = () => {
                           </Select>
                         </div>
 
-                        {/* Preview Button */}
-                        <div className="pt-2">
+                        {/* Voice Nodes and Preview Section */}
+                        <div className="pt-4 space-y-4">
+                          {/* Voice Visualization Nodes */}
+                          <div className="flex justify-center items-center space-x-2 mb-4">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                              <div 
+                                key={i}
+                                className={`w-1 bg-gradient-to-t from-yellow-400 to-yellow-600 rounded-full transition-all duration-150 ${
+                                  isPlaying 
+                                    ? `animate-pulse h-${4 + (i % 3) * 2}` 
+                                    : 'h-4'
+                                }`}
+                                style={{
+                                  animationDelay: `${i * 0.1}s`,
+                                  animationDuration: '0.8s'
+                                }}
+                              />
+                            ))}
+                          </div>
+
+                          {/* Progress Bar */}
+                          {isPlaying && (
+                            <div className="space-y-2">
+                              <Progress 
+                                value={progress} 
+                                className="w-full h-2"
+                              />
+                              <div className="flex justify-between text-xs text-yellow-600">
+                                <span>{Math.floor(progress / 20)}s</span>
+                                <span>5s</span>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Preview Button */}
                           <Button 
                             onClick={handleVoicePreview}
-                            className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                            className={`w-full shadow-lg hover:shadow-xl transition-all duration-300 ${
+                              isPlaying 
+                                ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700' 
+                                : 'bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700'
+                            } text-white`}
                             size="lg"
                           >
-                            <Volume2 className="w-5 h-5 mr-2" />
-                            Preview Voice
+                            {isPlaying ? (
+                              <>
+                                <Pause className="w-5 h-5 mr-2" />
+                                Stop Preview
+                              </>
+                            ) : (
+                              <>
+                                <Play className="w-5 h-5 mr-2" />
+                                Preview Voice
+                              </>
+                            )}
                           </Button>
                         </div>
                       </div>
@@ -425,4 +504,3 @@ const Home = () => {
 };
 
 export default Home;
-
