@@ -220,7 +220,7 @@ const Home = () => {
                       <p className="text-lg font-heading font-bold text-yellow-700 mb-2">
                         Dial +1 424 404 6372 → Ask anything, get instant answers.
                       </p>
-                      <p className="text-xs text-yellow-600 mt-4 max-w-xs mx-auto">
+                      <p className="text-xs text-yellow-600 font-bold mt-4 max-w-xs mx-auto">
                         Available around the clock. Book an appointment, check hours, or just say hello—our AI never misses a call.
                       </p>
                     </div>
@@ -230,14 +230,14 @@ const Home = () => {
                       <h3 className="text-lg font-heading font-bold mb-4 text-center text-yellow-800">
                         Choose the Perfect Voice
                       </h3>
-                      <p className="text-sm text-yellow-600 mb-6 text-center">
+                      <p className="text-sm text-yellow-600 font-bold mb-6 text-center">
                         Pick an accent, hit play, and hear how your brand could greet callers.
                       </p>
                       
                       <div className="space-y-4">
                         {/* Voice Style Selection */}
-                        <div className="flex items-center justify-between gap-2">
-                          <label className="text-sm font-medium text-yellow-700 flex-shrink-0">Voice Style</label>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-yellow-700">Voice Style</label>
                           <RadioGroup 
                             value={voiceSettings.gender} 
                             onValueChange={handleGenderChange}
