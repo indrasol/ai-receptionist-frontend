@@ -315,48 +315,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      {/* FAQ Section */}
-      <section className="py-20 bg-muted/30">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-heading font-bold mb-6">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              Quick answers to common questions about our AI customer service platform.
-            </p>
-          </div>
-
-          <div className="space-y-6">
-            {[
-              {
-                question: "How quickly can I get started with AI FrontDesk Pro?",
-                answer: "You can be up and running in under 15 minutes. Our setup process is designed to be simple and straightforward, with guided configuration and pre-built templates."
-              },
-              {
-                question: "Do you offer customer support during setup?",
-                answer: "Yes! We provide comprehensive onboarding support including live chat, email support, and optional screen-sharing sessions to ensure you get set up correctly."
-              },
-              {
-                question: "Can I integrate with my existing business tools?",
-                answer: "Absolutely. We offer integrations with popular CRM systems, calendar applications, communication platforms, and more. Custom integrations are available for enterprise customers."
-              },
-              {
-                question: "Is there a limit to how many calls the AI can handle?",
-                answer: "Our AI can handle unlimited simultaneous conversations. Your plan determines your monthly call/message limits, but there's no restriction on concurrent interactions."
-              }
-            ].map((faq, index) => (
-              <Card key={index} className="glass-card">
-                <CardContent className="p-6">
-                  <h3 className="font-heading font-semibold mb-3">{faq.question}</h3>
-                  <p className="text-muted-foreground">{faq.answer}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
     </div>
   );
 };
