@@ -49,8 +49,7 @@ const Home = () => {
   // Voice teaser state
   const [voiceSettings, setVoiceSettings] = useState({
     gender: '',
-    accent: '',
-    country: ''
+    receptionist: ''
   });
 
   // Voice preview state
@@ -82,10 +81,10 @@ const Home = () => {
   };
 
   const handleVoicePreview = () => {
-    if (!voiceSettings.gender || !voiceSettings.accent || !voiceSettings.country) {
+    if (!voiceSettings.gender || !voiceSettings.receptionist) {
       toast({
         title: "Please select all options",
-        description: "Choose gender, accent, and country to preview the voice.",
+        description: "Choose gender and receptionist to preview the voice.",
         variant: "destructive"
       });
       return;
@@ -100,7 +99,7 @@ const Home = () => {
       setIsPlaying(true);
       toast({
         title: "Voice Preview",
-        description: `Playing ${voiceSettings.gender} voice with ${voiceSettings.accent} accent from ${voiceSettings.country}`,
+        description: `Playing ${voiceSettings.gender} voice: ${voiceSettings.receptionist}`,
       });
     }
   };
@@ -224,38 +223,20 @@ const Home = () => {
                           </RadioGroup>
                         </div>
 
-                        {/* Accent Selection */}
+                        {/* Receptionist Selection */}
                         <div>
-                          <label className="block text-sm font-medium mb-2 text-yellow-700">Accent</label>
-                          <Select onValueChange={(value) => setVoiceSettings(prev => ({...prev, accent: value}))}>
+                          <label className="block text-sm font-medium mb-2 text-yellow-700">Receptionist</label>
+                          <Select onValueChange={(value) => setVoiceSettings(prev => ({...prev, receptionist: value}))}>
                             <SelectTrigger className="border-yellow-200 focus:border-yellow-500 text-yellow-700">
-                              <SelectValue placeholder="Select an accent" className="text-yellow-500" />
+                              <SelectValue placeholder="Select a receptionist" className="text-yellow-500" />
                             </SelectTrigger>
                             <SelectContent className="bg-yellow-50 border-yellow-200">
-                              <SelectItem value="american" className="text-yellow-700 hover:bg-yellow-100">American</SelectItem>
-                              <SelectItem value="british" className="text-yellow-700 hover:bg-yellow-100">British</SelectItem>
-                              <SelectItem value="australian" className="text-yellow-700 hover:bg-yellow-100">Australian</SelectItem>
-                              <SelectItem value="canadian" className="text-yellow-700 hover:bg-yellow-100">Canadian</SelectItem>
-                              <SelectItem value="irish" className="text-yellow-700 hover:bg-yellow-100">Irish</SelectItem>
-                              <SelectItem value="scottish" className="text-yellow-700 hover:bg-yellow-100">Scottish</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        {/* Country Selection */}
-                        <div>
-                          <label className="block text-sm font-medium mb-2 text-yellow-700">Country</label>
-                          <Select onValueChange={(value) => setVoiceSettings(prev => ({...prev, country: value}))}>
-                            <SelectTrigger className="border-yellow-200 focus:border-yellow-500 text-yellow-700">
-                              <SelectValue placeholder="Select a country" className="text-yellow-500" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-yellow-50 border-yellow-200">
-                              <SelectItem value="usa" className="text-yellow-700 hover:bg-yellow-100">United States</SelectItem>
-                              <SelectItem value="uk" className="text-yellow-700 hover:bg-yellow-100">United Kingdom</SelectItem>
-                              <SelectItem value="canada" className="text-yellow-700 hover:bg-yellow-100">Canada</SelectItem>
-                              <SelectItem value="australia" className="text-yellow-700 hover:bg-yellow-100">Australia</SelectItem>
-                              <SelectItem value="ireland" className="text-yellow-700 hover:bg-yellow-100">Ireland</SelectItem>
-                              <SelectItem value="scotland" className="text-yellow-700 hover:bg-yellow-100">Scotland</SelectItem>
+                              <SelectItem value="sarah-american" className="text-yellow-700 hover:bg-yellow-100">Sarah . American</SelectItem>
+                              <SelectItem value="emily-british" className="text-yellow-700 hover:bg-yellow-100">Emily . British</SelectItem>
+                              <SelectItem value="olivia-australian" className="text-yellow-700 hover:bg-yellow-100">Olivia . Australian</SelectItem>
+                              <SelectItem value="sophia-canadian" className="text-yellow-700 hover:bg-yellow-100">Sophia . Canadian</SelectItem>
+                              <SelectItem value="grace-irish" className="text-yellow-700 hover:bg-yellow-100">Grace . Irish</SelectItem>
+                              <SelectItem value="fiona-scottish" className="text-yellow-700 hover:bg-yellow-100">Fiona . Scottish</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -263,11 +244,11 @@ const Home = () => {
                         {/* Voice Preview Section */}
                         <div className="pt-4 space-y-4">
                           {/* Play Icon and Voice Nodes Container */}
-                          <div className="flex items-center justify-center space-x-6">
-                            {/* Play/Pause Button */}
+                          <div className="flex items-center space-x-8">
+                            {/* Play/Pause Button - Extreme Left */}
                             <Button 
                               onClick={handleVoicePreview}
-                              className={`w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ${
+                              className={`w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex-shrink-0 ${
                                 isPlaying 
                                   ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700' 
                                   : 'bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700'
@@ -280,19 +261,19 @@ const Home = () => {
                               )}
                             </Button>
 
-                            {/* Voice Visualization Nodes */}
-                            <div className="flex items-center space-x-2">
-                              {[1, 2, 3, 4, 5].map((i) => (
+                            {/* Voice Visualization Nodes - Fill Right Side */}
+                            <div className="flex items-center space-x-1 flex-1">
+                              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
                                 <div 
                                   key={i}
                                   className={`w-1 bg-gradient-to-t from-yellow-400 to-yellow-600 rounded-full transition-all duration-150 ${
                                     isPlaying 
-                                      ? `animate-pulse h-${4 + (i % 3) * 2}` 
-                                      : 'h-4'
+                                      ? `animate-pulse h-${3 + (i % 4) * 2}` 
+                                      : 'h-3'
                                   }`}
                                   style={{
-                                    animationDelay: `${i * 0.1}s`,
-                                    animationDuration: '0.8s'
+                                    animationDelay: `${(i * 0.08)}s`,
+                                    animationDuration: '0.6s'
                                   }}
                                 />
                               ))}
