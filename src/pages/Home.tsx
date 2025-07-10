@@ -152,7 +152,7 @@ const Home = () => {
               <span className="gradient-primary-text"> Our Team</span>
             </h2>
             <p className="text-xl text-muted-foreground leading-relaxed">
-              Have questions about AI FrontDesk Pro? We're here to help. 
+              Have questions about our AI Receptionist? We're here to help. 
               Reach out to us and we'll respond within 24 hours.
             </p>
           </div>
