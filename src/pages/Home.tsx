@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -180,7 +181,7 @@ const Home = () => {
             </h1>
             
             {/* AI Receptionist Video */}
-            <div className="glass-card rounded-3xl p-8 mb-8 animate-float">
+            <div className="glass-card rounded-3xl p-8 mb-8">
               <div className="aspect-video bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl overflow-hidden">
                 <iframe
                   src="https://www.youtube.com/embed/VX9KgPxKzsE"
