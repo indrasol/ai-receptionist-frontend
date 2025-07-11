@@ -186,16 +186,16 @@ const Home = () => {
               <span className="gradient-primary-text">Never Sleeps</span>
             </h1>
             
-            {/* AI Receptionist Animation Card */}
+            {/* AI Receptionist Video */}
             <div className="glass-card rounded-3xl p-8 mb-8 animate-float">
-              <div className="aspect-video bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-24 h-24 gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Phone className="w-12 h-12 text-white" />
-                  </div>
-                  <p className="text-lg font-medium">AI Receptionist Animation</p>
-                  <p className="text-muted-foreground">Interactive demo coming soon</p>
-                </div>
+              <div className="aspect-video bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl overflow-hidden">
+                <iframe
+                  src="https://www.youtube.com/embed/VX9KgPxKzsE"
+                  title="AI Receptionist Demo"
+                  className="w-full h-full rounded-2xl"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
               </div>
             </div>
             
