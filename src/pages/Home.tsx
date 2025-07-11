@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -194,7 +193,7 @@ const Home = () => {
             </div>
             
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-fade-in-up">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6 animate-fade-in-up">
               <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogTrigger asChild>
                   <Button size="lg" className="gradient-primary hover-glow text-white text-lg px-8 py-4">
