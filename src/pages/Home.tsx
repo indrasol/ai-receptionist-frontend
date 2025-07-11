@@ -146,6 +146,10 @@ const Home = () => {
     }
   };
 
+  const handleBookMeeting = () => {
+    window.open('https://outlook.office.com/book/satsbookings@indrasol.com/?ismsaljsauthenabled', '_blank', 'noopener,noreferrer');
+  };
+
   // Progress animation effect
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -253,6 +257,16 @@ const Home = () => {
               Have questions about our AI Receptionist? We're here to help. 
               Reach out to us and we'll respond within 24 hours.
             </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+              <Button 
+                size="lg" 
+                className="gradient-primary hover-glow text-white"
+                onClick={handleBookMeeting}
+              >
+                <Calendar className="w-5 h-5 mr-2" />
+                Book a Meeting
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
