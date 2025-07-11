@@ -167,20 +167,20 @@ const Home = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 lg:py-32">
+      <section className="relative overflow-hidden py-12 lg:py-20">
         {/* Background Blobs */}
         <div className="blob-bg w-96 h-96 gradient-primary top-20 -left-48"></div>
         <div className="blob-bg w-80 h-80 bg-aquamarine top-40 -right-40"></div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-heading font-bold mb-6 animate-fade-in-up">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-heading font-bold mb-4 animate-fade-in-up">
               Your AI Receptionist That{' '}
               <span className="gradient-primary-text">Never Sleeps</span>
             </h1>
             
             {/* AI Receptionist Video */}
-            <div className="glass-card rounded-3xl p-8 mb-8">
+            <div className="glass-card rounded-3xl p-6 mb-6">
               <div className="aspect-video bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl overflow-hidden">
                 <iframe
                   src="https://www.youtube.com/embed/VX9KgPxKzsE"
@@ -193,7 +193,7 @@ const Home = () => {
             </div>
             
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-3 animate-fade-in-up">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up">
               <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogTrigger asChild>
                   <Button size="lg" className="gradient-primary hover-glow text-white text-lg px-8 py-4">
@@ -231,18 +231,18 @@ const Home = () => {
       </section>
 
       {/* Contact Form & Info */}
-      <section className="py-20" id="contact">
+      <section className="py-12" id="contact">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-4xl mx-auto mb-16">
-            <h2 className="text-4xl lg:text-5xl font-heading font-bold mb-6">
+          <div className="text-center max-w-4xl mx-auto mb-10">
+            <h2 className="text-4xl lg:text-5xl font-heading font-bold mb-4">
               Get in Touch with
               <span className="gradient-primary-text"> Our Team</span>
             </h2>
-            <p className="text-xl text-muted-foreground leading-relaxed">
+            <p className="text-xl text-muted-foreground leading-relaxed mb-6">
               Have questions about our AI Receptionist? We're here to help. 
               Reach out to us and we'll respond within 24 hours.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 size="lg" 
                 className="gradient-primary hover-glow text-white"
@@ -254,14 +254,14 @@ const Home = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Contact Form */}
             <div className="lg:col-span-2">
               <Card className="glass-card">
-                <CardContent className="p-8">
-                  <h3 className="text-2xl font-heading font-bold mb-6">Send us a Message</h3>
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <CardContent className="p-6">
+                  <h3 className="text-2xl font-heading font-bold mb-4">Send us a Message</h3>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label htmlFor="name" className="block text-sm font-medium mb-2">
                           Full Name *
@@ -348,12 +348,12 @@ const Home = () => {
             </div>
 
             {/* Contact Info */}
-            <div className="space-y-8">
+            <div className="space-y-6">
               {/* Contact Cards */}
               <Card className="glass-card">
-                <CardContent className="p-6">
-                  <h4 className="font-heading font-semibold mb-4">Contact Information</h4>
-                  <div className="space-y-4">
+                <CardContent className="p-5">
+                  <h4 className="font-heading font-semibold mb-3">Contact Information</h4>
+                  <div className="space-y-3">
                     <div className="flex items-start space-x-3">
                       <Mail className="w-5 h-5 text-primary mt-0.5" />
                       <div>
@@ -393,8 +393,8 @@ const Home = () => {
 
               {/* Social Media */}
               <Card className="glass-card">
-                <CardContent className="p-6">
-                  <h4 className="font-heading font-semibold mb-4">Follow Us</h4>
+                <CardContent className="p-5">
+                  <h4 className="font-heading font-semibold mb-3">Follow Us</h4>
                   <div className="flex space-x-4">
                     <a href="#" className="w-10 h-10 glass-card rounded-lg flex items-center justify-center hover:gradient-primary hover:text-white transition-all duration-300">
                       <Twitter className="w-5 h-5" />
