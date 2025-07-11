@@ -167,23 +167,23 @@ const Home = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-12 lg:py-20">
+      <section className="relative overflow-hidden py-8 lg:py-12">
         {/* Background Blobs */}
         <div className="blob-bg w-96 h-96 gradient-primary top-20 -left-48"></div>
         <div className="blob-bg w-80 h-80 bg-aquamarine top-40 -right-40"></div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-heading font-bold mb-4 animate-fade-in-up">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-heading font-bold mb-3 animate-fade-in-up">
               Your AI Receptionist That{' '}
               <span className="gradient-primary-text">Never Sleeps</span>
             </h1>
             
             {/* AI Receptionist Video */}
-            <div className="glass-card rounded-3xl p-6 mb-6">
+            <div className="glass-card rounded-3xl p-4 mb-4">
               <div className="aspect-video bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl overflow-hidden">
                 <iframe
-                  src="https://www.youtube.com/embed/VX9KgPxKzsE"
+                  src="https://www.youtube.com/embed/XT5Xtx5W9kQ"
                   title="AI Receptionist Demo"
                   className="w-full h-full rounded-2xl"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -193,7 +193,7 @@ const Home = () => {
             </div>
             
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up mb-3">
               <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogTrigger asChild>
                   <Button size="lg" className="gradient-primary hover-glow text-white text-lg px-8 py-4">
@@ -231,7 +231,7 @@ const Home = () => {
       </section>
 
       {/* Contact Form & Info */}
-      <section className="py-12" id="contact">
+      <section className="py-8" id="contact">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto mb-10">
             <h2 className="text-4xl lg:text-5xl font-heading font-bold mb-4">
