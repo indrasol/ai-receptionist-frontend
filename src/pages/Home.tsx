@@ -41,9 +41,11 @@ import {
 } from '@/components/ui/tooltip';
 import { useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
+import { contactService } from '@/services/contactService';
 
 const Home = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -84,21 +86,53 @@ const Home = () => {
     ]
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    toast({
-      title: "Message Sent!",
-      description: "We'll get back to you within 24 hours.",
-    });
-    // Reset form
-    setFormData({
-      name: '',
-      email: '',
-      company: '',
-      subject: '',
-      message: ''
-    });
+    
+    // Basic validation
+    if (!formData.name.trim() || !formData.email.trim() || !formData.subject || !formData.message.trim()) {
+      toast({
+        title: "Please fill in all required fields",
+        description: "Name, email, subject, and message are required.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    console.log('Contact form submission started with data:', formData);
+    
+    try {
+      const response = await contactService.submit(formData);
+      
+      console.log('Contact form submission successful');
+      console.log('Backend response:', response);
+      
+      toast({
+        title: "Message Sent!",
+        description: "We'll get back to you within 24 hours.",
+      });
+      
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        company: '',
+        subject: '',
+        message: ''
+      });
+    } catch (error) {
+      console.error('Contact form submission failed:', error);
+      toast({
+        title: "Failed to send message",
+        description: "Please try again later.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+      console.log('Contact form submission process completed');
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -339,8 +373,9 @@ const Home = () => {
                       type="submit" 
                       size="lg" 
                       className="w-full gradient-primary hover-glow text-white"
+                      disabled={isSubmitting}
                     >
-                      Send Message
+                      {isSubmitting ? "Sending..." : "Send Message"}
                     </Button>
                   </form>
                 </CardContent>
