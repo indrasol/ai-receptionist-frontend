@@ -217,7 +217,7 @@ const Home = () => {
             <div className="glass-card rounded-3xl p-4 mb-4">
               <div className="aspect-video bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl overflow-hidden">
                 <iframe
-                  src="https://www.youtube.com/embed/D9PfZy1V2ew"
+                  src="https://www.youtube.com/embed/yLsLKbTo4zQ"
                   title="AI Receptionist Demo"
                   className="w-full h-full rounded-2xl"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
