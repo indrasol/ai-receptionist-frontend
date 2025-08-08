@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Upload, Link2, Phone, CircleDot } from "lucide-react";
+import { Upload, Link2, Phone, Circle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface ProjectResource {
@@ -98,14 +98,14 @@ const CallLogs = () => {
   };
 
   const getStatusIcon = (status: "pass" | "fail" | "no-status") => {
-    const iconClass = "h-4 w-4";
+    const iconClass = "h-5 w-5 fill-current";
     switch (status) {
       case "pass":
-        return <CircleDot className={`${iconClass} text-green-500`} />;
+        return <Circle className={`${iconClass} text-green-500`} />;
       case "fail":
-        return <CircleDot className={`${iconClass} text-red-500`} />;
+        return <Circle className={`${iconClass} text-red-500`} />;
       case "no-status":
-        return <CircleDot className={`${iconClass} text-yellow-500`} />;
+        return <Circle className={`${iconClass} text-yellow-500`} />;
     }
   };
 
@@ -202,25 +202,33 @@ const CallLogs = () => {
               <CardTitle>Project Resources</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="rounded-md border">
+              <div className="rounded-lg border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12">
+                    <TableRow className="border-b border-border/40 bg-muted/30">
+                      <TableHead className="w-12 font-bold text-foreground">
                         <Checkbox />
                       </TableHead>
-                      <TableHead>First Name</TableHead>
-                      <TableHead>Last Name</TableHead>
-                      <TableHead>Customer Phone Numbers</TableHead>
-                      <TableHead>Success Evaluation</TableHead>
-                      <TableHead>Calls</TableHead>
-                      <TableHead>Summary</TableHead>
+                      <TableHead className="font-bold text-foreground">First Name</TableHead>
+                      <TableHead className="font-bold text-foreground">Last Name</TableHead>
+                      <TableHead className="font-bold text-foreground">Customer Phone Numbers</TableHead>
+                      <TableHead className="font-bold text-foreground">Success Evaluation</TableHead>
+                      <TableHead className="font-bold text-foreground">Calls</TableHead>
+                      <TableHead className="font-bold text-foreground">Summary</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {mockResources.map((resource) => (
-                      <TableRow key={resource.id}>
-                        <TableCell>
+                    {mockResources.map((resource, index) => (
+                      <TableRow 
+                        key={resource.id} 
+                        className={`
+                          border-b border-border/20 
+                          hover:bg-muted/20 
+                          transition-colors duration-200
+                          ${index % 2 === 0 ? 'bg-background' : 'bg-muted/10'}
+                        `}
+                      >
+                        <TableCell className="py-4">
                           <Checkbox
                             checked={selectedFiles.includes(resource.id)}
                             onCheckedChange={(checked) => 
@@ -228,23 +236,23 @@ const CallLogs = () => {
                             }
                           />
                         </TableCell>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-semibold text-foreground py-4">
                           {resource.firstName}
                         </TableCell>
-                        <TableCell>{resource.lastName}</TableCell>
-                        <TableCell>{resource.phone}</TableCell>
-                        <TableCell>
+                        <TableCell className="text-muted-foreground py-4">{resource.lastName}</TableCell>
+                        <TableCell className="font-mono text-sm py-4">{resource.phone}</TableCell>
+                        <TableCell className="py-4">
                           <div className="flex items-center justify-center">
                             {getStatusIcon(resource.successStatus)}
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="py-4">
                           <div className="flex items-center justify-center">
-                            <Phone className="h-4 w-4 text-primary cursor-pointer hover:text-primary/80" />
+                            <Phone className="h-4 w-4 text-primary cursor-pointer hover:text-primary/80 transition-colors" />
                           </div>
                         </TableCell>
-                        <TableCell className="max-w-xs">
-                          <div className="truncate" title={resource.summary}>
+                        <TableCell className="max-w-xs py-4">
+                          <div className="truncate text-muted-foreground" title={resource.summary}>
                             {resource.summary}
                           </div>
                         </TableCell>
