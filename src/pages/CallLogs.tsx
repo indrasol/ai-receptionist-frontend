@@ -412,14 +412,23 @@ const CallLogs = () => {
                           {getStatusIcon(resource.successStatus)}
                         </TableCell>
                         <TableCell className="py-4">
-                          <div className="flex items-center justify-center">
-                            <Phone className="h-4 w-4 text-primary cursor-pointer hover:text-primary/80 transition-colors" />
-                          </div>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="flex items-center gap-2"
+                          >
+                            <Phone className="h-4 w-4" />
+                            Call
+                          </Button>
                         </TableCell>
-                        <TableCell className="max-w-xs py-4">
-                          <div className="truncate text-muted-foreground" title={resource.summary}>
-                            {resource.summary}
-                          </div>
+                        <TableCell className="py-4">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="flex items-center gap-2"
+                          >
+                            Summary
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
