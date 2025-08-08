@@ -21,6 +21,7 @@ import VoiceRouting from "./pages/console/VoiceRouting";
 import Appointments from "./pages/console/Appointments";
 import KnowledgeBase from "./pages/console/KnowledgeBase";
 import Settings from "./pages/console/Settings";
+import CallLogs from "./pages/CallLogs";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/tutorials" element={<Layout><Tutorials /></Layout>} />
           <Route path="/start-free" element={<Layout><StartFree /></Layout>} />
           <Route path="/contact" element={<Layout><Contact /></Layout>} />
+          <Route path="/call-logs" element={<Layout><CallLogs /></Layout>} />
           
           {/* Onboarding - no main layout */}
           <Route path="/onboard" element={<Onboard />} />
