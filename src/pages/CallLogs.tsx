@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Upload, Link2, Phone, Signal } from "lucide-react";
+import { Upload, Link2, Phone, CircleDot } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface ProjectResource {
@@ -101,11 +101,11 @@ const CallLogs = () => {
     const iconClass = "h-4 w-4";
     switch (status) {
       case "pass":
-        return <Signal className={`${iconClass} text-green-500`} />;
+        return <CircleDot className={`${iconClass} text-green-500`} />;
       case "fail":
-        return <Signal className={`${iconClass} text-red-500`} />;
+        return <CircleDot className={`${iconClass} text-red-500`} />;
       case "no-status":
-        return <Signal className={`${iconClass} text-yellow-500`} />;
+        return <CircleDot className={`${iconClass} text-yellow-500`} />;
     }
   };
 
