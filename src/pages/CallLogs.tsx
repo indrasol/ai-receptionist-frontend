@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Upload, Link2, Phone, Circle, Loader2, AlertCircle } from "lucide-react";
+import { Upload, Link2, Phone, Circle, Loader2, AlertCircle, Plus, Minus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 import * as XLSX from 'xlsx';
 
 interface ProjectResource {
@@ -16,6 +17,8 @@ interface ProjectResource {
   phone: string;
   successStatus: "pass" | "fail" | "no-status";
   summary: string;
+  transcript?: string;
+  recordingUrl?: string;
 }
 
 const CallLogs = () => {
@@ -25,16 +28,20 @@ const CallLogs = () => {
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [organizationName, setOrganizationName] = useState("");
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Header mapping for flexible parsing
   const headerMappings = {
     firstName: ['first name', 'firstname', 'first_name'],
     lastName: ['last name', 'lastname', 'last_name'],
-    phone: ['customer phone numbers', 'phone', 'phone number'],
+    phone: ['customer phone numbers', 'lead phone number', 'phone', 'phone number'],
     successStatus: ['success evaluation', 'status', 'result'],
     calls: ['calls', 'call count'],
-    summary: ['summary', 'notes', 'description']
+    summary: ['summary', 'notes', 'description'],
+    transcript: ['transcript', 'call transcript'],
+    recordingUrl: ['recording url', 'recording', 'call recording']
   };
 
   const normalizeHeader = (header: string): string | null => {
@@ -88,7 +95,9 @@ const CallLogs = () => {
       lastName: row[mapping.lastName] || '',
       phone: row[mapping.phone] ? normalizePhoneNumber(row[mapping.phone].toString()) : '',
       successStatus: row[mapping.successStatus] ? normalizeSuccessStatus(row[mapping.successStatus].toString()) : 'no-status',
-      summary: row[mapping.summary] || ''
+      summary: row[mapping.summary] || '',
+      transcript: row[mapping.transcript] || '',
+      recordingUrl: row[mapping.recordingUrl] || ''
     }));
   };
 
@@ -250,6 +259,43 @@ const CallLogs = () => {
     }
   };
 
+  const handleCallAction = (resource: ProjectResource) => {
+    // Placeholder for future call action
+    toast({
+      title: "Call Action",
+      description: `Initiating call to ${resource.phone}`,
+    });
+  };
+
+  const handleSummaryView = (resource: ProjectResource) => {
+    navigate(`/call-summary/${resource.id}`, { 
+      state: { resource } 
+    });
+  };
+
+  const handleAddOrganization = () => {
+    if (!organizationName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter an organization name.",
+        variant: "destructive"
+      });
+      return;
+    }
+    toast({
+      title: "Organization Added",
+      description: `Added organization: ${organizationName}`,
+    });
+  };
+
+  const handleRemoveOrganization = () => {
+    setOrganizationName("");
+    toast({
+      title: "Organization Removed",
+      description: "Organization has been cleared.",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
@@ -265,6 +311,36 @@ const CallLogs = () => {
             <span className="text-red-700">{error}</span>
           </div>
         )}
+
+        {/* Organization Section */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Organization</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
+                <Label htmlFor="organization-name">Organization Name</Label>
+                <Input
+                  id="organization-name"
+                  placeholder="Enter organization name"
+                  value={organizationName}
+                  onChange={(e) => setOrganizationName(e.target.value)}
+                />
+              </div>
+              <div className="flex gap-2 pt-6">
+                <Button onClick={handleAddOrganization} size="sm">
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add
+                </Button>
+                <Button onClick={handleRemoveOrganization} variant="outline" size="sm">
+                  <Minus className="h-4 w-4 mr-1" />
+                  Remove
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Top Section - Two Panels */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -352,12 +428,12 @@ const CallLogs = () => {
           </Card>
         </div>
 
-        {/* Project Resources Table */}
+        {/* Leads Calls Info Table */}
         {resources.length === 0 && !isLoading && (
           <Card>
             <CardContent className="py-12 text-center">
               <p className="text-muted-foreground text-lg">
-                Import a file or Google Sheet to see Project Resources.
+                Import a file or Google Sheet to see Leads Calls Info.
               </p>
             </CardContent>
           </Card>
@@ -366,7 +442,7 @@ const CallLogs = () => {
         {resources.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Project Resources</CardTitle>
+              <CardTitle>Leads Calls Info</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="rounded-lg border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
@@ -378,9 +454,9 @@ const CallLogs = () => {
                       </TableHead>
                       <TableHead className="font-bold text-foreground">First Name</TableHead>
                       <TableHead className="font-bold text-foreground">Last Name</TableHead>
-                      <TableHead className="font-bold text-foreground">Customer Phone Numbers</TableHead>
-                      <TableHead className="font-bold text-foreground">Success Evaluation</TableHead>
-                      <TableHead className="font-bold text-foreground">Calls</TableHead>
+                      <TableHead className="font-bold text-foreground">Lead Phone Number</TableHead>
+                      <TableHead className="font-bold text-foreground">Status</TableHead>
+                      <TableHead className="font-bold text-foreground">Action</TableHead>
                       <TableHead className="font-bold text-foreground">Summary</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -416,6 +492,7 @@ const CallLogs = () => {
                             variant="outline" 
                             size="sm"
                             className="flex items-center gap-2"
+                            onClick={() => handleCallAction(resource)}
                           >
                             <Phone className="h-4 w-4" />
                             Call
@@ -426,6 +503,7 @@ const CallLogs = () => {
                             variant="outline" 
                             size="sm"
                             className="flex items-center gap-2"
+                            onClick={() => handleSummaryView(resource)}
                           >
                             Summary
                           </Button>

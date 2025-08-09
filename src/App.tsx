@@ -22,6 +22,7 @@ import Appointments from "./pages/console/Appointments";
 import KnowledgeBase from "./pages/console/KnowledgeBase";
 import Settings from "./pages/console/Settings";
 import CallLogs from "./pages/CallLogs";
+import CallSummary from "./pages/CallSummary";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/start-free" element={<Layout><StartFree /></Layout>} />
           <Route path="/contact" element={<Layout><Contact /></Layout>} />
           <Route path="/call-logs" element={<Layout><CallLogs /></Layout>} />
+          <Route path="/call-summary/:id" element={<Layout><CallSummary /></Layout>} />
           
           {/* Onboarding - no main layout */}
           <Route path="/onboard" element={<Onboard />} />
