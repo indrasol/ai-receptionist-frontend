@@ -84,49 +84,52 @@ const CallSummary = () => {
             </CardContent>
           </Card>
 
-          {/* Summary Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="p-4 bg-muted/50 rounded-lg border">
-                <p className="text-foreground">
-                  {resource.summary || "No summary available for this call."}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Call Recording Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Call Recording</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {resource.recordingUrl ? (
-                <audio 
-                  controls 
-                  className="w-full"
-                  src={resource.recordingUrl}
-                >
-                  Your browser does not support the audio element.
-                </audio>
-              ) : (
-                <div className="p-4 bg-muted/50 rounded-lg border text-center">
-                  <p className="text-muted-foreground">
-                    No recording available for this call.
+          {/* Summary and Call Recording Cards - Side by Side */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Summary Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Summary</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="p-4 bg-muted/50 rounded-lg border">
+                  <p className="text-foreground">
+                    {resource.summary || "No summary available for this call."}
                   </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Call Recording Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Call Recording</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {resource.recordingUrl ? (
                   <audio 
-                    controls
-                    className="w-full mt-4 opacity-50"
+                    controls 
+                    className="w-full"
+                    src={resource.recordingUrl}
                   >
                     Your browser does not support the audio element.
                   </audio>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                ) : (
+                  <div className="p-4 bg-muted/50 rounded-lg border text-center">
+                    <p className="text-muted-foreground">
+                      No recording available for this call.
+                    </p>
+                    <audio 
+                      controls
+                      className="w-full mt-4 opacity-50"
+                    >
+                      Your browser does not support the audio element.
+                    </audio>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

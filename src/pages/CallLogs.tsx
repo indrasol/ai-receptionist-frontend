@@ -313,22 +313,23 @@ const CallLogs = () => {
         )}
 
         {/* Organization Section */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Organization</CardTitle>
+        <Card className="mb-4">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Organization</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
+          <CardContent className="pt-0">
+            <div className="flex items-end gap-3">
               <div className="flex-1">
-                <Label htmlFor="organization-name">Organization Name</Label>
+                <Label htmlFor="organization-name" className="text-sm">Organization Name</Label>
                 <Input
                   id="organization-name"
                   placeholder="Enter organization name"
                   value={organizationName}
                   onChange={(e) => setOrganizationName(e.target.value)}
+                  className="mt-1"
                 />
               </div>
-              <div className="flex gap-2 pt-6">
+              <div className="flex gap-2">
                 <Button onClick={handleAddOrganization} size="sm">
                   <Plus className="h-4 w-4 mr-1" />
                   Add
