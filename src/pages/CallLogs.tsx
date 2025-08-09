@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Upload, Link2, Phone, Circle, Loader2, AlertCircle, Plus, Minus } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Upload, Link2, Phone, Circle, Loader2, AlertCircle, Plus, Minus, Bot, PhoneCall } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from 'xlsx';
@@ -29,6 +30,7 @@ const CallLogs = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [organizationName, setOrganizationName] = useState("");
+  const [selectedAssistant, setSelectedAssistant] = useState<string>("");
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -296,6 +298,21 @@ const CallLogs = () => {
     });
   };
 
+  const handleAutoCall = () => {
+    if (selectedFiles.length === 0) {
+      toast({
+        title: "No leads selected",
+        description: "Please select leads to start auto calling.",
+        variant: "destructive"
+      });
+      return;
+    }
+    toast({
+      title: "Auto Call Started",
+      description: `Starting auto call for ${selectedFiles.length} selected leads with ${selectedAssistant || 'default'} assistant.`,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
@@ -440,7 +457,26 @@ const CallLogs = () => {
         {resources.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Leads Calls Info</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Leads Calls Info</CardTitle>
+                <div className="flex items-center gap-3">
+                  <Select value={selectedAssistant} onValueChange={setSelectedAssistant}>
+                    <SelectTrigger className="w-[180px]">
+                      <Bot className="h-4 w-4 mr-2" />
+                      <SelectValue placeholder="Select Assistant" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="assistant-1">Assistant 1</SelectItem>
+                      <SelectItem value="assistant-2">Assistant 2</SelectItem>
+                      <SelectItem value="assistant-3">Assistant 3</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button onClick={handleAutoCall} className="flex items-center gap-2">
+                    <PhoneCall className="h-4 w-4" />
+                    Auto Call
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="rounded-lg border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
