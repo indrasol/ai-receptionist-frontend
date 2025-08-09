@@ -304,20 +304,9 @@ const CallLogs = () => {
           <h1 className="text-4xl font-bold tracking-tight text-foreground">Call Logs</h1>
         </div>
 
-        {/* Error Banner */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-red-500" />
-            <span className="text-red-700">{error}</span>
-          </div>
-        )}
-
         {/* Organization Section */}
-        <Card className="mb-4">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Organization</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
+        <Card className="mb-6">
+          <CardContent className="pt-4">
             <div className="flex items-end gap-3">
               <div className="flex-1">
                 <Label htmlFor="organization-name" className="text-sm">Organization Name</Label>
@@ -342,6 +331,14 @@ const CallLogs = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Error Banner */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-red-500" />
+            <span className="text-red-700">{error}</span>
+          </div>
+        )}
 
         {/* Top Section - Two Panels */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
