@@ -21,8 +21,10 @@ import VoiceRouting from "./pages/console/VoiceRouting";
 import Appointments from "./pages/console/Appointments";
 import KnowledgeBase from "./pages/console/KnowledgeBase";
 import Settings from "./pages/console/Settings";
-import CallLogs from "./pages/CallLogs";
+import OutboundLogs from "./pages/OutboundLogs";
+import InboundLogs from "./pages/InboundLogs";
 import CallSummary from "./pages/CallSummary";
+import { Navigate } from "react-router-dom";
 
 const queryClient = new QueryClient();
 
@@ -42,7 +44,9 @@ const App = () => (
           <Route path="/tutorials" element={<Layout><Tutorials /></Layout>} />
           <Route path="/start-free" element={<Layout><StartFree /></Layout>} />
           <Route path="/contact" element={<Layout><Contact /></Layout>} />
-          <Route path="/call-logs" element={<Layout><CallLogs /></Layout>} />
+          <Route path="/out-bound" element={<Layout><OutboundLogs /></Layout>} />
+          <Route path="/in-bound" element={<Layout><InboundLogs /></Layout>} />
+          <Route path="/call-logs" element={<Navigate to="/out-bound" replace />} />
           <Route path="/call-summary/:id" element={<Layout><CallSummary /></Layout>} />
           
           {/* Onboarding - no main layout */}

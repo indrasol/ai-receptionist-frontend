@@ -351,7 +351,7 @@ const CallLogs = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground">Call Logs</h1>
+          <h1 className="text-4xl font-bold tracking-tight text-foreground">Outbound Call Logs</h1>
         </div>
 
         {/* Organization Section */}
@@ -491,7 +491,7 @@ const CallLogs = () => {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>Leads Calls Info</CardTitle>
+                <CardTitle>Leads Outbound Calls Info</CardTitle>
                 <div className="flex items-center gap-3">
                   <Select value={selectedAssistant} onValueChange={setSelectedAssistant}>
                     <SelectTrigger className="w-[180px]">
