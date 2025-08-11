@@ -6,7 +6,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, Link2, Phone, Circle, Loader2, AlertCircle, Plus, Minus, Bot, PhoneCall } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Upload, Link2, Phone, Circle, Loader2, AlertCircle, Plus, Minus, Bot, PhoneCall, CalendarIcon, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from 'xlsx';
@@ -31,6 +34,10 @@ const CallLogs = () => {
   const [error, setError] = useState<string | null>(null);
   const [organizationName, setOrganizationName] = useState("");
   const [selectedAssistant, setSelectedAssistant] = useState<string>("");
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [selectedResource, setSelectedResource] = useState<ProjectResource | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [selectedTime, setSelectedTime] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -262,11 +269,37 @@ const CallLogs = () => {
   };
 
   const handleCallAction = (resource: ProjectResource) => {
-    // Placeholder for future call action
+    setSelectedResource(resource);
+    setIsScheduleModalOpen(true);
+  };
+
+  const handleScheduleCall = () => {
+    if (!selectedDate || !selectedTime) {
+      toast({
+        title: "Error",
+        description: "Please select both date and time for the call.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     toast({
-      title: "Call Action",
-      description: `Initiating call to ${resource.phone}`,
+      title: "Call Scheduled",
+      description: `Call scheduled for ${selectedResource?.firstName} ${selectedResource?.lastName} on ${selectedDate.toLocaleDateString()} at ${selectedTime}`,
     });
+
+    // Reset form and close modal
+    setSelectedDate(undefined);
+    setSelectedTime("");
+    setIsScheduleModalOpen(false);
+    setSelectedResource(null);
+  };
+
+  const handleCancelSchedule = () => {
+    setSelectedDate(undefined);
+    setSelectedTime("");
+    setIsScheduleModalOpen(false);
+    setSelectedResource(null);
   };
 
   const handleSummaryView = (resource: ProjectResource) => {
@@ -550,6 +583,101 @@ const CallLogs = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Schedule Call Modal */}
+        <Dialog open={isScheduleModalOpen} onOpenChange={setIsScheduleModalOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Schedule Call</DialogTitle>
+              {selectedResource && (
+                <p className="text-sm text-muted-foreground">
+                  Scheduling call for {selectedResource.firstName} {selectedResource.lastName} ({selectedResource.phone})
+                </p>
+              )}
+            </DialogHeader>
+            
+            <div className="grid gap-6 py-4">
+              {/* Date Picker */}
+              <div className="space-y-2">
+                <Label>Select Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {selectedDate ? selectedDate.toLocaleDateString() : "Pick a date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={setSelectedDate}
+                      disabled={(date) => date < new Date()}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* Time Picker */}
+              <div className="space-y-2">
+                <Label>Select Time</Label>
+                <Select value={selectedTime} onValueChange={setSelectedTime}>
+                  <SelectTrigger>
+                    <Clock className="mr-2 h-4 w-4" />
+                    <SelectValue placeholder="Select time" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="09:00">9:00 AM</SelectItem>
+                    <SelectItem value="09:30">9:30 AM</SelectItem>
+                    <SelectItem value="10:00">10:00 AM</SelectItem>
+                    <SelectItem value="10:30">10:30 AM</SelectItem>
+                    <SelectItem value="11:00">11:00 AM</SelectItem>
+                    <SelectItem value="11:30">11:30 AM</SelectItem>
+                    <SelectItem value="12:00">12:00 PM</SelectItem>
+                    <SelectItem value="12:30">12:30 PM</SelectItem>
+                    <SelectItem value="13:00">1:00 PM</SelectItem>
+                    <SelectItem value="13:30">1:30 PM</SelectItem>
+                    <SelectItem value="14:00">2:00 PM</SelectItem>
+                    <SelectItem value="14:30">2:30 PM</SelectItem>
+                    <SelectItem value="15:00">3:00 PM</SelectItem>
+                    <SelectItem value="15:30">3:30 PM</SelectItem>
+                    <SelectItem value="16:00">4:00 PM</SelectItem>
+                    <SelectItem value="16:30">4:30 PM</SelectItem>
+                    <SelectItem value="17:00">5:00 PM</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Calendar View */}
+              <div className="space-y-2">
+                <Label>Calendar View</Label>
+                <div className="border rounded-lg p-3">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    disabled={(date) => date < new Date()}
+                    className="pointer-events-auto"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={handleCancelSchedule}>
+                Cancel
+              </Button>
+              <Button onClick={handleScheduleCall}>
+                Schedule
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
