@@ -3,13 +3,11 @@ import { useState, useEffect } from 'react';
 import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Bot, Home, Mic, Calendar, BookOpen, Settings, Menu, ChevronLeft, Phone, PhoneOutgoing, PhoneIncoming } from 'lucide-react';
+import { Bot, Home, Mic, Calendar, BookOpen, Settings, Menu, ChevronLeft, Phone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const sidebarItems = [
   { icon: Home, label: 'Dashboard', path: 'dashboard' },
-  { icon: PhoneOutgoing, label: 'Outbound', path: 'out-bound' },
-  { icon: PhoneIncoming, label: 'Inbound', path: 'in-bound' },
   { icon: Mic, label: 'Voice Routing', path: 'voice-routing' },
   { icon: Calendar, label: 'Appointments', path: 'appointments' },
   { icon: BookOpen, label: 'Knowledge Base', path: 'knowledge-base' },
