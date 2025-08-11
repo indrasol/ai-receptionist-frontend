@@ -56,7 +56,21 @@ const InboundLogs = () => {
   ];
 
   const handleSummaryClick = (id: string) => {
-    navigate(`/call-summary/${id}`);
+    // Create a placeholder resource for the call summary
+    const call = inboundCalls.find(c => c.id === id);
+    if (call) {
+      const resource = {
+        id: call.id,
+        firstName: call.firstName,
+        lastName: call.lastName,
+        phone: call.leadPhoneNumber,
+        successStatus: "pass" as const,
+        summary: `Call summary for ${call.firstName} ${call.lastName} from ${call.companyName}. Call received on ${call.callDate} at ${call.callTime} and was handled by assistant ${call.assistant}.`,
+        transcript: `[${call.callTime}] Assistant: Hello, thank you for calling. How can I help you today?\n[${call.callTime}] ${call.firstName}: Hi, I'm calling about your services...\n[${call.callTime}] Assistant: I'd be happy to help you with that. Let me get some information from you...`,
+        recordingUrl: undefined
+      };
+      navigate(`call-summary/${id}`, { state: { resource } });
+    }
   };
 
   const EmptyState = () => (

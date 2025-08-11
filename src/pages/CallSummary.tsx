@@ -29,7 +29,16 @@ const CallSummary = () => {
             <Button 
               variant="outline" 
               className="flex items-center gap-2"
-              onClick={() => navigate(`/app/${slug}/out-bound`)}
+              onClick={() => {
+                const currentPath = location.pathname;
+                if (currentPath.includes('/out-bound/')) {
+                  navigate(`/app/${slug}/out-bound`);
+                } else if (currentPath.includes('/in-bound/')) {
+                  navigate(`/app/${slug}/in-bound`);
+                } else {
+                  navigate(`/app/${slug}/out-bound`);
+                }
+              }}
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Call Logs
@@ -55,7 +64,16 @@ const CallSummary = () => {
           <Button 
             variant="outline" 
             className="flex items-center gap-2"
-            onClick={() => navigate(`/app/${slug}/out-bound`)}
+            onClick={() => {
+              const currentPath = location.pathname;
+              if (currentPath.includes('/out-bound/')) {
+                navigate(`/app/${slug}/out-bound`);
+              } else if (currentPath.includes('/in-bound/')) {
+                navigate(`/app/${slug}/in-bound`);
+              } else {
+                navigate(`/app/${slug}/out-bound`);
+              }
+            }}
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Call Logs
