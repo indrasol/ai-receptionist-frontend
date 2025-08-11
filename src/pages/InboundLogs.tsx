@@ -98,33 +98,10 @@ const InboundLogs = () => {
       {/* Main Content */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <PhoneCall className="w-5 h-5" />
-              Leads Inbound Calls Info
-            </CardTitle>
-            <div className="flex items-center gap-2">
-              {/* Assistants Dropdown */}
-              <Select>
-                <SelectTrigger className="w-48">
-                  <Bot className="w-4 h-4 mr-2" />
-                  <SelectValue placeholder="Select Assistant" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Assistants</SelectItem>
-                  <SelectItem value="mary">Mary Smith</SelectItem>
-                  <SelectItem value="john">John Wilson</SelectItem>
-                  <SelectItem value="sarah">Sarah Davis</SelectItem>
-                </SelectContent>
-              </Select>
-
-              {/* Auto Call Button */}
-              <Button variant="outline" className="flex items-center gap-2">
-                <PhoneCall className="w-4 h-4" />
-                Auto Call
-              </Button>
-            </div>
-          </div>
+          <CardTitle className="flex items-center gap-2">
+            <PhoneCall className="w-5 h-5" />
+            Leads Inbound Calls Info
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {inboundCalls.length === 0 ? (
