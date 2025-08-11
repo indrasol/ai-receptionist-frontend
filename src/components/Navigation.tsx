@@ -87,28 +87,6 @@ const Navigation = () => {
             </div>
           </Link>
 
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-6">
-            <Link 
-              to="/out-bound" 
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                location.pathname === "/out-bound" ? "text-primary" : "text-muted-foreground"
-              )}
-            >
-              Outbound
-            </Link>
-            <Link 
-              to="/in-bound" 
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                location.pathname === "/in-bound" ? "text-primary" : "text-muted-foreground"
-              )}
-            >
-              Inbound
-            </Link>
-          </div>
-
           {/* CTA and Theme Toggle */}
           <div className="hidden md:flex items-center space-x-4">
             <Button
@@ -153,26 +131,6 @@ const Navigation = () => {
       {isOpen && (
         <div className="md:hidden glass-card border-t animate-slide-in-right">
           <div className="px-4 py-6 space-y-4">
-            <Link 
-              to="/out-bound" 
-              className={cn(
-                "block px-3 py-2 text-sm font-medium transition-colors hover:text-primary rounded-md",
-                location.pathname === "/out-bound" ? "text-primary bg-primary/10" : "text-muted-foreground"
-              )}
-              onClick={() => setIsOpen(false)}
-            >
-              Outbound
-            </Link>
-            <Link 
-              to="/in-bound" 
-              className={cn(
-                "block px-3 py-2 text-sm font-medium transition-colors hover:text-primary rounded-md",
-                location.pathname === "/in-bound" ? "text-primary bg-primary/10" : "text-muted-foreground"
-              )}
-              onClick={() => setIsOpen(false)}
-            >
-              Inbound
-            </Link>
             <Button 
               className="w-full gradient-primary hover-glow text-white font-medium"
               onClick={handleContactClick}
