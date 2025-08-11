@@ -597,30 +597,18 @@ const CallLogs = () => {
             </DialogHeader>
             
             <div className="grid gap-6 py-4">
-              {/* Date Picker */}
+              {/* Select Date - Calendar View */}
               <div className="space-y-2">
                 <Label>Select Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {selectedDate ? selectedDate.toLocaleDateString() : "Pick a date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={selectedDate}
-                      onSelect={setSelectedDate}
-                      disabled={(date) => date < new Date()}
-                      initialFocus
-                      className="pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
+                <div className="border rounded-lg p-3">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    disabled={(date) => date < new Date()}
+                    className="pointer-events-auto"
+                  />
+                </div>
               </div>
 
               {/* Time Picker */}
@@ -651,20 +639,6 @@ const CallLogs = () => {
                     <SelectItem value="17:00">5:00 PM</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-
-              {/* Calendar View */}
-              <div className="space-y-2">
-                <Label>Calendar View</Label>
-                <div className="border rounded-lg p-3">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    disabled={(date) => date < new Date()}
-                    className="pointer-events-auto"
-                  />
-                </div>
               </div>
             </div>
 
