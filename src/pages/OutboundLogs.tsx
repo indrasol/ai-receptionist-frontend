@@ -303,7 +303,7 @@ const CallLogs = () => {
   };
 
   const handleSummaryView = (resource: ProjectResource) => {
-    navigate(`/call-summary/${resource.id}`, { 
+    navigate(`call-summary/${resource.id}`, { 
       state: { resource } 
     });
   };

@@ -57,6 +57,7 @@ const App = () => (
             <Route index element={<Dashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="out-bound" element={<OutboundLogs />} />
+            <Route path="out-bound/call-summary/:id" element={<CallSummary />} />
             <Route path="in-bound" element={<InboundLogs />} />
             <Route path="voice-routing" element={<VoiceRouting />} />
             <Route path="appointments" element={<Appointments />} />
