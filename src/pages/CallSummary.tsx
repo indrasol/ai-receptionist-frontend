@@ -1,4 +1,4 @@
-import { useParams, useLocation, Link } from "react-router-dom";
+import { useParams, useLocation, Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,8 +16,9 @@ interface ProjectResource {
 }
 
 const CallSummary = () => {
-  const { id } = useParams();
+  const { id, slug } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const resource = location.state?.resource as ProjectResource;
 
   if (!resource) {
@@ -25,12 +26,14 @@ const CallSummary = () => {
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
           <div className="mb-6">
-            <Link to="/call-logs">
-              <Button variant="outline" className="flex items-center gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Back to Call Logs
-              </Button>
-            </Link>
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2"
+              onClick={() => navigate(`/app/${slug}/out-bound`)}
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Call Logs
+            </Button>
           </div>
           <Card>
             <CardContent className="py-12 text-center">
@@ -49,12 +52,14 @@ const CallSummary = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb/Back Navigation */}
         <div className="mb-6">
-          <Link to="/call-logs">
-            <Button variant="outline" className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Call Logs
-            </Button>
-          </Link>
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+            onClick={() => navigate(`/app/${slug}/out-bound`)}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Call Logs
+          </Button>
         </div>
 
         {/* Header */}
