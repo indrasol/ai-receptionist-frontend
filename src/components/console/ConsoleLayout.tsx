@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Bot, Home, Mic, Calendar, BookOpen, Settings, Menu, ChevronLeft, Phone, PhoneOutgoing, PhoneIncoming } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import ConsoleBreadcrumb from './ConsoleBreadcrumb';
 
 const sidebarItems = [
   { icon: Home, label: 'Dashboard', path: 'dashboard' },
@@ -147,7 +148,12 @@ const ConsoleLayout = () => {
             transition={{ duration: 0.25 }}
             className="h-full"
           >
-            <Outlet />
+            <div className="p-6">
+              <ConsoleBreadcrumb />
+              <div className="-mt-6">
+                <Outlet />
+              </div>
+            </div>
           </motion.div>
         </main>
       </div>

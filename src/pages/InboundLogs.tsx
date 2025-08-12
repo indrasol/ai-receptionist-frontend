@@ -114,7 +114,7 @@ const InboundLogs = () => {
   );
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4">
         <h1 className="text-3xl font-bold gradient-primary-text">Inbound Call Logs</h1>
