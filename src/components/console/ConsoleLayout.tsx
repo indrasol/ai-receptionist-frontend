@@ -9,8 +9,8 @@ import ConsoleBreadcrumb from './ConsoleBreadcrumb';
 
 const sidebarItems = [
   { icon: Home, label: 'Dashboard', path: 'dashboard' },
-  { icon: PhoneOutgoing, label: 'Outbound', path: 'out-bound' },
   { icon: PhoneIncoming, label: 'Inbound', path: 'in-bound' },
+  { icon: PhoneOutgoing, label: 'Outbound', path: 'out-bound' },
   { icon: Mic, label: 'Voice Routing', path: 'voice-routing' },
   { icon: Calendar, label: 'Appointments', path: 'appointments' },
   { icon: BookOpen, label: 'Knowledge Base', path: 'knowledge-base' },
