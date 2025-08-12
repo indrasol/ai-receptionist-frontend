@@ -152,10 +152,12 @@ const Dashboard = () => {
               <div className="text-2xl font-bold">
                 {animatedKPIs.outboundSuccessRate.toFixed(1)}%
               </div>
-              <p className="text-xs text-gray-500 mt-1">Pass / Total</p>
-              <p className="text-xs text-muted-foreground">
-                <span className="text-green-600">+2.1%</span> from yesterday
-              </p>
+              <div className="flex justify-between items-end">
+                <p className="text-xs text-muted-foreground">
+                  <span className="text-green-600">+2.1%</span> from yesterday
+                </p>
+                <p className="text-xs text-gray-500">(Pass Calls/Total Calls)</p>
+              </div>
             </CardContent>
           </Card>
         </motion.div>
