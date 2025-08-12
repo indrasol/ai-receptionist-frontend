@@ -13,6 +13,14 @@ import { Upload, Link2, Phone, Circle, Loader2, AlertCircle, Plus, Minus, Bot, P
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from 'xlsx';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface ProjectResource {
   id: string;
@@ -44,6 +52,10 @@ const CallLogs = () => {
   const [filterDate, setFilterDate] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterAssistant, setFilterAssistant] = useState("all");
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
   
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -370,6 +382,24 @@ const CallLogs = () => {
     return matchesSearch && matchesStatus && matchesAssistant;
   });
 
+  // Pagination logic
+  const totalPages = Math.ceil(filteredResources.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedResources = filteredResources.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  const resetPagination = () => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(1);
+    }
+  };
+
+  // Call resetPagination when filters change
+  useState(() => {
+    resetPagination();
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <div className="space-y-8">
@@ -591,7 +621,7 @@ const CallLogs = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredResources.map((resource, index) => (
+                    {paginatedResources.map((resource, index) => (
                       <TableRow 
                         key={resource.id} 
                         className={`
@@ -643,6 +673,52 @@ const CallLogs = () => {
                   </TableBody>
                 </Table>
               </div>
+              
+              {/* Pagination */}
+              {filteredResources.length > 0 && totalPages > 1 && (
+                <div className="mt-6">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (currentPage > 1) setCurrentPage(currentPage - 1);
+                          }}
+                          className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}
+                        />
+                      </PaginationItem>
+                      
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <PaginationItem key={page}>
+                          <PaginationLink
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setCurrentPage(page);
+                            }}
+                            isActive={currentPage === page}
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      ))}
+                      
+                      <PaginationItem>
+                        <PaginationNext 
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+                          }}
+                          className={currentPage >= totalPages ? "pointer-events-none opacity-50" : ""}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}

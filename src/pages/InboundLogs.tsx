@@ -13,6 +13,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 const InboundLogs = () => {
   const navigate = useNavigate();
@@ -22,6 +30,10 @@ const InboundLogs = () => {
   const [selectedDate, setSelectedDate] = useState("all");
   const [selectedAssistant, setSelectedAssistant] = useState("all");
   const [selectedCompany, setSelectedCompany] = useState("all");
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   // Generate stable IDs for placeholder data
   const generateStableId = (firstName: string, lastName: string, phone: string) => {
@@ -81,6 +93,24 @@ const InboundLogs = () => {
     const matchesCompany = selectedCompany === "all" || call.companyName === selectedCompany;
     
     return matchesSearch && matchesDate && matchesAssistant && matchesCompany;
+  });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredCalls.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedCalls = filteredCalls.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  const resetPagination = () => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(1);
+    }
+  };
+
+  // Call resetPagination when filters change
+  useState(() => {
+    resetPagination();
   });
 
   const handleSummaryClick = (id: string) => {
@@ -202,7 +232,7 @@ const InboundLogs = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredCalls.map((call) => (
+                  {paginatedCalls.map((call) => (
                     <TableRow key={call.id}>
                       <TableCell className="font-medium">{call.firstName}</TableCell>
                       <TableCell>{call.lastName}</TableCell>
@@ -231,6 +261,52 @@ const InboundLogs = () => {
                   ))}
                 </TableBody>
               </Table>
+            </div>
+          )}
+          
+          {/* Pagination */}
+          {filteredCalls.length > 0 && totalPages > 1 && (
+            <div className="mt-6">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (currentPage > 1) setCurrentPage(currentPage - 1);
+                      }}
+                      className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}
+                    />
+                  </PaginationItem>
+                  
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setCurrentPage(page);
+                        }}
+                        isActive={currentPage === page}
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  
+                  <PaginationItem>
+                    <PaginationNext 
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+                      }}
+                      className={currentPage >= totalPages ? "pointer-events-none opacity-50" : ""}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             </div>
           )}
         </CardContent>
