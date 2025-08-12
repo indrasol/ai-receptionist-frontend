@@ -72,6 +72,96 @@ const InboundLogs = () => {
       callTime: "16:20",
       companyName: "Global Industries",
       assistant: "Sarah Davis"
+    },
+    {
+      id: generateStableId("Alice", "Brown", "(555) 456-7890"),
+      firstName: "Alice",
+      lastName: "Brown",
+      leadPhoneNumber: "(555) 456-7890",
+      callDate: "2025-08-10",
+      callTime: "09:15",
+      companyName: "Digital Ventures",
+      assistant: "Mary Smith"
+    },
+    {
+      id: generateStableId("Charlie", "Wilson", "(555) 567-8901"),
+      firstName: "Charlie",
+      lastName: "Wilson",
+      leadPhoneNumber: "(555) 567-8901",
+      callDate: "2025-08-10",
+      callTime: "11:30",
+      companyName: "Innovation Labs",
+      assistant: "John Wilson"
+    },
+    {
+      id: generateStableId("Diana", "Martinez", "(555) 678-9012"),
+      firstName: "Diana",
+      lastName: "Martinez",
+      leadPhoneNumber: "(555) 678-9012",
+      callDate: "2025-08-10",
+      callTime: "13:45",
+      companyName: "Future Tech",
+      assistant: "Sarah Davis"
+    },
+    {
+      id: generateStableId("Edward", "Taylor", "(555) 789-0123"),
+      firstName: "Edward",
+      lastName: "Taylor",
+      leadPhoneNumber: "(555) 789-0123",
+      callDate: "2025-08-09",
+      callTime: "10:20",
+      companyName: "Smart Systems",
+      assistant: "Mary Smith"
+    },
+    {
+      id: generateStableId("Fiona", "Anderson", "(555) 890-1234"),
+      firstName: "Fiona",
+      lastName: "Anderson",
+      leadPhoneNumber: "(555) 890-1234",
+      callDate: "2025-08-09",
+      callTime: "14:15",
+      companyName: "Cloud Services",
+      assistant: "John Wilson"
+    },
+    {
+      id: generateStableId("George", "Thompson", "(555) 901-2345"),
+      firstName: "George",
+      lastName: "Thompson",
+      leadPhoneNumber: "(555) 901-2345",
+      callDate: "2025-08-09",
+      callTime: "16:50",
+      companyName: "Data Analytics Co",
+      assistant: "Sarah Davis"
+    },
+    {
+      id: generateStableId("Helen", "Garcia", "(555) 012-3456"),
+      firstName: "Helen",
+      lastName: "Garcia",
+      leadPhoneNumber: "(555) 012-3456",
+      callDate: "2025-08-08",
+      callTime: "08:30",
+      companyName: "AI Solutions",
+      assistant: "Mary Smith"
+    },
+    {
+      id: generateStableId("Ivan", "Rodriguez", "(555) 111-2222"),
+      firstName: "Ivan",
+      lastName: "Rodriguez",
+      leadPhoneNumber: "(555) 111-2222",
+      callDate: "2025-08-08",
+      callTime: "12:45",
+      companyName: "Automation Inc",
+      assistant: "John Wilson"
+    },
+    {
+      id: generateStableId("Julia", "Lee", "(555) 333-4444"),
+      firstName: "Julia",
+      lastName: "Lee",
+      leadPhoneNumber: "(555) 333-4444",
+      callDate: "2025-08-08",
+      callTime: "15:25",
+      companyName: "Robotics Ltd",
+      assistant: "Sarah Davis"
     }
   ];
 
