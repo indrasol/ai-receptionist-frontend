@@ -24,6 +24,8 @@ import Settings from "./pages/console/Settings";
 import OutboundLogs from "./pages/OutboundLogs";
 import InboundLogs from "./pages/InboundLogs";
 import CallSummary from "./pages/CallSummary";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
 import { Navigate } from "react-router-dom";
 
 const queryClient = new QueryClient();
@@ -35,6 +37,10 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Auth routes - no layout */}
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          
           {/* Public routes with main layout */}
           <Route path="/" element={<Layout><Home /></Layout>} />
           <Route path="/features" element={<Layout><Features /></Layout>} />
