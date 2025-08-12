@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Eye, EyeOff, ArrowLeft, Loader2 } from 'lucide-react';
-import registerIllustration from '@/assets/register-illustration.png';
+// Using uploaded AI receptionist image
 
 const Register = () => {
   const navigate = useNavigate();
@@ -98,7 +98,7 @@ const Register = () => {
         
         <div className="relative z-10 max-w-md text-center">
           <img 
-            src={registerIllustration} 
+            src="/lovable-uploads/cc5bbc60-f97d-45dd-b5ff-d5d348fb6914.png" 
             alt="AI Receptionist" 
             className="w-full h-auto mb-8 animate-float"
           />
