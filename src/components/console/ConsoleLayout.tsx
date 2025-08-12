@@ -11,9 +11,9 @@ const sidebarItems = [
   { icon: Home, label: 'Dashboard', path: 'dashboard' },
   { icon: PhoneIncoming, label: 'Inbound', path: 'in-bound' },
   { icon: PhoneOutgoing, label: 'Outbound', path: 'out-bound' },
-  { icon: Mic, label: 'Voice Routing', path: 'voice-routing' },
-  { icon: Calendar, label: 'Appointments', path: 'appointments' },
-  { icon: BookOpen, label: 'Knowledge Base', path: 'knowledge-base' },
+  // { icon: Mic, label: 'Voice Routing', path: 'voice-routing' },
+  // { icon: Calendar, label: 'Appointments', path: 'appointments' },
+  // { icon: BookOpen, label: 'Knowledge Base', path: 'knowledge-base' },
   { icon: Settings, label: 'Settings', path: 'settings' },
 ];
 
