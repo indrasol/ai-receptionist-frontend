@@ -408,33 +408,6 @@ const CallLogs = () => {
           <h1 className="text-4xl font-bold tracking-tight text-primary">Outbound Call Logs</h1>
         </div>
 
-        {/* Organization Section */}
-        <Card className="mb-6">
-          <CardContent className="pt-4">
-            <div className="flex items-end gap-3">
-              <div className="flex-1">
-                <Label htmlFor="organization-name" className="text-sm">Organization Name</Label>
-                <Input
-                  id="organization-name"
-                  placeholder="Enter organization name"
-                  value={organizationName}
-                  onChange={(e) => setOrganizationName(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button onClick={handleAddOrganization} size="sm">
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add
-                </Button>
-                <Button onClick={handleRemoveOrganization} variant="outline" size="sm">
-                  <Minus className="h-4 w-4 mr-1" />
-                  Remove
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Error Banner */}
         {error && (
@@ -548,11 +521,11 @@ const CallLogs = () => {
                 <CardTitle>Leads Outbound Calls Info</CardTitle>
                 <div className="flex items-center gap-3">
                   <Select value={selectedAssistant} onValueChange={setSelectedAssistant}>
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-auto min-w-[180px]">
                       <Bot className="h-4 w-4 mr-2" />
                       <SelectValue placeholder="Select Assistant" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="min-w-[200px]">
                       <SelectItem value="assistant-1">Assistant 1</SelectItem>
                       <SelectItem value="assistant-2">Assistant 2</SelectItem>
                       <SelectItem value="assistant-3">Assistant 3</SelectItem>
@@ -567,40 +540,27 @@ const CallLogs = () => {
             </CardHeader>
             <CardContent>
               {/* Search and Filters */}
-              <div className="flex gap-4 items-center mb-6 flex-wrap">
-                <div className="relative flex-1 min-w-[200px]">
+              <div className="flex gap-4 items-center justify-between mb-6 flex-wrap">
+                <div className="relative max-w-xs">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     placeholder="Search by name or phone..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9"
+                    className="pl-9 w-64"
                   />
                 </div>
                 
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="w-[150px]">
+                  <SelectTrigger className="w-auto min-w-[150px]">
                     <Circle className="w-4 h-4 mr-2" />
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="min-w-[200px]">
                     <SelectItem value="all">All Statuses</SelectItem>
                     <SelectItem value="pass">Pass</SelectItem>
                     <SelectItem value="fail">Fail</SelectItem>
                     <SelectItem value="no-status">No Status</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select value={filterAssistant} onValueChange={setFilterAssistant}>
-                  <SelectTrigger className="w-[150px]">
-                    <Bot className="w-4 h-4 mr-2" />
-                    <SelectValue placeholder="Assistant" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Assistants</SelectItem>
-                    <SelectItem value="assistant-1">Assistant 1</SelectItem>
-                    <SelectItem value="assistant-2">Assistant 2</SelectItem>
-                    <SelectItem value="assistant-3">Assistant 3</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

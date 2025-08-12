@@ -9,11 +9,11 @@ import ConsoleBreadcrumb from './ConsoleBreadcrumb';
 
 const sidebarItems = [
   { icon: Home, label: 'Dashboard', path: 'dashboard' },
-  { icon: PhoneOutgoing, label: 'Outbound', path: 'out-bound' },
   { icon: PhoneIncoming, label: 'Inbound', path: 'in-bound' },
-  { icon: Mic, label: 'Voice Routing', path: 'voice-routing' },
-  { icon: Calendar, label: 'Appointments', path: 'appointments' },
-  { icon: BookOpen, label: 'Knowledge Base', path: 'knowledge-base' },
+  { icon: PhoneOutgoing, label: 'Outbound', path: 'out-bound' },
+  // { icon: Mic, label: 'Voice Routing', path: 'voice-routing' },
+  // { icon: Calendar, label: 'Appointments', path: 'appointments' },
+  // { icon: BookOpen, label: 'Knowledge Base', path: 'knowledge-base' },
   { icon: Settings, label: 'Settings', path: 'settings' },
 ];
 
@@ -67,7 +67,7 @@ const ConsoleLayout = () => {
         <div className="ml-auto">
           <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
             <ChevronLeft className="w-4 h-4 mr-2" />
-            Back to Home
+            Sign Out
           </Button>
         </div>
       </header>

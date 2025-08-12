@@ -254,22 +254,22 @@ const InboundLogs = () => {
         <CardContent>
           {/* Search and Filters */}
           <div className="flex gap-4 items-center mb-6 flex-wrap">
-            <div className="relative flex-1 min-w-[200px]">
+            <div className="relative max-w-xs">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Search by name, phone, or company..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9"
+                className="pl-9 w-72"
               />
             </div>
             
             <Select value={selectedDate} onValueChange={setSelectedDate}>
-              <SelectTrigger className="w-[150px]">
+              <SelectTrigger className="w-auto min-w-[150px]">
                 <Calendar className="w-4 h-4 mr-2" />
                 <SelectValue placeholder="Date" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="min-w-[200px]">
                 <SelectItem value="all">All Dates</SelectItem>
                 {uniqueDates.map((date) => (
                   <SelectItem key={date} value={date}>{date}</SelectItem>
@@ -278,11 +278,11 @@ const InboundLogs = () => {
             </Select>
 
             <Select value={selectedAssistant} onValueChange={setSelectedAssistant}>
-              <SelectTrigger className="w-[150px]">
+              <SelectTrigger className="w-auto min-w-[150px]">
                 <Bot className="w-4 h-4 mr-2" />
                 <SelectValue placeholder="Assistant" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="min-w-[200px]">
                 <SelectItem value="all">All Assistants</SelectItem>
                 {uniqueAssistants.map((assistant) => (
                   <SelectItem key={assistant} value={assistant}>{assistant}</SelectItem>
@@ -291,11 +291,11 @@ const InboundLogs = () => {
             </Select>
 
             <Select value={selectedCompany} onValueChange={setSelectedCompany}>
-              <SelectTrigger className="w-[150px]">
+              <SelectTrigger className="w-auto min-w-[150px]">
                 <Building2 className="w-4 h-4 mr-2" />
                 <SelectValue placeholder="Company" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="min-w-[200px]">
                 <SelectItem value="all">All Companies</SelectItem>
                 {uniqueCompanies.map((company) => (
                   <SelectItem key={company} value={company}>{company}</SelectItem>
