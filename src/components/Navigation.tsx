@@ -64,7 +64,7 @@ const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 font-heading font-bold text-xl gradient-primary-text">
+          <Link to="/register" className="flex items-center space-x-3 font-heading font-bold text-xl gradient-primary-text">
             <div className="relative">
               <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-lg">
                 <Bot className="w-5 h-5 text-white" />
