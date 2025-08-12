@@ -1,12 +1,5 @@
 import { useLocation, useParams, Link } from "react-router-dom";
-import { 
-  Breadcrumb, 
-  BreadcrumbList, 
-  BreadcrumbItem, 
-  BreadcrumbLink, 
-  BreadcrumbPage, 
-  BreadcrumbSeparator 
-} from "@/components/ui/breadcrumb";
+import { Badge } from "@/components/ui/badge";
 import { 
   Home, 
   PhoneOutgoing, 
@@ -15,7 +8,8 @@ import {
   Calendar, 
   BookOpen, 
   Settings,
-  FileText
+  FileText,
+  ChevronRight
 } from "lucide-react";
 
 const pathMapping: Record<string, { label: string; icon: React.ElementType }> = {
@@ -79,34 +73,41 @@ const ConsoleBreadcrumb = () => {
   });
 
   return (
-    <Breadcrumb className="mb-6">
-      <BreadcrumbList>
+    <div className="mb-6">
+      <div className="flex items-center gap-2 flex-wrap">
         {breadcrumbItems.map((item, index) => {
           const Icon = item.icon;
           
           return (
-            <div key={item.path} className="flex items-center">
-              {index > 0 && <BreadcrumbSeparator />}
-              <BreadcrumbItem>
-                {item.isLast ? (
-                  <BreadcrumbPage className="flex items-center gap-2">
+            <div key={item.path} className="flex items-center gap-2">
+              {index > 0 && (
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              )}
+              
+              {item.isLast ? (
+                <Badge 
+                  variant="default" 
+                  className="flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground hover:bg-primary/90 cursor-default"
+                >
+                  <Icon className="w-4 h-4" />
+                  {item.label}
+                </Badge>
+              ) : (
+                <Link to={item.path}>
+                  <Badge 
+                    variant="secondary" 
+                    className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted/80 transition-colors cursor-pointer"
+                  >
                     <Icon className="w-4 h-4" />
                     {item.label}
-                  </BreadcrumbPage>
-                ) : (
-                  <BreadcrumbLink asChild>
-                    <Link to={item.path} className="flex items-center gap-2 hover:text-primary">
-                      <Icon className="w-4 h-4" />
-                      {item.label}
-                    </Link>
-                  </BreadcrumbLink>
-                )}
-              </BreadcrumbItem>
+                  </Badge>
+                </Link>
+              )}
             </div>
           );
         })}
-      </BreadcrumbList>
-    </Breadcrumb>
+      </div>
+    </div>
   );
 };
 
