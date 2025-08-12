@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Bot, Home, Mic, Calendar, BookOpen, Settings, Menu, ChevronLeft, Phone, PhoneOutgoing, PhoneIncoming } from 'lucide-react';
+import { Bot, Home, Mic, Calendar, BookOpen, Settings, Menu, LogOut, Phone, PhoneOutgoing, PhoneIncoming } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ConsoleBreadcrumb from './ConsoleBreadcrumb';
 
@@ -66,7 +66,7 @@ const ConsoleLayout = () => {
         </div>
         <div className="ml-auto">
           <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
-            <ChevronLeft className="w-4 h-4 mr-2" />
+            <LogOut className="w-4 h-4 mr-2" />
             Sign Out
           </Button>
         </div>
