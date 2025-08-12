@@ -2,8 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
-import { Bot, PhoneCall, FileText } from "lucide-react";
+import { useState } from "react";
+import { Bot, PhoneCall, FileText, Search, Calendar, Building2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -14,6 +16,12 @@ import {
 
 const InboundLogs = () => {
   const navigate = useNavigate();
+  
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedAssistant, setSelectedAssistant] = useState("");
+  const [selectedCompany, setSelectedCompany] = useState("");
 
   // Generate stable IDs for placeholder data
   const generateStableId = (firstName: string, lastName: string, phone: string) => {
@@ -54,6 +62,26 @@ const InboundLogs = () => {
       assistant: "Sarah Davis"
     }
   ];
+
+  // Get unique values for filters
+  const uniqueAssistants = [...new Set(inboundCalls.map(call => call.assistant))];
+  const uniqueCompanies = [...new Set(inboundCalls.map(call => call.companyName))];
+  const uniqueDates = [...new Set(inboundCalls.map(call => call.callDate))];
+
+  // Filter calls based on search and filters
+  const filteredCalls = inboundCalls.filter((call) => {
+    const matchesSearch = searchTerm === "" || 
+      call.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      call.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      call.leadPhoneNumber.includes(searchTerm) ||
+      call.companyName.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesDate = selectedDate === "" || call.callDate === selectedDate;
+    const matchesAssistant = selectedAssistant === "" || call.assistant === selectedAssistant;
+    const matchesCompany = selectedCompany === "" || call.companyName === selectedCompany;
+    
+    return matchesSearch && matchesDate && matchesAssistant && matchesCompany;
+  });
 
   const handleSummaryClick = (id: string) => {
     // Create a placeholder resource for the call summary
@@ -104,7 +132,59 @@ const InboundLogs = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {inboundCalls.length === 0 ? (
+          {/* Search and Filters */}
+          <div className="flex gap-4 items-center mb-6 flex-wrap">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by name, phone, or company..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            
+            <Select value={selectedDate} onValueChange={setSelectedDate}>
+              <SelectTrigger className="w-[150px]">
+                <Calendar className="w-4 h-4 mr-2" />
+                <SelectValue placeholder="Date" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Dates</SelectItem>
+                {uniqueDates.map((date) => (
+                  <SelectItem key={date} value={date}>{date}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedAssistant} onValueChange={setSelectedAssistant}>
+              <SelectTrigger className="w-[150px]">
+                <Bot className="w-4 h-4 mr-2" />
+                <SelectValue placeholder="Assistant" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Assistants</SelectItem>
+                {uniqueAssistants.map((assistant) => (
+                  <SelectItem key={assistant} value={assistant}>{assistant}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedCompany} onValueChange={setSelectedCompany}>
+              <SelectTrigger className="w-[150px]">
+                <Building2 className="w-4 h-4 mr-2" />
+                <SelectValue placeholder="Company" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Companies</SelectItem>
+                {uniqueCompanies.map((company) => (
+                  <SelectItem key={company} value={company}>{company}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {filteredCalls.length === 0 ? (
             <EmptyState />
           ) : (
             <div className="rounded-md border">
@@ -122,7 +202,7 @@ const InboundLogs = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {inboundCalls.map((call) => (
+                  {filteredCalls.map((call) => (
                     <TableRow key={call.id}>
                       <TableCell className="font-medium">{call.firstName}</TableCell>
                       <TableCell>{call.lastName}</TableCell>
