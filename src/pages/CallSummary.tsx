@@ -1,8 +1,6 @@
-import { useParams, useLocation, Link, useNavigate } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft } from "lucide-react";
 
 interface ProjectResource {
   id: string;
@@ -16,143 +14,98 @@ interface ProjectResource {
 }
 
 const CallSummary = () => {
-  const { id, slug } = useParams();
+  const { id } = useParams();
   const location = useLocation();
-  const navigate = useNavigate();
   const resource = location.state?.resource as ProjectResource;
 
   if (!resource) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
-          <div className="mb-6">
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2"
-              onClick={() => {
-                const currentPath = location.pathname;
-                if (currentPath.includes('/out-bound/')) {
-                  navigate(`/app/${slug}/out-bound`);
-                } else if (currentPath.includes('/in-bound/')) {
-                  navigate(`/app/${slug}/in-bound`);
-                } else {
-                  navigate(`/app/${slug}/out-bound`);
-                }
-              }}
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Call Logs
-            </Button>
-          </div>
-          <Card>
-            <CardContent className="py-12 text-center">
-              <p className="text-muted-foreground text-lg">
-                Call summary not found. Please return to the call logs and try again.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="py-12 text-center">
+            <p className="text-muted-foreground text-lg">
+              Call summary not found. Please return to the call logs and try again.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        {/* Breadcrumb/Back Navigation */}
-        <div className="mb-6">
-          <Button 
-            variant="outline" 
-            className="flex items-center gap-2"
-            onClick={() => {
-              const currentPath = location.pathname;
-              if (currentPath.includes('/out-bound/')) {
-                navigate(`/app/${slug}/out-bound`);
-              } else if (currentPath.includes('/in-bound/')) {
-                navigate(`/app/${slug}/in-bound`);
-              } else {
-                navigate(`/app/${slug}/out-bound`);
-              }
-            }}
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Call Logs
-          </Button>
-        </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-4xl font-bold tracking-tight text-foreground">
+          Call Summary - {resource.firstName} {resource.lastName}
+        </h1>
+        <p className="text-muted-foreground mt-2">
+          {resource.phone}
+        </p>
+      </div>
 
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground">
-            Call Summary - {resource.firstName} {resource.lastName}
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            {resource.phone}
-          </p>
-        </div>
+      {/* Content Cards */}
+      <div className="space-y-6">
+        {/* Transcript Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Transcript</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Textarea
+              value={resource.transcript || "No transcript available for this call."}
+              readOnly
+              className="min-h-[200px] resize-none"
+              placeholder="Transcript content will appear here..."
+            />
+          </CardContent>
+        </Card>
 
-        {/* Content Cards */}
-        <div className="space-y-6">
-          {/* Transcript Card */}
+        {/* Summary and Call Recording Cards - Side by Side */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Summary Card */}
           <Card>
             <CardHeader>
-              <CardTitle>Transcript</CardTitle>
+              <CardTitle>Summary</CardTitle>
             </CardHeader>
             <CardContent>
-              <Textarea
-                value={resource.transcript || "No transcript available for this call."}
-                readOnly
-                className="min-h-[200px] resize-none"
-                placeholder="Transcript content will appear here..."
-              />
+              <div className="p-4 bg-muted/50 rounded-lg border">
+                <p className="text-foreground">
+                  {resource.summary || "No summary available for this call."}
+                </p>
+              </div>
             </CardContent>
           </Card>
 
-          {/* Summary and Call Recording Cards - Side by Side */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Summary Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Summary</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="p-4 bg-muted/50 rounded-lg border">
-                  <p className="text-foreground">
-                    {resource.summary || "No summary available for this call."}
+          {/* Call Recording Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Call Recording</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {resource.recordingUrl ? (
+                <audio 
+                  controls 
+                  className="w-full"
+                  src={resource.recordingUrl}
+                >
+                  Your browser does not support the audio element.
+                </audio>
+              ) : (
+                <div className="p-4 bg-muted/50 rounded-lg border text-center">
+                  <p className="text-muted-foreground">
+                    No recording available for this call.
                   </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Call Recording Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Call Recording</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {resource.recordingUrl ? (
                   <audio 
-                    controls 
-                    className="w-full"
-                    src={resource.recordingUrl}
+                    controls
+                    className="w-full mt-4 opacity-50"
                   >
                     Your browser does not support the audio element.
                   </audio>
-                ) : (
-                  <div className="p-4 bg-muted/50 rounded-lg border text-center">
-                    <p className="text-muted-foreground">
-                      No recording available for this call.
-                    </p>
-                    <audio 
-                      controls
-                      className="w-full mt-4 opacity-50"
-                    >
-                      Your browser does not support the audio element.
-                    </audio>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
