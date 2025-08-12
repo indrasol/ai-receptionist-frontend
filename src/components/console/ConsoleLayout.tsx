@@ -67,7 +67,7 @@ const ConsoleLayout = () => {
         <div className="ml-auto">
           <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
             <ChevronLeft className="w-4 h-4 mr-2" />
-            Back to Home
+            Sign Out
           </Button>
         </div>
       </header>
