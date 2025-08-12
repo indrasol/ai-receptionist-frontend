@@ -4,16 +4,15 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { LineChart, Line, ResponsiveContainer, Tooltip } from 'recharts';
-import { Phone, Calendar, TrendingUp, Star, MessageCircle, Clock } from 'lucide-react';
+import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { PhoneIncoming, PhoneOutgoing, TrendingUp } from 'lucide-react';
 import { mockCalls, kpiData } from '@/data/mockData';
 
 const Dashboard = () => {
   const [animatedKPIs, setAnimatedKPIs] = useState({
-    callsHandled: 0,
-    bookingsCompleted: 0,
-    upsellRate: 0,
-    customerSatisfaction: 0
+    inboundCalls: 0,
+    outboundCalls: 0,
+    outboundSuccessRate: 0
   });
 
   // Get business name from onboarding data
@@ -36,30 +35,40 @@ const Dashboard = () => {
 
     const timer = setInterval(() => {
       setAnimatedKPIs(prev => ({
-        callsHandled: Math.min(prev.callsHandled + kpiData.callsHandled / steps, kpiData.callsHandled),
-        bookingsCompleted: Math.min(prev.bookingsCompleted + kpiData.bookingsCompleted / steps, kpiData.bookingsCompleted),
-        upsellRate: Math.min(prev.upsellRate + kpiData.upsellRate / steps, kpiData.upsellRate),
-        customerSatisfaction: Math.min(prev.customerSatisfaction + kpiData.customerSatisfaction / steps, kpiData.customerSatisfaction)
+        inboundCalls: Math.min(prev.inboundCalls + 247 / steps, 247),
+        outboundCalls: Math.min(prev.outboundCalls + 89 / steps, 89),
+        outboundSuccessRate: Math.min(prev.outboundSuccessRate + 62.5 / steps, 62.5)
       }));
     }, interval);
 
     setTimeout(() => {
       clearInterval(timer);
-      setAnimatedKPIs(kpiData);
+      setAnimatedKPIs({
+        inboundCalls: 247,
+        outboundCalls: 89,
+        outboundSuccessRate: 62.5
+      });
     }, duration);
 
     return () => clearInterval(timer);
   }, []);
 
-  // Sample chart data
-  const chartData = [
-    { time: '9 AM', calls: 8 },
-    { time: '10 AM', calls: 12 },
-    { time: '11 AM', calls: 15 },
-    { time: '12 PM', calls: 20 },
-    { time: '1 PM', calls: 18 },
-    { time: '2 PM', calls: 25 },
-    { time: '3 PM', calls: 22 },
+  // Sample 14-day trend data for inbound calls
+  const trendData = [
+    { date: 'Dec 1', calls: 45 },
+    { date: 'Dec 2', calls: 52 },
+    { date: 'Dec 3', calls: 48 },
+    { date: 'Dec 4', calls: 61 },
+    { date: 'Dec 5', calls: 55 },
+    { date: 'Dec 6', calls: 67 },
+    { date: 'Dec 7', calls: 71 },
+    { date: 'Dec 8', calls: 64 },
+    { date: 'Dec 9', calls: 58 },
+    { date: 'Dec 10', calls: 73 },
+    { date: 'Dec 11', calls: 69 },
+    { date: 'Dec 12', calls: 81 },
+    { date: 'Dec 13', calls: 76 },
+    { date: 'Dec 14', calls: 84 },
   ];
 
   const formatTime = (timestamp: Date) => {
@@ -86,7 +95,7 @@ const Dashboard = () => {
       </motion.div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -94,29 +103,16 @@ const Dashboard = () => {
         >
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Calls Handled</CardTitle>
-              <Phone className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Inbound Calls</CardTitle>
+              <PhoneIncoming className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {Math.round(animatedKPIs.callsHandled)}
+                {Math.round(animatedKPIs.inboundCalls)}
               </div>
-              <div className="flex items-center space-x-2 mt-2">
-                <ResponsiveContainer width={60} height={20}>
-                  <LineChart data={chartData}>
-                    <Line
-                      type="monotone"
-                      dataKey="calls"
-                      stroke="#7B61FF"
-                      strokeWidth={2}
-                      dot={false}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-                <p className="text-xs text-muted-foreground">
-                  <span className="text-green-600">+12%</span> from yesterday
-                </p>
-              </div>
+              <p className="text-xs text-muted-foreground">
+                <span className="text-green-600">+4.2%</span> from yesterday
+              </p>
             </CardContent>
           </Card>
         </motion.div>
@@ -128,15 +124,15 @@ const Dashboard = () => {
         >
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Bookings</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Outbound Calls</CardTitle>
+              <PhoneOutgoing className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {Math.round(animatedKPIs.bookingsCompleted)}
+                {Math.round(animatedKPIs.outboundCalls)}
               </div>
               <p className="text-xs text-muted-foreground">
-                <span className="text-green-600">+8%</span> from yesterday
+                <span className="text-red-600">-1.3%</span> from yesterday
               </p>
             </CardContent>
           </Card>
@@ -149,137 +145,72 @@ const Dashboard = () => {
         >
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Upsell Rate</CardTitle>
+              <CardTitle className="text-sm font-medium">Outbound Success Rate</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {animatedKPIs.upsellRate.toFixed(1)}%
+                {animatedKPIs.outboundSuccessRate.toFixed(1)}%
               </div>
+              <p className="text-xs text-gray-500 mt-1">Pass / Total</p>
               <p className="text-xs text-muted-foreground">
-                <span className="text-green-600">+2.5%</span> from yesterday
+                <span className="text-green-600">+2.1%</span> from yesterday
               </p>
             </CardContent>
           </Card>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Satisfaction</CardTitle>
-              <Star className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {animatedKPIs.customerSatisfaction.toFixed(1)}/5
-              </div>
-              <p className="text-xs text-muted-foreground">
-                <span className="text-green-600">+0.2</span> from yesterday
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
       </div>
 
-      {/* Charts and Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Call Activity Chart */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle>Call Activity Today</CardTitle>
-              <CardDescription>Hourly call volume</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={200}>
-                <LineChart data={chartData}>
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="calls"
-                    stroke="#7B61FF"
-                    strokeWidth={3}
-                    dot={{ fill: '#7B61FF', strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Recent Calls */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <MessageCircle className="w-5 h-5 mr-2" />
-                Live Call Feed
-              </CardTitle>
-              <CardDescription>Most recent conversations</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {mockCalls.map((call, index) => (
-                  <motion.div
-                    key={call.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.1 }}
-                    className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Phone className="w-4 h-4 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {call.caller}
-                        </p>
-                        <div className="flex items-center space-x-2">
-                          <Badge
-                            variant={
-                              call.status === 'completed' ? 'default' :
-                              call.status === 'transferred' ? 'secondary' :
-                              'destructive'
-                            }
-                            className="text-xs"
-                          >
-                            {call.status}
-                          </Badge>
-                          <div className="flex items-center text-xs text-gray-500">
-                            <Clock className="w-3 h-3 mr-1" />
-                            {call.duration}
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-sm text-gray-600 mt-1">{call.summary}</p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        {formatTime(call.timestamp)}
-                      </p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-              <Button variant="outline" className="w-full mt-4">
-                View All Calls
-              </Button>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
+      {/* Inbound Calls Trend Chart */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle>Inbound Calls Trend</CardTitle>
+            <CardDescription>Daily call volume over the last 14 days</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={trendData}>
+                <XAxis 
+                  dataKey="date" 
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis 
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12 }}
+                  label={{ value: 'Calls', angle: -90, position: 'insideLeft' }}
+                />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: 'white',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                  labelFormatter={(label) => `Date: ${label}`}
+                  formatter={(value, name) => [`${value} calls`, 'Volume']}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="calls"
+                  stroke="#7B61FF"
+                  strokeWidth={3}
+                  dot={{ fill: '#7B61FF', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, fill: '#7B61FF' }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 };
