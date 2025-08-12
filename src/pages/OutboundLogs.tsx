@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Upload, Link2, Phone, Circle, Loader2, AlertCircle, Plus, Minus, Bot, PhoneCall, CalendarIcon, Clock } from "lucide-react";
+import { Upload, Link2, Phone, Circle, Loader2, AlertCircle, Plus, Minus, Bot, PhoneCall, CalendarIcon, Clock, Search, Building2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from 'xlsx';
@@ -38,6 +38,13 @@ const CallLogs = () => {
   const [selectedResource, setSelectedResource] = useState<ProjectResource | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState("");
+  
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterDate, setFilterDate] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterAssistant, setFilterAssistant] = useState("all");
+  
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -346,6 +353,23 @@ const CallLogs = () => {
     });
   };
 
+  // Get unique values for filters
+  const uniqueStatuses = [...new Set(resources.map(resource => resource.successStatus))];
+  const assistantOptions = ["assistant-1", "assistant-2", "assistant-3"];
+
+  // Filter resources based on search and filters
+  const filteredResources = resources.filter((resource) => {
+    const matchesSearch = searchTerm === "" || 
+      resource.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      resource.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      resource.phone.includes(searchTerm);
+    
+    const matchesStatus = filterStatus === "all" || resource.successStatus === filterStatus;
+    const matchesAssistant = filterAssistant === "all" || filterAssistant === selectedAssistant;
+    
+    return matchesSearch && matchesStatus && matchesAssistant;
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <div className="space-y-8">
@@ -512,6 +536,45 @@ const CallLogs = () => {
               </div>
             </CardHeader>
             <CardContent>
+              {/* Search and Filters */}
+              <div className="flex gap-4 items-center mb-6 flex-wrap">
+                <div className="relative flex-1 min-w-[200px]">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by name or phone..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+                
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <SelectTrigger className="w-[150px]">
+                    <Circle className="w-4 h-4 mr-2" />
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="pass">Pass</SelectItem>
+                    <SelectItem value="fail">Fail</SelectItem>
+                    <SelectItem value="no-status">No Status</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={filterAssistant} onValueChange={setFilterAssistant}>
+                  <SelectTrigger className="w-[150px]">
+                    <Bot className="w-4 h-4 mr-2" />
+                    <SelectValue placeholder="Assistant" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Assistants</SelectItem>
+                    <SelectItem value="assistant-1">Assistant 1</SelectItem>
+                    <SelectItem value="assistant-2">Assistant 2</SelectItem>
+                    <SelectItem value="assistant-3">Assistant 3</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="rounded-lg border border-border/40 shadow-sm bg-card/50 backdrop-blur-sm">
                 <Table>
                   <TableHeader>
@@ -528,7 +591,7 @@ const CallLogs = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {resources.map((resource, index) => (
+                    {filteredResources.map((resource, index) => (
                       <TableRow 
                         key={resource.id} 
                         className={`
