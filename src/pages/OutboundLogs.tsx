@@ -540,14 +540,14 @@ const CallLogs = () => {
             </CardHeader>
             <CardContent>
               {/* Search and Filters */}
-              <div className="flex gap-4 items-center mb-6 flex-wrap">
+              <div className="flex gap-4 items-center justify-between mb-6 flex-wrap">
                 <div className="relative max-w-xs">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     placeholder="Search by name or phone..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9 w-72"
+                    className="pl-9 w-64"
                   />
                 </div>
                 
@@ -561,19 +561,6 @@ const CallLogs = () => {
                     <SelectItem value="pass">Pass</SelectItem>
                     <SelectItem value="fail">Fail</SelectItem>
                     <SelectItem value="no-status">No Status</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select value={filterAssistant} onValueChange={setFilterAssistant}>
-                  <SelectTrigger className="w-auto min-w-[150px]">
-                    <Bot className="w-4 h-4 mr-2" />
-                    <SelectValue placeholder="Assistant" />
-                  </SelectTrigger>
-                  <SelectContent className="min-w-[200px]">
-                    <SelectItem value="all">All Assistants</SelectItem>
-                    <SelectItem value="assistant-1">Assistant 1</SelectItem>
-                    <SelectItem value="assistant-2">Assistant 2</SelectItem>
-                    <SelectItem value="assistant-3">Assistant 3</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
