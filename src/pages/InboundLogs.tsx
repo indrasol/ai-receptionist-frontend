@@ -19,9 +19,9 @@ const InboundLogs = () => {
   
   // Filter states
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedAssistant, setSelectedAssistant] = useState("");
-  const [selectedCompany, setSelectedCompany] = useState("");
+  const [selectedDate, setSelectedDate] = useState("all");
+  const [selectedAssistant, setSelectedAssistant] = useState("all");
+  const [selectedCompany, setSelectedCompany] = useState("all");
 
   // Generate stable IDs for placeholder data
   const generateStableId = (firstName: string, lastName: string, phone: string) => {
@@ -76,9 +76,9 @@ const InboundLogs = () => {
       call.leadPhoneNumber.includes(searchTerm) ||
       call.companyName.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesDate = selectedDate === "" || call.callDate === selectedDate;
-    const matchesAssistant = selectedAssistant === "" || call.assistant === selectedAssistant;
-    const matchesCompany = selectedCompany === "" || call.companyName === selectedCompany;
+    const matchesDate = selectedDate === "all" || call.callDate === selectedDate;
+    const matchesAssistant = selectedAssistant === "all" || call.assistant === selectedAssistant;
+    const matchesCompany = selectedCompany === "all" || call.companyName === selectedCompany;
     
     return matchesSearch && matchesDate && matchesAssistant && matchesCompany;
   });
@@ -150,7 +150,7 @@ const InboundLogs = () => {
                 <SelectValue placeholder="Date" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Dates</SelectItem>
+                <SelectItem value="all">All Dates</SelectItem>
                 {uniqueDates.map((date) => (
                   <SelectItem key={date} value={date}>{date}</SelectItem>
                 ))}
@@ -163,7 +163,7 @@ const InboundLogs = () => {
                 <SelectValue placeholder="Assistant" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Assistants</SelectItem>
+                <SelectItem value="all">All Assistants</SelectItem>
                 {uniqueAssistants.map((assistant) => (
                   <SelectItem key={assistant} value={assistant}>{assistant}</SelectItem>
                 ))}
@@ -176,7 +176,7 @@ const InboundLogs = () => {
                 <SelectValue placeholder="Company" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Companies</SelectItem>
+                <SelectItem value="all">All Companies</SelectItem>
                 {uniqueCompanies.map((company) => (
                   <SelectItem key={company} value={company}>{company}</SelectItem>
                 ))}
