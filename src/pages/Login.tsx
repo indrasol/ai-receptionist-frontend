@@ -6,15 +6,18 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Eye, EyeOff, ArrowLeft, Loader2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 // Using uploaded AI receptionist image
 
 const Login = () => {
   const navigate = useNavigate();
+  const { signIn } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [formData, setFormData] = useState({
-    emailOrUsername: '',
+    identifier: '',
     password: ''
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -22,8 +25,8 @@ const Login = () => {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.emailOrUsername.trim()) {
-      newErrors.emailOrUsername = 'Email or username is required';
+    if (!formData.identifier.trim()) {
+      newErrors.identifier = 'Email or username is required';
     }
 
     if (!formData.password) {
@@ -41,11 +44,22 @@ const Login = () => {
 
     setIsLoading(true);
     
-    // Mock API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Redirect to dashboard
-    navigate('/app/demo/dashboard');
+    try {
+      const result = await signIn(formData.identifier, formData.password);
+      
+      if (result.success) {
+        toast.success('Successfully signed in!');
+        navigate('/app/demo/dashboard');
+      } else {
+        toast.error(result.error || 'Failed to sign in');
+        setErrors({ general: result.error || 'Failed to sign in' });
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred');
+      setErrors({ general: 'An unexpected error occurred' });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleInputChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,20 +91,25 @@ const Login = () => {
 
           <Card className="border-border/50 shadow-lg">
             <CardContent className="p-6">
+              {errors.general && (
+                <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                  <p className="text-sm text-destructive">{errors.general}</p>
+                </div>
+              )}
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Email or Username */}
                 <div className="space-y-2">
-                  <Label htmlFor="emailOrUsername">Email or Username</Label>
+                  <Label htmlFor="identifier">Email or Username</Label>
                   <Input
-                    id="emailOrUsername"
+                    id="identifier"
                     type="text"
                     placeholder="Enter your email or username"
-                    value={formData.emailOrUsername}
-                    onChange={handleInputChange('emailOrUsername')}
-                    className={errors.emailOrUsername ? 'border-destructive' : ''}
+                    value={formData.identifier}
+                    onChange={handleInputChange('identifier')}
+                    className={errors.identifier ? 'border-destructive' : ''}
                   />
-                  {errors.emailOrUsername && (
-                    <p className="text-sm text-destructive">{errors.emailOrUsername}</p>
+                  {errors.identifier && (
+                    <p className="text-sm text-destructive">{errors.identifier}</p>
                   )}
                 </div>
 
@@ -132,7 +151,7 @@ const Login = () => {
                     </Label>
                   </div>
                   <Link 
-                    to="#" 
+                    to="/forgot-password" 
                     className="text-sm text-primary hover:underline"
                   >
                     Forgot password?

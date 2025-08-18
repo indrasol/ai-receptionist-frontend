@@ -7,17 +7,18 @@ import { Button } from '@/components/ui/button';
 import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { PhoneIncoming, PhoneOutgoing, TrendingUp } from 'lucide-react';
 import { mockCalls, kpiData } from '@/data/mockData';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Dashboard = () => {
+  const { user, loading } = useAuth();
   const [animatedKPIs, setAnimatedKPIs] = useState({
     inboundCalls: 0,
     outboundCalls: 0,
     outboundSuccessRate: 0
   });
 
-  // Get business name from onboarding data
-  const onboardingData = JSON.parse(localStorage.getItem('onboardingData') || '{}');
-  const businessName = onboardingData?.businessName || 'there';
+  // Get user's display name
+  const displayName = loading ? 'there' : (user?.name || user?.username || user?.email?.split('@')[0] || 'there');
 
   // Get current time greeting
   const getGreeting = () => {
@@ -87,7 +88,7 @@ const Dashboard = () => {
         transition={{ duration: 0.5 }}
       >
         <h1 className="text-3xl font-bold text-gray-900">
-          {getGreeting()}, {businessName}! 👋
+          {getGreeting()}, {displayName}! 👋
         </h1>
         <p className="text-gray-600 mt-2">
           Here's what's happening with your AI receptionist today.
