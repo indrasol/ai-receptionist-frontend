@@ -54,6 +54,7 @@ const CallLogs = () => {
   const [resources, setResources] = useState<ProjectResource[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isTableLoading, setIsTableLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [organizationName, setOrganizationName] = useState("");
   const [selectedAssistant, setSelectedAssistant] = useState<string>("");
@@ -77,6 +78,16 @@ const CallLogs = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
+  // Google Sheets URL validation function
+  const isValidGoogleSheetsUrl = (url: string): boolean => {
+    const cleanUrl = url.trim();
+    if (!cleanUrl) return false;
+    
+    // Check if it's a Google Sheets URL
+    const googleSheetsPattern = /^https:\/\/docs\.google\.com\/spreadsheets\/d\/[a-zA-Z0-9-_]+/;
+    return googleSheetsPattern.test(cleanUrl);
+  };
+
   // Load existing leads from API
   const loadExistingLeads = async () => {
     try {
@@ -84,6 +95,7 @@ const CallLogs = () => {
         return;
       }
 
+      setIsTableLoading(true);
       const result = await outboundService.getLeads();
       
       if (result.success && result.data) {
@@ -146,6 +158,8 @@ const CallLogs = () => {
           variant: "destructive",
         });
       }
+    } finally {
+      setIsTableLoading(false);
     }
   };
 
@@ -308,6 +322,15 @@ const CallLogs = () => {
       return;
     }
 
+    if (!isValidGoogleSheetsUrl(url)) {
+      toast({
+        title: "Invalid URL",
+        description: "Please enter a valid Google Sheets URL. The URL should start with https://docs.google.com/spreadsheets/",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!isAuthenticated) {
       toast({
         title: "Authentication Error",
@@ -319,6 +342,8 @@ const CallLogs = () => {
 
     setIsLoading(true);
     setError(null);
+
+    console.log('handleAddUrl - URL:', url);
     
     try {
       const result = await outboundService.uploadUrl(url);
@@ -756,7 +781,35 @@ const CallLogs = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {paginatedResources.map((resource, index) => (
+                    {isTableLoading ? (
+                      // Loading skeleton rows
+                      Array.from({ length: itemsPerPage }).map((_, index) => (
+                        <TableRow key={`loading-${index}`} className="border-b border-border/20">
+                          <TableCell className="py-4">
+                            <div className="h-4 w-4 bg-muted rounded animate-pulse"></div>
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <div className="h-4 w-20 bg-muted rounded animate-pulse"></div>
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <div className="h-4 w-24 bg-muted rounded animate-pulse"></div>
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <div className="h-4 w-28 bg-muted rounded animate-pulse"></div>
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <div className="h-4 w-16 bg-muted rounded animate-pulse"></div>
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <div className="h-4 w-20 bg-muted rounded animate-pulse"></div>
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <div className="h-4 w-32 bg-muted rounded animate-pulse"></div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      paginatedResources.map((resource, index) => (
                       <TableRow 
                         key={resource.id.toString()} 
                         className={`
@@ -804,7 +857,8 @@ const CallLogs = () => {
                           </Button>
                         </TableCell>
                       </TableRow>
-                    ))}
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </div>

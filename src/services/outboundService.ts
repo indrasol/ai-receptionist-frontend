@@ -206,23 +206,91 @@ class OutboundService {
   }
 
   async uploadUrl(sheetsUrl: string): Promise<ApiResponse<UploadUrlResponse>> {
-    try {
-      const response = await this.makeRequest(API_ENDPOINTS.OUTBOUND.UPLOAD_URL, {
-        method: 'POST',
-        body: JSON.stringify({ sheets_url: sheetsUrl }),
-      })
-
-      return {
-        success: true,
-        data: response,
-        message: response.message,
-      }
-    } catch (error) {
+    const token = authService.getToken()
+    if (!token) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to upload URL',
+        error: 'No authentication token available. Please sign in again.',
       }
     }
+
+    const attemptJson = async (key: 'sheets_url' | 'sheet_url') => {
+      const res = await fetch(API_ENDPOINTS.OUTBOUND.UPLOAD_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+          
+        },
+        body: JSON.stringify({ [key]: sheetsUrl }),
+      })
+      return res
+    }
+
+    const attemptForm = async (key: 'sheets_url' | 'sheet_url') => {
+      const formData = new FormData()
+      formData.append(key, sheetsUrl)
+      const res = await fetch(API_ENDPOINTS.OUTBOUND.UPLOAD_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        } as HeadersInit,
+        body: formData,
+      })
+      return res
+    }
+
+    const parseOrBuildError = async (response: Response) => {
+      try {
+        const errData = await response.json()
+        return errData.detail || errData.message || `HTTP ${response.status}: ${response.statusText}`
+      } catch {
+        return `HTTP ${response.status}: ${response.statusText}`
+      }
+    }
+
+    // Try JSON with sheets_url
+    let response = await attemptJson('sheets_url')
+    if (response.ok) {
+      const data = await response.json()
+      return { success: true, data, message: data.message }
+    }
+    if (response.status !== 422) {
+      const error = await parseOrBuildError(response)
+      return { success: false, error }
+    }
+
+    // Try JSON with sheet_url (singular)
+    response = await attemptJson('sheet_url')
+    if (response.ok) {
+      const data = await response.json()
+      return { success: true, data, message: data.message }
+    }
+    if (response.status !== 422) {
+      const error = await parseOrBuildError(response)
+      return { success: false, error }
+    }
+
+    // Try multipart with sheets_url
+    response = await attemptForm('sheets_url')
+    if (response.ok) {
+      const data = await response.json()
+      return { success: true, data, message: data.message }
+    }
+    if (response.status !== 422) {
+      const error = await parseOrBuildError(response)
+      return { success: false, error }
+    }
+
+    // Try multipart with sheet_url
+    response = await attemptForm('sheet_url')
+    if (response.ok) {
+      const data = await response.json()
+      return { success: true, data, message: data.message }
+    }
+
+    const finalError = await parseOrBuildError(response)
+    return { success: false, error: finalError }
   }
 
   async uploadExcel(file: File): Promise<ApiResponse<UploadExcelResponse>> {
