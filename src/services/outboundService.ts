@@ -214,31 +214,30 @@ class OutboundService {
       }
     }
 
-    const attemptJson = async (key: 'sheets_url' | 'sheet_url') => {
+    const attemptJson = async (key: 'sheets_url') => {
       const res = await fetch(API_ENDPOINTS.OUTBOUND.UPLOAD_URL, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/x-www-form-urlencoded',
-          
         },
-        body: JSON.stringify({ [key]: sheetsUrl }),
+        body: new URLSearchParams({ [key]: sheetsUrl }).toString(),
       })
       return res
     }
 
-    const attemptForm = async (key: 'sheets_url' | 'sheet_url') => {
-      const formData = new FormData()
-      formData.append(key, sheetsUrl)
-      const res = await fetch(API_ENDPOINTS.OUTBOUND.UPLOAD_URL, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        } as HeadersInit,
-        body: formData,
-      })
-      return res
-    }
+    // const attemptForm = async (key: 'sheets_url' | 'sheet_url') => {
+    //   const formData = new FormData()
+    //   formData.append(key, sheetsUrl)
+    //   const res = await fetch(API_ENDPOINTS.OUTBOUND.UPLOAD_URL, {
+    //     method: 'POST',
+    //     headers: {
+    //       'Authorization': `Bearer ${token}`,
+    //     } as HeadersInit,
+    //     body: formData,
+    //   })
+    //   return res
+    // }
 
     const parseOrBuildError = async (response: Response) => {
       try {
@@ -250,7 +249,7 @@ class OutboundService {
     }
 
     // Try JSON with sheets_url
-    let response = await attemptJson('sheets_url')
+    const response = await attemptJson('sheets_url')
     if (response.ok) {
       const data = await response.json()
       return { success: true, data, message: data.message }
@@ -260,37 +259,43 @@ class OutboundService {
       return { success: false, error }
     }
 
-    // Try JSON with sheet_url (singular)
-    response = await attemptJson('sheet_url')
-    if (response.ok) {
-      const data = await response.json()
-      return { success: true, data, message: data.message }
-    }
-    if (response.status !== 422) {
-      const error = await parseOrBuildError(response)
-      return { success: false, error }
-    }
+    // // Try JSON with sheet_url (singular)
+    // response = await attemptJson('sheet_url')
+    // if (response.ok) {
+    //   const data = await response.json()
+    //   return { success: true, data, message: data.message }
+    // }
+    // if (response.status !== 422) {
+    //   const error = await parseOrBuildError(response)
+    //   return { success: false, error }
+    // }
 
     // Try multipart with sheets_url
-    response = await attemptForm('sheets_url')
-    if (response.ok) {
-      const data = await response.json()
-      return { success: true, data, message: data.message }
-    }
-    if (response.status !== 422) {
-      const error = await parseOrBuildError(response)
-      return { success: false, error }
-    }
+    // response = await attemptForm('sheets_url')
+    // if (response.ok) {
+    //   const data = await response.json()
+    //   return { success: true, data, message: data.message }
+    // }
+    // if (response.status !== 422) {
+    //   const error = await parseOrBuildError(response)
+    //   return { success: false, error }
+    // }
 
     // Try multipart with sheet_url
-    response = await attemptForm('sheet_url')
-    if (response.ok) {
-      const data = await response.json()
-      return { success: true, data, message: data.message }
-    }
+    // response = await attemptForm('sheet_url')
+    // if (response.ok) {
+    //   const data = await response.json()
+    //   return { success: true, data, message: data.message }
+    // }
 
-    const finalError = await parseOrBuildError(response)
-    return { success: false, error: finalError }
+    // const finalError = await parseOrBuildError(response)
+    // return { success: false, error: finalError }
+    
+    // If we get here, all attempts failed
+    return { 
+      success: false, 
+      error: 'Failed to upload URL' 
+    }
   }
 
   async uploadExcel(file: File): Promise<ApiResponse<UploadExcelResponse>> {
