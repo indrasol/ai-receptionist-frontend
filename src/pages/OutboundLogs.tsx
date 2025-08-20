@@ -1,21 +1,7 @@
-import { useState, useCallback, useEffect } from "react";
+import { AlertCircle, Bot, Building2, CalendarIcon, Circle, Clock, Link2, Loader2, Minus, Phone, PhoneCall, Plus, Search, Upload } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Upload, Link2, Phone, Circle, Loader2, AlertCircle, Plus, Minus, Bot, PhoneCall, CalendarIcon, Clock, Search, Building2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
-
-import { outboundService, Lead, VoiceAssistant } from "@/services/outboundService";
-import { useAuth } from "@/contexts/AuthContext";
-import React from "react";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Lead, VoiceAssistant, outboundService } from "@/services/outboundService";
 import {
   Pagination,
   PaginationContent,
@@ -24,6 +10,20 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useCallback, useEffect, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import React from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProjectResource {
   id: number;
@@ -59,6 +59,7 @@ const CallLogs = () => {
   const [organizationName, setOrganizationName] = useState("");
   const [selectedAssistant, setSelectedAssistant] = useState<string>("");
   const [voiceAssistants, setVoiceAssistants] = useState<VoiceAssistant[]>([]);
+  const [isVoiceAssistantsLoading, setIsVoiceAssistantsLoading] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [selectedResource, setSelectedResource] = useState<ProjectResource | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>();
@@ -98,7 +99,7 @@ const CallLogs = () => {
       setIsTableLoading(true);
       const result = await outboundService.getLeads();
       
-      if (result.success && result.data) {
+      if (result.success && result.data && Array.isArray(result.data)) {
         const transformedResources: ProjectResource[] = result.data.map((item: Lead) => ({
           id: item.id,
           firstName: item.first_name || '',
@@ -166,24 +167,33 @@ const CallLogs = () => {
   // Load voice assistants
   const loadVoiceAssistants = async () => {
     try {
+      setIsVoiceAssistantsLoading(true);
       const result = await outboundService.getAssistants();
       
-      if (result.success && result.data) {
+      if (result.success && result.data && result.data.voices && Array.isArray(result.data.voices)) {
         setVoiceAssistants(result.data.voices);
         if (result.data.voices.length > 0 && !selectedAssistant) {
           setSelectedAssistant(result.data.voices[0].display_name);
         }
       } else {
+        console.warn('Voice assistants data is not in expected format:', result);
+        setVoiceAssistants([]);
         if (result.error?.includes('authentication token') || result.error?.includes('Unauthorized')) {
           // Silent fail for authentication errors - user will see toast from loadExistingLeads
         }
       }
     } catch (err) {
+      console.error('Error loading voice assistants:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to load voice assistants';
       
       if (errorMessage.includes('authentication token') || errorMessage.includes('Unauthorized')) {
         // Silent fail for authentication errors - user will see toast from loadExistingLeads
+      } else {
+        // Set empty array to prevent undefined errors
+        setVoiceAssistants([]);
       }
+    } finally {
+      setIsVoiceAssistantsLoading(false);
     }
   };
 
@@ -254,7 +264,7 @@ const CallLogs = () => {
 
       const result = await outboundService.uploadExcel(file);
       
-      if (result.success && result.data) {
+      if (result.success && result.data && result.data.data && Array.isArray(result.data.data)) {
         // Transform API response data to match ProjectResource interface
         const transformedResources: ProjectResource[] = result.data.data.map((item) => ({
           id: item.id,
@@ -416,7 +426,7 @@ const CallLogs = () => {
     
     try {
       // Convert selected string IDs to numbers
-      const leadIds = selectedFiles.map(id => parseInt(id)).filter(id => !isNaN(id));
+      const leadIds = (selectedFiles || []).map(id => parseInt(id)).filter(id => !isNaN(id));
       
       const result = await outboundService.callLeads(leadIds, selectedAssistant);
       
@@ -484,9 +494,9 @@ const CallLogs = () => {
 
   const handleCheckboxChange = (resourceId: string, checked: boolean) => {
     if (checked) {
-      setSelectedFiles([...selectedFiles, resourceId]);
+      setSelectedFiles([...(selectedFiles || []), resourceId]);
     } else {
-      setSelectedFiles(selectedFiles.filter(id => id !== resourceId));
+      setSelectedFiles((selectedFiles || []).filter(id => id !== resourceId));
     }
   };
 
@@ -554,10 +564,10 @@ const CallLogs = () => {
   };
 
   // Get unique values for filters
-  const uniqueStatuses = [...new Set(resources.map(resource => resource.successStatus))];
+  const uniqueStatuses = [...new Set((resources || []).map(resource => resource.successStatus))];
 
   // Filter resources based on search and filters
-  const filteredResources = resources.filter((resource) => {
+  const filteredResources = (resources || []).filter((resource) => {
     const matchesSearch = searchTerm === "" || 
       resource.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       resource.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -583,9 +593,9 @@ const CallLogs = () => {
   };
 
   // Call resetPagination when filters change
-  useState(() => {
+  useEffect(() => {
     resetPagination();
-  });
+  }, [filteredResources.length, totalPages, currentPage]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -707,20 +717,33 @@ const CallLogs = () => {
               <div className="flex items-center justify-between">
                 <CardTitle>Leads Outbound Calls Info</CardTitle>
                 <div className="flex items-center gap-3">
-                  <Select value={selectedAssistant} onValueChange={setSelectedAssistant}>
+                  <Select value={selectedAssistant} onValueChange={setSelectedAssistant} disabled={isVoiceAssistantsLoading}>
                     <SelectTrigger className="w-auto min-w-[180px]">
                       <Bot className="h-4 w-4 mr-2" />
-                      <SelectValue placeholder="Select Assistant" />
+                      <SelectValue placeholder={isVoiceAssistantsLoading ? "Loading..." : "Select Assistant"} />
                     </SelectTrigger>
                     <SelectContent className="min-w-[200px]">
-                      {voiceAssistants.map((assistant) => (
-                        <SelectItem key={assistant.display_name} value={assistant.display_name}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">{assistant.display_name}</span>
-                            <span className="text-xs text-muted-foreground">{assistant.description}</span>
+                      {isVoiceAssistantsLoading ? (
+                        <SelectItem value="loading" disabled>
+                          <div className="flex items-center gap-2">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Loading assistants...
                           </div>
                         </SelectItem>
-                      ))}
+                      ) : voiceAssistants && voiceAssistants.length > 0 ? (
+                        voiceAssistants.map((assistant) => (
+                          <SelectItem key={assistant.display_name} value={assistant.display_name}>
+                            <div className="flex flex-col">
+                              <span className="font-medium">{assistant.display_name}</span>
+                              <span className="text-xs text-muted-foreground">{assistant.description}</span>
+                            </div>
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no-assistants" disabled>
+                          No assistants available
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                   <Button 
