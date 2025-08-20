@@ -168,17 +168,21 @@ const CallLogs = () => {
     try {
       const result = await outboundService.getAssistants();
       
-      if (result.success && result.data) {
+      if (result.success && result.data && result.data.voices && Array.isArray(result.data.voices)) {
         setVoiceAssistants(result.data.voices);
         if (result.data.voices.length > 0 && !selectedAssistant) {
           setSelectedAssistant(result.data.voices[0].display_name);
         }
       } else {
+        // Ensure voiceAssistants is always an array
+        setVoiceAssistants([]);
         if (result.error?.includes('authentication token') || result.error?.includes('Unauthorized')) {
           // Silent fail for authentication errors - user will see toast from loadExistingLeads
         }
       }
     } catch (err) {
+      // Ensure voiceAssistants is always an array on error
+      setVoiceAssistants([]);
       const errorMessage = err instanceof Error ? err.message : 'Failed to load voice assistants';
       
       if (errorMessage.includes('authentication token') || errorMessage.includes('Unauthorized')) {
@@ -713,14 +717,20 @@ const CallLogs = () => {
                       <SelectValue placeholder="Select Assistant" />
                     </SelectTrigger>
                     <SelectContent className="min-w-[200px]">
-                      {voiceAssistants.map((assistant) => (
-                        <SelectItem key={assistant.display_name} value={assistant.display_name}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">{assistant.display_name}</span>
-                            <span className="text-xs text-muted-foreground">{assistant.description}</span>
-                          </div>
+                      {voiceAssistants && voiceAssistants.length > 0 ? (
+                        voiceAssistants.map((assistant) => (
+                          <SelectItem key={assistant.display_name} value={assistant.display_name}>
+                            <div className="flex flex-col">
+                              <span className="font-medium">{assistant.display_name}</span>
+                              <span className="text-xs text-muted-foreground">{assistant.description}</span>
+                            </div>
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no-assistants" disabled>
+                          No assistants available
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectContent>
                   </Select>
                   <Button 
