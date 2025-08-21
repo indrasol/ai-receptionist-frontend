@@ -26,6 +26,7 @@ import InboundLogs from "./pages/InboundLogs";
 import CallSummary from "./pages/CallSummary";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
 import { Navigate } from "react-router-dom";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
           {/* Auth routes - no layout */}
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           
           {/* Public routes with main layout */}
           <Route path="/" element={<Layout><Home /></Layout>} />

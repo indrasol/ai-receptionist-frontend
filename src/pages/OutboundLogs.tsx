@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Upload, Link2, Phone, Circle, Loader2, AlertCircle, Plus, Minus, Bot, PhoneCall, CalendarIcon, Clock, Search, Building2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import * as XLSX from 'xlsx';
+
+import { outboundService, Lead, VoiceAssistant } from "@/services/outboundService";
+import { useAuth } from "@/contexts/AuthContext";
+import React from "react";
 import {
   Pagination,
   PaginationContent,
@@ -23,7 +26,7 @@ import {
 } from "@/components/ui/pagination";
 
 interface ProjectResource {
-  id: string;
+  id: number;
   firstName: string;
   lastName: string;
   phone: string;
@@ -31,6 +34,18 @@ interface ProjectResource {
   summary: string;
   transcript?: string;
   recordingUrl?: string;
+  source?: string;
+  imported_at?: string;
+  created_at?: string;
+  created_by_user_id?: string;
+  created_by_user_email?: string;
+  vapi_call_id?: string | null;
+  call_status?: string;
+  call_summary?: string | null;
+  call_recording_url?: string | null;
+  call_transcript?: string | null;
+  success_evaluation?: string | null;
+  sheet_url?: string;
 }
 
 const CallLogs = () => {
@@ -39,9 +54,11 @@ const CallLogs = () => {
   const [resources, setResources] = useState<ProjectResource[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isTableLoading, setIsTableLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [organizationName, setOrganizationName] = useState("");
   const [selectedAssistant, setSelectedAssistant] = useState<string>("");
+  const [voiceAssistants, setVoiceAssistants] = useState<VoiceAssistant[]>([]);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [selectedResource, setSelectedResource] = useState<ProjectResource | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>();
@@ -59,28 +76,130 @@ const CallLogs = () => {
   
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
-  // Header mapping for flexible parsing
-  const headerMappings = {
-    firstName: ['first name', 'firstname', 'first_name'],
-    lastName: ['last name', 'lastname', 'last_name'],
-    phone: ['customer phone numbers', 'lead phone number', 'phone', 'phone number'],
-    successStatus: ['success evaluation', 'status', 'result'],
-    calls: ['calls', 'call count'],
-    summary: ['summary', 'notes', 'description'],
-    transcript: ['transcript', 'call transcript'],
-    recordingUrl: ['recording url', 'recording', 'call recording']
+  // Google Sheets URL validation function
+  const isValidGoogleSheetsUrl = (url: string): boolean => {
+    const cleanUrl = url.trim();
+    if (!cleanUrl) return false;
+    
+    // Check if it's a Google Sheets URL
+    const googleSheetsPattern = /^https:\/\/docs\.google\.com\/spreadsheets\/d\/[a-zA-Z0-9-_]+/;
+    return googleSheetsPattern.test(cleanUrl);
   };
 
-  const normalizeHeader = (header: string): string | null => {
-    const normalized = header.toLowerCase().trim();
-    for (const [key, aliases] of Object.entries(headerMappings)) {
-      if (aliases.includes(normalized)) {
-        return key;
+  // Load existing leads from API
+  const loadExistingLeads = async () => {
+    try {
+      if (!isAuthenticated) {
+        return;
+      }
+
+      setIsTableLoading(true);
+      const result = await outboundService.getLeads();
+      
+      if (result.success && result.data) {
+        const transformedResources: ProjectResource[] = result.data.map((item: Lead) => ({
+          id: item.id,
+          firstName: item.first_name || '',
+          lastName: item.last_name || '',
+          phone: item.phone_number || '',
+          successStatus: item.success_evaluation === 'pass' ? 'pass' : 
+                        item.success_evaluation === 'fail' ? 'fail' : 'no-status',
+          summary: item.call_summary || '',
+          transcript: item.call_transcript || '',
+          recordingUrl: item.call_recording_url || '',
+          source: item.source,
+          imported_at: item.imported_at,
+          created_at: item.created_at,
+          created_by_user_id: item.created_by_user_id,
+          created_by_user_email: item.created_by_user_email,
+          vapi_call_id: item.vapi_call_id,
+          call_status: item.call_status,
+          call_summary: item.call_summary,
+          call_recording_url: item.call_recording_url,
+          call_transcript: item.call_transcript,
+          success_evaluation: item.success_evaluation,
+          sheet_url: item.sheet_url
+        }));
+        
+        setResources(transformedResources);
+        console.log('LoadExistingLeads - Successfully loaded', transformedResources.length, 'leads');
+      } else {
+        console.error('LoadExistingLeads - API error:', result.error);
+        if (result.error?.includes('authentication token') || result.error?.includes('sign in')) {
+          toast({
+            title: "Authentication Error",
+            description: "Please sign in again to access your leads.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: result.error || "Failed to load leads",
+            variant: "destructive",
+          });
+        }
+      }
+    } catch (err) {
+      console.error('LoadExistingLeads - Exception:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load leads';
+      
+      if (errorMessage.includes('authentication token') || errorMessage.includes('Unauthorized')) {
+        toast({
+          title: "Authentication Error", 
+          description: "Your session has expired. Please sign in again.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setIsTableLoading(false);
+    }
+  };
+
+  // Load voice assistants
+  const loadVoiceAssistants = async () => {
+    try {
+      const result = await outboundService.getAssistants();
+      
+      if (result.success && result.data && result.data.voices && Array.isArray(result.data.voices)) {
+        setVoiceAssistants(result.data.voices);
+        if (result.data.voices.length > 0 && !selectedAssistant) {
+          setSelectedAssistant(result.data.voices[0].display_name);
+        }
+      } else {
+        // Ensure voiceAssistants is always an array
+        setVoiceAssistants([]);
+        if (result.error?.includes('authentication token') || result.error?.includes('Unauthorized')) {
+          // Silent fail for authentication errors - user will see toast from loadExistingLeads
+        }
+      }
+    } catch (err) {
+      // Ensure voiceAssistants is always an array on error
+      setVoiceAssistants([]);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load voice assistants';
+      
+      if (errorMessage.includes('authentication token') || errorMessage.includes('Unauthorized')) {
+        // Silent fail for authentication errors - user will see toast from loadExistingLeads
       }
     }
-    return null;
   };
+
+  // Load leads and voice assistants on component mount
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadExistingLeads();
+      loadVoiceAssistants();
+    }
+  }, [isAuthenticated]);
+
+
 
   const normalizeSuccessStatus = (value: string): "pass" | "fail" | "no-status" => {
     const normalized = value.toLowerCase().trim();
@@ -101,33 +220,7 @@ const CallLogs = () => {
     return digits;
   };
 
-  const parseDataToResources = (data: any[]): ProjectResource[] => {
-    if (data.length === 0) return [];
-    
-    const headers = Object.keys(data[0]);
-    const mapping: Record<string, string> = {};
-    
-    headers.forEach(header => {
-      const normalized = normalizeHeader(header);
-      if (normalized) {
-        mapping[normalized] = header;
-      }
-    });
 
-    return data.filter(row => {
-      // Skip empty rows
-      return Object.values(row).some(value => value && value.toString().trim());
-    }).map((row, index) => ({
-      id: (index + 1).toString(),
-      firstName: row[mapping.firstName] || '',
-      lastName: row[mapping.lastName] || '',
-      phone: row[mapping.phone] ? normalizePhoneNumber(row[mapping.phone].toString()) : '',
-      successStatus: row[mapping.successStatus] ? normalizeSuccessStatus(row[mapping.successStatus].toString()) : 'no-status',
-      summary: row[mapping.summary] || '',
-      transcript: row[mapping.transcript] || '',
-      recordingUrl: row[mapping.recordingUrl] || ''
-    }));
-  };
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -163,40 +256,89 @@ const CallLogs = () => {
         throw new Error('Please upload a valid .xlsx, .xls, or .csv file');
       }
 
-      const data = await file.arrayBuffer();
-      const workbook = XLSX.read(data, { type: 'array' });
-      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+      const result = await outboundService.uploadExcel(file);
       
-      const parsedResources = parseDataToResources(jsonData);
-      
-      if (parsedResources.length === 0) {
-        throw new Error('No valid data found in the file');
+      if (result.success && result.data) {
+        // Transform API response data to match ProjectResource interface
+        const transformedResources: ProjectResource[] = result.data.data.map((item) => ({
+          id: item.id,
+          firstName: item.FirstName || '',
+          lastName: item.LastName || '',
+          phone: item.PhoneNumber || '',
+          successStatus: item.success_evaluation === 'pass' ? 'pass' : 
+                        item.success_evaluation === 'fail' ? 'fail' : 'no-status',
+          summary: item.call_summary || '',
+          transcript: item.call_transcript || '',
+          recordingUrl: item.call_recording_url || '',
+          source: item.source,
+          imported_at: item.imported_at,
+          created_at: item.created_at,
+          created_by_user_id: item.created_by_user_id,
+          created_by_user_email: item.created_by_user_email,
+          vapi_call_id: item.vapi_call_id,
+          call_status: item.call_status,
+          call_summary: item.call_summary,
+          call_recording_url: item.call_recording_url,
+          call_transcript: item.call_transcript,
+          success_evaluation: item.success_evaluation,
+          sheet_url: item.filename
+        }));
+        
+        // Reload all leads to get the updated list
+        await loadExistingLeads();
+        
+        toast({
+          title: "File imported successfully",
+          description: result.data.message || `Imported ${result.data.rows_count} records from ${file.name}`
+        });
+      } else {
+        throw new Error(result.error || 'Failed to upload file');
       }
-      
-      setResources(parsedResources);
-      toast({
-        title: "File imported successfully",
-        description: `Imported ${parsedResources.length} records from ${file.name}`
-      });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to parse file';
+      const errorMessage = err instanceof Error ? err.message : 'Failed to upload file';
       setError(errorMessage);
-      toast({
-        title: "Import failed",
-        description: errorMessage,
-        variant: "destructive"
-      });
+      
+      if (errorMessage.includes('authentication token') || errorMessage.includes('Unauthorized')) {
+        toast({
+          title: "Authentication Error",
+          description: "Your session has expired. Please sign in again.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Import failed",
+          description: errorMessage,
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleAddUrl = async () => {
-    if (!urlName.trim() || !url.trim()) {
+    if (!url.trim()) {
       toast({
         title: "Error",
-        description: "Please fill in both URL name and URL fields.",
+        description: "Please enter a Google Sheets URL.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!isValidGoogleSheetsUrl(url)) {
+      toast({
+        title: "Invalid URL",
+        description: "Please enter a valid Google Sheets URL. The URL should start with https://docs.google.com/spreadsheets/",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Error",
+        description: "Please log in to upload Google Sheets data.",
         variant: "destructive"
       });
       return;
@@ -204,49 +346,114 @@ const CallLogs = () => {
 
     setIsLoading(true);
     setError(null);
+
+    console.log('handleAddUrl - URL:', url);
     
     try {
-      // Convert Google Sheets edit URL to CSV export URL
-      let csvUrl = url;
-      const sheetsMatch = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-      if (sheetsMatch) {
-        const sheetId = sheetsMatch[1];
-        const gidMatch = url.match(/gid=([0-9]+)/);
-        const gid = gidMatch ? gidMatch[1] : '0';
-        csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
+      const result = await outboundService.uploadUrl(url);
+      
+      if (result.success && result.data) {
+        // Reload all leads to get the updated list
+        await loadExistingLeads();
+        
+        toast({
+          title: "Google Sheets imported successfully",
+          description: result.data.message || `Imported ${result.data.rows_count} records`
+        });
+        setUrlName("");
+        setUrl("");
+      } else {
+        throw new Error(result.error || 'Failed to import Google Sheets data');
       }
-      
-      const response = await fetch(csvUrl);
-      if (!response.ok) {
-        throw new Error('Failed to fetch Google Sheets data. Make sure the sheet is public (Anyone with the link can view).');
-      }
-      
-      const csvText = await response.text();
-      const workbook = XLSX.read(csvText, { type: 'string' });
-      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet);
-      
-      const parsedResources = parseDataToResources(jsonData);
-      
-      if (parsedResources.length === 0) {
-        throw new Error('No valid data found in the Google Sheet');
-      }
-      
-      setResources(parsedResources);
-      toast({
-        title: "Google Sheets imported successfully",
-        description: `Imported ${parsedResources.length} records from ${urlName}`
-      });
-      setUrlName("");
-      setUrl("");
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to import Google Sheets data';
       setError(errorMessage);
+      
+      if (errorMessage.includes('authentication token') || errorMessage.includes('Unauthorized')) {
+        toast({
+          title: "Authentication Error",
+          description: "Your session has expired. Please sign in again.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Import failed",
+          description: errorMessage,
+          variant: "destructive"
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle calling selected leads
+  const handleCallSelected = async () => {
+    if (selectedFiles.length === 0) {
       toast({
-        title: "Import failed",
-        description: errorMessage,
+        title: "No leads selected",
+        description: "Please select at least one lead to call.",
         variant: "destructive"
       });
+      return;
+    }
+
+    if (!selectedAssistant) {
+      toast({
+        title: "No assistant selected",
+        description: "Please select a voice assistant for the calls.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Error",
+        description: "Please log in to initiate calls.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      // Convert selected string IDs to numbers
+      const leadIds = selectedFiles.map(id => parseInt(id)).filter(id => !isNaN(id));
+      
+      const result = await outboundService.callLeads(leadIds, selectedAssistant);
+      
+      if (result.success && result.data) {
+        // Reload leads to get updated call status
+        await loadExistingLeads();
+        
+        toast({
+          title: "Calls initiated successfully",
+          description: result.data.message || `Initiated ${result.data.successful_calls} calls with ${result.data.voice_used} voice assistant`
+        });
+        
+        // Clear selected files
+        setSelectedFiles([]);
+      } else {
+        throw new Error(result.error || 'Failed to initiate calls');
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to initiate calls';
+      
+      if (errorMessage.includes('authentication token') || errorMessage.includes('Unauthorized')) {
+        toast({
+          title: "Authentication Error",
+          description: "Your session has expired. Please sign in again.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Call initiation failed",
+          description: errorMessage,
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -322,7 +529,7 @@ const CallLogs = () => {
   };
 
   const handleSummaryView = (resource: ProjectResource) => {
-    navigate(`call-summary/${resource.id}`, { 
+    navigate(`call-summary/${resource.id.toString()}`, { 
       state: { resource } 
     });
   };
@@ -350,24 +557,8 @@ const CallLogs = () => {
     });
   };
 
-  const handleAutoCall = () => {
-    if (selectedFiles.length === 0) {
-      toast({
-        title: "No leads selected",
-        description: "Please select leads to start auto calling.",
-        variant: "destructive"
-      });
-      return;
-    }
-    toast({
-      title: "Auto Call Started",
-      description: `Starting auto call for ${selectedFiles.length} selected leads with ${selectedAssistant || 'default'} assistant.`,
-    });
-  };
-
   // Get unique values for filters
   const uniqueStatuses = [...new Set(resources.map(resource => resource.successStatus))];
-  const assistantOptions = ["assistant-1", "assistant-2", "assistant-3"];
 
   // Filter resources based on search and filters
   const filteredResources = resources.filter((resource) => {
@@ -526,14 +717,33 @@ const CallLogs = () => {
                       <SelectValue placeholder="Select Assistant" />
                     </SelectTrigger>
                     <SelectContent className="min-w-[200px]">
-                      <SelectItem value="assistant-1">Assistant 1</SelectItem>
-                      <SelectItem value="assistant-2">Assistant 2</SelectItem>
-                      <SelectItem value="assistant-3">Assistant 3</SelectItem>
+                      {voiceAssistants && voiceAssistants.length > 0 ? (
+                        voiceAssistants.map((assistant) => (
+                          <SelectItem key={assistant.display_name} value={assistant.display_name}>
+                            <div className="flex flex-col">
+                              <span className="font-medium">{assistant.display_name}</span>
+                              <span className="text-xs text-muted-foreground">{assistant.description}</span>
+                            </div>
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no-assistants" disabled>
+                          No assistants available
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
-                  <Button onClick={handleAutoCall} className="flex items-center gap-2">
-                    <PhoneCall className="h-4 w-4" />
-                    Auto Call
+                  <Button 
+                    onClick={handleCallSelected} 
+                    className="flex items-center gap-2"
+                    disabled={selectedFiles.length === 0 || !selectedAssistant || isLoading}
+                  >
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <PhoneCall className="h-4 w-4" />
+                    )}
+                    Call Selected ({selectedFiles.length})
                   </Button>
                 </div>
               </div>
@@ -581,9 +791,37 @@ const CallLogs = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {paginatedResources.map((resource, index) => (
+                    {isTableLoading ? (
+                      // Loading skeleton rows
+                      Array.from({ length: itemsPerPage }).map((_, index) => (
+                        <TableRow key={`loading-${index}`} className="border-b border-border/20">
+                          <TableCell className="py-4">
+                            <div className="h-4 w-4 bg-muted rounded animate-pulse"></div>
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <div className="h-4 w-20 bg-muted rounded animate-pulse"></div>
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <div className="h-4 w-24 bg-muted rounded animate-pulse"></div>
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <div className="h-4 w-28 bg-muted rounded animate-pulse"></div>
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <div className="h-4 w-16 bg-muted rounded animate-pulse"></div>
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <div className="h-4 w-20 bg-muted rounded animate-pulse"></div>
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <div className="h-4 w-32 bg-muted rounded animate-pulse"></div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      paginatedResources.map((resource, index) => (
                       <TableRow 
-                        key={resource.id} 
+                        key={resource.id.toString()} 
                         className={`
                           border-b border-border/20 
                           hover:bg-muted/20 
@@ -593,9 +831,9 @@ const CallLogs = () => {
                       >
                         <TableCell className="py-4">
                           <Checkbox
-                            checked={selectedFiles.includes(resource.id)}
+                            checked={selectedFiles.includes(resource.id.toString())}
                             onCheckedChange={(checked) => 
-                              handleCheckboxChange(resource.id, checked as boolean)
+                              handleCheckboxChange(resource.id.toString(), checked as boolean)
                             }
                           />
                         </TableCell>
@@ -629,7 +867,8 @@ const CallLogs = () => {
                           </Button>
                         </TableCell>
                       </TableRow>
-                    ))}
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </div>

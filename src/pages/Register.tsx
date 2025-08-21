@@ -5,15 +5,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Eye, EyeOff, ArrowLeft, Loader2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 // Using uploaded AI receptionist image
 
 const Register = () => {
   const navigate = useNavigate();
+  const { signUp } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    organizationName: '',
+    firstName: '',
+    lastName: '',
     username: '',
     email: '',
     password: '',
@@ -24,8 +28,12 @@ const Register = () => {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.organizationName.trim()) {
-      newErrors.organizationName = 'Organization name is required';
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'First name is required';
+    }
+
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'Last name is required';
     }
 
     if (!formData.username.trim()) {
@@ -63,11 +71,28 @@ const Register = () => {
 
     setIsLoading(true);
     
-    // Mock API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Auto-login and redirect to dashboard
-    navigate('/app/demo/dashboard');
+    try {
+      const result = await signUp(
+        formData.email, 
+        formData.password, 
+        formData.username,
+        formData.firstName,
+        formData.lastName
+      );
+      
+      if (result.success) {
+        toast.success('Account created successfully! Please sign in.');
+        navigate('/login');
+      } else {
+        toast.error(result.error || 'Failed to create account');
+        setErrors({ general: result.error || 'Failed to create account' });
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred');
+      setErrors({ general: 'An unexpected error occurred' });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleInputChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,20 +155,41 @@ const Register = () => {
 
           <Card className="border-border/50 shadow-lg">
             <CardContent className="p-6">
+              {errors.general && (
+                <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                  <p className="text-sm text-destructive">{errors.general}</p>
+                </div>
+              )}
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Organization Name */}
+                {/* First Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="organizationName">Organization Name</Label>
+                  <Label htmlFor="firstName">First Name</Label>
                   <Input
-                    id="organizationName"
+                    id="firstName"
                     type="text"
-                    placeholder="Enter your organization name"
-                    value={formData.organizationName}
-                    onChange={handleInputChange('organizationName')}
-                    className={errors.organizationName ? 'border-destructive' : ''}
+                    placeholder="Enter your first name"
+                    value={formData.firstName}
+                    onChange={handleInputChange('firstName')}
+                    className={errors.firstName ? 'border-destructive' : ''}
                   />
-                  {errors.organizationName && (
-                    <p className="text-sm text-destructive">{errors.organizationName}</p>
+                  {errors.firstName && (
+                    <p className="text-sm text-destructive">{errors.firstName}</p>
+                  )}
+                </div>
+
+                {/* Last Name */}
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    type="text"
+                    placeholder="Enter your last name"
+                    value={formData.lastName}
+                    onChange={handleInputChange('lastName')}
+                    className={errors.lastName ? 'border-destructive' : ''}
+                  />
+                  {errors.lastName && (
+                    <p className="text-sm text-destructive">{errors.lastName}</p>
                   )}
                 </div>
 

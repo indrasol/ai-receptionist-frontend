@@ -4,8 +4,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { Bot, PhoneCall, FileText, Search, Calendar, Building2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Bot, PhoneCall, FileText, Search, Calendar, Building2, Loader2, AlertCircle } from "lucide-react";
+import { inboundService, InboundCall } from "@/services/inboundService";
+import { useAuth } from "@/contexts/AuthContext";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Select,
   SelectContent,
@@ -24,165 +27,96 @@ import {
 
 const InboundLogs = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  
+  // API data states
+  const [inboundCalls, setInboundCalls] = useState<InboundCall[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [loadingCallId, setLoadingCallId] = useState<string | null>(null);
   
   // Filter states
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDate, setSelectedDate] = useState("all");
-  const [selectedAssistant, setSelectedAssistant] = useState("all");
-  const [selectedCompany, setSelectedCompany] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
   
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Generate stable IDs for placeholder data
-  const generateStableId = (firstName: string, lastName: string, phone: string) => {
-    const data = `${firstName}-${lastName}-${phone}`;
-    return btoa(data).replace(/[^a-zA-Z0-9]/g, '').substring(0, 8);
+  // Fetch inbound calls from API
+  useEffect(() => {
+    const fetchInboundCalls = async () => {
+      if (!isAuthenticated) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await inboundService.getCalls();
+        
+        if (response.success && response.data) {
+          setInboundCalls(response.data);
+        } else {
+          setError(response.error || 'Failed to fetch inbound calls');
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInboundCalls();
+  }, [isAuthenticated]);
+
+  // Helper function to format call time from ISO date
+  const formatCallTime = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      });
+    } catch {
+      return '';
+    }
   };
 
-  // Placeholder data for inbound calls
-  const inboundCalls = [
-    {
-      id: generateStableId("John", "Doe", "(555) 123-4567"),
-      firstName: "John",
-      lastName: "Doe",
-      leadPhoneNumber: "(555) 123-4567",
-      callDate: "2025-08-11",
-      callTime: "14:30",
-      companyName: "Acme Corp",
-      assistant: "Mary Smith"
-    },
-    {
-      id: generateStableId("Jane", "Smith", "(555) 234-5678"),
-      firstName: "Jane",
-      lastName: "Smith",
-      leadPhoneNumber: "(555) 234-5678",
-      callDate: "2025-08-11",
-      callTime: "15:45",
-      companyName: "Tech Solutions",
-      assistant: "John Wilson"
-    },
-    {
-      id: generateStableId("Bob", "Johnson", "(555) 345-6789"),
-      firstName: "Bob",
-      lastName: "Johnson",
-      leadPhoneNumber: "(555) 345-6789",
-      callDate: "2025-08-11",
-      callTime: "16:20",
-      companyName: "Global Industries",
-      assistant: "Sarah Davis"
-    },
-    {
-      id: generateStableId("Alice", "Brown", "(555) 456-7890"),
-      firstName: "Alice",
-      lastName: "Brown",
-      leadPhoneNumber: "(555) 456-7890",
-      callDate: "2025-08-10",
-      callTime: "09:15",
-      companyName: "Digital Ventures",
-      assistant: "Mary Smith"
-    },
-    {
-      id: generateStableId("Charlie", "Wilson", "(555) 567-8901"),
-      firstName: "Charlie",
-      lastName: "Wilson",
-      leadPhoneNumber: "(555) 567-8901",
-      callDate: "2025-08-10",
-      callTime: "11:30",
-      companyName: "Innovation Labs",
-      assistant: "John Wilson"
-    },
-    {
-      id: generateStableId("Diana", "Martinez", "(555) 678-9012"),
-      firstName: "Diana",
-      lastName: "Martinez",
-      leadPhoneNumber: "(555) 678-9012",
-      callDate: "2025-08-10",
-      callTime: "13:45",
-      companyName: "Future Tech",
-      assistant: "Sarah Davis"
-    },
-    {
-      id: generateStableId("Edward", "Taylor", "(555) 789-0123"),
-      firstName: "Edward",
-      lastName: "Taylor",
-      leadPhoneNumber: "(555) 789-0123",
-      callDate: "2025-08-09",
-      callTime: "10:20",
-      companyName: "Smart Systems",
-      assistant: "Mary Smith"
-    },
-    {
-      id: generateStableId("Fiona", "Anderson", "(555) 890-1234"),
-      firstName: "Fiona",
-      lastName: "Anderson",
-      leadPhoneNumber: "(555) 890-1234",
-      callDate: "2025-08-09",
-      callTime: "14:15",
-      companyName: "Cloud Services",
-      assistant: "John Wilson"
-    },
-    {
-      id: generateStableId("George", "Thompson", "(555) 901-2345"),
-      firstName: "George",
-      lastName: "Thompson",
-      leadPhoneNumber: "(555) 901-2345",
-      callDate: "2025-08-09",
-      callTime: "16:50",
-      companyName: "Data Analytics Co",
-      assistant: "Sarah Davis"
-    },
-    {
-      id: generateStableId("Helen", "Garcia", "(555) 012-3456"),
-      firstName: "Helen",
-      lastName: "Garcia",
-      leadPhoneNumber: "(555) 012-3456",
-      callDate: "2025-08-08",
-      callTime: "08:30",
-      companyName: "AI Solutions",
-      assistant: "Mary Smith"
-    },
-    {
-      id: generateStableId("Ivan", "Rodriguez", "(555) 111-2222"),
-      firstName: "Ivan",
-      lastName: "Rodriguez",
-      leadPhoneNumber: "(555) 111-2222",
-      callDate: "2025-08-08",
-      callTime: "12:45",
-      companyName: "Automation Inc",
-      assistant: "John Wilson"
-    },
-    {
-      id: generateStableId("Julia", "Lee", "(555) 333-4444"),
-      firstName: "Julia",
-      lastName: "Lee",
-      leadPhoneNumber: "(555) 333-4444",
-      callDate: "2025-08-08",
-      callTime: "15:25",
-      companyName: "Robotics Ltd",
-      assistant: "Sarah Davis"
+  // Helper function to format call status
+  const formatCallStatus = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'ended':
+        return 'Completed';
+      case 'in-progress':
+        return 'In Progress';
+      case 'failed':
+        return 'Failed';
+      default:
+        return status;
     }
-  ];
+  };
 
   // Get unique values for filters
-  const uniqueAssistants = [...new Set(inboundCalls.map(call => call.assistant))];
-  const uniqueCompanies = [...new Set(inboundCalls.map(call => call.companyName))];
-  const uniqueDates = [...new Set(inboundCalls.map(call => call.callDate))];
+  const uniqueStatuses = [...new Set(inboundCalls.map(call => formatCallStatus(call.call_status)))];
+  const uniqueDates = [...new Set(inboundCalls.map(call => call.call_date))];
 
   // Filter calls based on search and filters
   const filteredCalls = inboundCalls.filter((call) => {
     const matchesSearch = searchTerm === "" || 
-      call.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      call.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      call.leadPhoneNumber.includes(searchTerm) ||
-      call.companyName.toLowerCase().includes(searchTerm.toLowerCase());
+      call.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      call.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      call.phone_number.includes(searchTerm) ||
+      call.customer_number.includes(searchTerm);
     
-    const matchesDate = selectedDate === "all" || call.callDate === selectedDate;
-    const matchesAssistant = selectedAssistant === "all" || call.assistant === selectedAssistant;
-    const matchesCompany = selectedCompany === "all" || call.companyName === selectedCompany;
+    const matchesDate = selectedDate === "all" || call.call_date === selectedDate;
+    const matchesStatus = selectedStatus === "all" || formatCallStatus(call.call_status) === selectedStatus;
     
-    return matchesSearch && matchesDate && matchesAssistant && matchesCompany;
+    return matchesSearch && matchesDate && matchesStatus;
   });
 
   // Pagination logic
@@ -203,21 +137,34 @@ const InboundLogs = () => {
     resetPagination();
   });
 
-  const handleSummaryClick = (id: string) => {
-    // Create a placeholder resource for the call summary
-    const call = inboundCalls.find(c => c.id === id);
-    if (call) {
-      const resource = {
-        id: call.id,
-        firstName: call.firstName,
-        lastName: call.lastName,
-        phone: call.leadPhoneNumber,
-        successStatus: "pass" as const,
-        summary: `Call summary for ${call.firstName} ${call.lastName} from ${call.companyName}. Call received on ${call.callDate} at ${call.callTime} and was handled by assistant ${call.assistant}.`,
-        transcript: `[${call.callTime}] Assistant: Hello, thank you for calling. How can I help you today?\n[${call.callTime}] ${call.firstName}: Hi, I'm calling about your services...\n[${call.callTime}] Assistant: I'd be happy to help you with that. Let me get some information from you...`,
-        recordingUrl: undefined
-      };
-      navigate(`call-summary/${id}`, { state: { resource } });
+  const handleSummaryClick = async (callId: string) => {
+    try {
+      setLoadingCallId(callId);
+      
+      const response = await inboundService.getCallById(callId);
+      
+      if (response.success && response.data) {
+        const call = response.data;
+        const resource = {
+          id: call.id,
+          firstName: call.first_name,
+          lastName: call.last_name,
+          phone: call.phone_number,
+          successStatus: call.success_evaluation === "true" ? "pass" as const : 
+                         call.success_evaluation === "false" ? "fail" as const : "no-status" as const,
+          summary: call.call_summary || "No summary available for this call.",
+          transcript: call.call_transcript || "No transcript available for this call.",
+          recordingUrl: call.call_recording_url || undefined
+        };
+        navigate(`call-summary/${call.id}`, { state: { resource } });
+      } else {
+        // Show error - could use a toast library here, but for now we'll use alert
+        setError(`Failed to load call details: ${response.error}`);
+      }
+    } catch (err) {
+      setError(`An error occurred while loading call details: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setLoadingCallId(null);
     }
   };
 
@@ -248,23 +195,42 @@ const InboundLogs = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <PhoneCall className="w-5 h-5" />
-            Leads Inbound Calls Info
+            Inbound Calls
           </CardTitle>
         </CardHeader>
         <CardContent>
+          {/* Error Alert */}
+          {error && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="flex items-center justify-between">
+                {error}
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setError(null)}
+                  className="ml-2 h-auto p-1"
+                >
+                  ✕
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Search and Filters */}
           <div className="flex gap-4 items-center mb-6 flex-wrap">
             <div className="relative max-w-xs">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Search by name, phone, or company..."
+                placeholder="Search by name or phone..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-9 w-72"
+                disabled={loading}
               />
             </div>
             
-            <Select value={selectedDate} onValueChange={setSelectedDate}>
+            <Select value={selectedDate} onValueChange={setSelectedDate} disabled={loading}>
               <SelectTrigger className="w-auto min-w-[150px]">
                 <Calendar className="w-4 h-4 mr-2" />
                 <SelectValue placeholder="Date" />
@@ -277,34 +243,27 @@ const InboundLogs = () => {
               </SelectContent>
             </Select>
 
-            <Select value={selectedAssistant} onValueChange={setSelectedAssistant}>
+            <Select value={selectedStatus} onValueChange={setSelectedStatus} disabled={loading}>
               <SelectTrigger className="w-auto min-w-[150px]">
                 <Bot className="w-4 h-4 mr-2" />
-                <SelectValue placeholder="Assistant" />
+                <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent className="min-w-[200px]">
-                <SelectItem value="all">All Assistants</SelectItem>
-                {uniqueAssistants.map((assistant) => (
-                  <SelectItem key={assistant} value={assistant}>{assistant}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={selectedCompany} onValueChange={setSelectedCompany}>
-              <SelectTrigger className="w-auto min-w-[150px]">
-                <Building2 className="w-4 h-4 mr-2" />
-                <SelectValue placeholder="Company" />
-              </SelectTrigger>
-              <SelectContent className="min-w-[200px]">
-                <SelectItem value="all">All Companies</SelectItem>
-                {uniqueCompanies.map((company) => (
-                  <SelectItem key={company} value={company}>{company}</SelectItem>
+                <SelectItem value="all">All Statuses</SelectItem>
+                {uniqueStatuses.map((status) => (
+                  <SelectItem key={status} value={status}>{status}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          {filteredCalls.length === 0 ? (
+          {/* Loading State */}
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin" />
+              <span className="ml-2 text-muted-foreground">Loading inbound calls...</span>
+            </div>
+          ) : filteredCalls.length === 0 ? (
             <EmptyState />
           ) : (
             <div className="rounded-md border">
@@ -313,27 +272,26 @@ const InboundLogs = () => {
                   <TableRow>
                     <TableHead>First Name</TableHead>
                     <TableHead>Last Name</TableHead>
-                    <TableHead>Lead Phone Number</TableHead>
+                    <TableHead>Phone Number</TableHead>
                     <TableHead>Call Date</TableHead>
                     <TableHead>Call Time</TableHead>
-                    <TableHead>Company Name</TableHead>
-                    <TableHead>Assistant</TableHead>
+                    <TableHead>Duration</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead>Summary</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {paginatedCalls.map((call) => (
                     <TableRow key={call.id}>
-                      <TableCell className="font-medium">{call.firstName}</TableCell>
-                      <TableCell>{call.lastName}</TableCell>
-                      <TableCell>{call.leadPhoneNumber}</TableCell>
-                      <TableCell>{call.callDate}</TableCell>
-                      <TableCell>{call.callTime}</TableCell>
-                      <TableCell>{call.companyName}</TableCell>
+                      <TableCell className="font-medium">{call.first_name}</TableCell>
+                      <TableCell>{call.last_name}</TableCell>
+                      <TableCell>{call.phone_number}</TableCell>
+                      <TableCell>{call.call_date}</TableCell>
+                      <TableCell>{formatCallTime(call.created_at)}</TableCell>
+                      <TableCell>{call.call_duration_formatted || '--'}</TableCell>
                       <TableCell>
                         <Badge variant="secondary" className="flex items-center gap-1 w-fit">
-                          <Bot className="w-3 h-3" />
-                          {call.assistant}
+                          {formatCallStatus(call.call_status)}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -341,10 +299,15 @@ const InboundLogs = () => {
                           variant="outline"
                           size="sm"
                           onClick={() => handleSummaryClick(call.id)}
+                          disabled={loadingCallId === call.id}
                           className="flex items-center gap-1"
                         >
-                          <FileText className="w-3 h-3" />
-                          Summary
+                          {loadingCallId === call.id ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <FileText className="w-3 h-3" />
+                          )}
+                          {loadingCallId === call.id ? "Loading..." : "Summary"}
                         </Button>
                       </TableCell>
                     </TableRow>
