@@ -5,12 +5,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { PhoneIncoming, PhoneOutgoing, TrendingUp } from 'lucide-react';
-import { mockCalls, kpiData } from '@/data/mockData';
+import { PhoneIncoming, PhoneOutgoing, TrendingUp, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
+import { inboundService, DashboardResponse } from '@/services/inboundService';
 
 const Dashboard = () => {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading, isAuthenticated } = useAuth();
+  
+  // API data states
+  const [dashboardData, setDashboardData] = useState<DashboardResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Animation states
   const [animatedKPIs, setAnimatedKPIs] = useState({
     inboundCalls: 0,
     outboundCalls: 0,
@@ -18,7 +26,7 @@ const Dashboard = () => {
   });
 
   // Get user's display name
-  const displayName = loading ? 'there' : (user?.name || user?.username || user?.email?.split('@')[0] || 'there');
+  const displayName = authLoading ? 'there' : (user?.name || user?.username || user?.email?.split('@')[0] || 'there');
 
   // Get current time greeting
   const getGreeting = () => {
@@ -28,49 +36,83 @@ const Dashboard = () => {
     return 'Good evening';
   };
 
-  // Animate KPI numbers on mount
+  // Fetch dashboard data from API
   useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (!isAuthenticated) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await inboundService.getDashboardStats();
+        
+        if (response.success && response.data) {
+          setDashboardData(response.data);
+        } else {
+          setError(response.error || 'Failed to fetch dashboard statistics');
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [isAuthenticated]);
+
+  // Animate KPI numbers when dashboard data is loaded
+  useEffect(() => {
+    if (!dashboardData) return;
+
     const duration = 1500;
     const steps = 60;
     const interval = duration / steps;
 
+    const targetValues = {
+      inboundCalls: dashboardData.dashboard.inbound_calls_today,
+      outboundCalls: dashboardData.dashboard.outbound_calls_today,
+      outboundSuccessRate: dashboardData.dashboard.outbound_success_rate
+    };
+
     const timer = setInterval(() => {
       setAnimatedKPIs(prev => ({
-        inboundCalls: Math.min(prev.inboundCalls + 247 / steps, 247),
-        outboundCalls: Math.min(prev.outboundCalls + 89 / steps, 89),
-        outboundSuccessRate: Math.min(prev.outboundSuccessRate + 62.5 / steps, 62.5)
+        inboundCalls: Math.min(prev.inboundCalls + targetValues.inboundCalls / steps, targetValues.inboundCalls),
+        outboundCalls: Math.min(prev.outboundCalls + targetValues.outboundCalls / steps, targetValues.outboundCalls),
+        outboundSuccessRate: Math.min(prev.outboundSuccessRate + targetValues.outboundSuccessRate / steps, targetValues.outboundSuccessRate)
       }));
     }, interval);
 
     setTimeout(() => {
       clearInterval(timer);
-      setAnimatedKPIs({
-        inboundCalls: 247,
-        outboundCalls: 89,
-        outboundSuccessRate: 62.5
-      });
+      setAnimatedKPIs(targetValues);
     }, duration);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [dashboardData]);
 
-  // Sample 14-day trend data for inbound calls
-  const trendData = [
-    { date: 'Dec 1', calls: 45 },
-    { date: 'Dec 2', calls: 52 },
-    { date: 'Dec 3', calls: 48 },
-    { date: 'Dec 4', calls: 61 },
-    { date: 'Dec 5', calls: 55 },
-    { date: 'Dec 6', calls: 67 },
-    { date: 'Dec 7', calls: 71 },
-    { date: 'Dec 8', calls: 64 },
-    { date: 'Dec 9', calls: 58 },
-    { date: 'Dec 10', calls: 73 },
-    { date: 'Dec 11', calls: 69 },
-    { date: 'Dec 12', calls: 81 },
-    { date: 'Dec 13', calls: 76 },
-    { date: 'Dec 14', calls: 84 },
-  ];
+  // Process trend data from API
+  const trendData = dashboardData?.trends.map(trend => ({
+    date: new Date(trend.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    inbound: trend.inbound_calls,
+    outbound: trend.outbound_calls,
+    total: trend.total_calls
+  })) || [];
+
+  // Helper function to format percentage change
+  const formatPercentageChange = (value: number) => {
+    const sign = value >= 0 ? '+' : '';
+    const color = value >= 0 ? 'text-green-600' : 'text-red-600';
+    return (
+      <span className={color}>
+        {sign}{value.toFixed(1)}%
+      </span>
+    );
+  };
 
   const formatTime = (timestamp: Date) => {
     return new Intl.RelativeTimeFormat('en', { numeric: 'auto' }).format(
@@ -79,6 +121,35 @@ const Dashboard = () => {
     );
   };
 
+  // Refresh dashboard data
+  const refreshDashboard = async () => {
+    if (!isAuthenticated) return;
+
+    try {
+      setError(null);
+      
+      const response = await inboundService.getDashboardStats();
+      
+      if (response.success && response.data) {
+        setDashboardData(response.data);
+      } else {
+        setError(response.error || 'Failed to refresh dashboard statistics');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+    }
+  };
+
+  // Show loading spinner if still loading
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2 text-muted-foreground">Loading dashboard...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -86,14 +157,49 @@ const Dashboard = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
+        className="flex justify-between items-start"
       >
-        <h1 className="text-3xl font-bold text-gray-900">
-          {getGreeting()}, {displayName}! 👋
-        </h1>
-        <p className="text-gray-600 mt-2">
-          Here's what's happening with your AI receptionist today.
-        </p>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {getGreeting()}, {displayName}! 👋
+          </h1>
+          <p className="text-gray-600 mt-2">
+            Here's what's happening with your AI receptionist today.
+          </p>
+          {dashboardData?.organization && (
+            <p className="text-sm text-gray-500 mt-1">
+              Organization: {dashboardData.organization.name}
+            </p>
+          )}
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={refreshDashboard}
+          className="flex items-center gap-2"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Refresh
+        </Button>
       </motion.div>
+
+      {/* Error Alert */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="flex items-center justify-between">
+            {error}
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setError(null)}
+              className="ml-2 h-auto p-1"
+            >
+              ✕
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -112,7 +218,7 @@ const Dashboard = () => {
                 {Math.round(animatedKPIs.inboundCalls)}
               </div>
               <p className="text-xs text-muted-foreground">
-                <span className="text-green-600">+4.2%</span> from yesterday
+                {dashboardData ? formatPercentageChange(dashboardData.dashboard.inbound_calls_change_percent) : '--'} from yesterday
               </p>
             </CardContent>
           </Card>
@@ -133,7 +239,7 @@ const Dashboard = () => {
                 {Math.round(animatedKPIs.outboundCalls)}
               </div>
               <p className="text-xs text-muted-foreground">
-                <span className="text-red-600">-1.3%</span> from yesterday
+                {dashboardData ? formatPercentageChange(dashboardData.dashboard.outbound_calls_change_percent) : '--'} from yesterday
               </p>
             </CardContent>
           </Card>
@@ -155,9 +261,11 @@ const Dashboard = () => {
               </div>
               <div className="flex justify-between items-end">
                 <p className="text-xs text-muted-foreground">
-                  <span className="text-green-600">+2.1%</span> from yesterday
+                  {dashboardData ? formatPercentageChange(dashboardData.dashboard.success_rate_change_percent) : '--'} from yesterday
                 </p>
-                <p className="text-xs text-gray-500">(Pass Calls/Total Calls)</p>
+                <p className="text-xs text-gray-500">
+                  ({dashboardData?.dashboard.outbound_calls_successful || 0}/{dashboardData?.dashboard.outbound_calls_completed || 0})
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -173,44 +281,73 @@ const Dashboard = () => {
       >
         <Card>
           <CardHeader>
-            <CardTitle>Inbound Calls Trend</CardTitle>
+            <CardTitle>Call Volume Trends</CardTitle>
             <CardDescription>Daily call volume over the last 14 days</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={trendData}>
-                <XAxis 
-                  dataKey="date" 
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 12 }}
-                />
-                <YAxis 
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 12 }}
-                  label={{ value: 'Calls', angle: -90, position: 'insideLeft' }}
-                />
-                <Tooltip 
-                  contentStyle={{
-                    backgroundColor: 'white',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                  }}
-                  labelFormatter={(label) => `Date: ${label}`}
-                  formatter={(value, name) => [`${value} calls`, 'Volume']}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="calls"
-                  stroke="#7B61FF"
-                  strokeWidth={3}
-                  dot={{ fill: '#7B61FF', strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, fill: '#7B61FF' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            {trendData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={trendData}>
+                  <XAxis 
+                    dataKey="date" 
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12 }}
+                  />
+                  <YAxis 
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12 }}
+                    label={{ value: 'Calls', angle: -90, position: 'insideLeft' }}
+                  />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'white',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    }}
+                    labelFormatter={(label) => `Date: ${label}`}
+                    formatter={(value, name) => {
+                      const labels = {
+                        inbound: 'Inbound Calls',
+                        outbound: 'Outbound Calls',
+                        total: 'Total Calls'
+                      };
+                      return [`${value} calls`, labels[name as keyof typeof labels] || name];
+                    }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="inbound"
+                    stroke="#10B981"
+                    strokeWidth={2}
+                    dot={{ fill: '#10B981', strokeWidth: 2, r: 3 }}
+                    activeDot={{ r: 5, fill: '#10B981' }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="outbound"
+                    stroke="#F59E0B"
+                    strokeWidth={2}
+                    dot={{ fill: '#F59E0B', strokeWidth: 2, r: 3 }}
+                    activeDot={{ r: 5, fill: '#F59E0B' }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="total"
+                    stroke="#7B61FF"
+                    strokeWidth={3}
+                    dot={{ fill: '#7B61FF', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, fill: '#7B61FF' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                No trend data available
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>
