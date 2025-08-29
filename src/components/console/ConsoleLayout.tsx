@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Bot, Home, Mic, Calendar, BookOpen, Settings, Menu, LogOut, Phone, PhoneOutgoing, PhoneIncoming } from 'lucide-react';
+import { Bot, Home, Mic, Calendar, BookOpen, Settings, Menu, LogOut, Phone, PhoneOutgoing, PhoneIncoming, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ConsoleBreadcrumb from './ConsoleBreadcrumb';
 
@@ -22,11 +22,15 @@ const ConsoleLayout = () => {
     const saved = localStorage.getItem('sidebarExpanded');
     return saved !== null ? JSON.parse(saved) : true;
   });
-  const { slug } = useParams();
+  const { slug, id: receptionistId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
 
   const currentPath = location.pathname.split('/').pop() || 'dashboard';
+  
+  // Determine if we're in a receptionist-specific route
+  const isReceptionistRoute = location.pathname.startsWith('/receptionist/');
+  const currentReceptionistId = isReceptionistRoute ? receptionistId : null;
 
   useEffect(() => {
     localStorage.setItem('sidebarExpanded', JSON.stringify(sidebarExpanded));
@@ -37,7 +41,11 @@ const ConsoleLayout = () => {
   };
 
   const navigateToPath = (path: string) => {
-    navigate(`/app/${slug}/${path}`);
+    if (isReceptionistRoute) {
+      navigate(`/receptionist/${receptionistId}/${path}`);
+    } else {
+      navigate(`/app/${slug}/${path}`);
+    }
   };
 
   // Get onboarding data
@@ -103,6 +111,43 @@ const ConsoleLayout = () => {
 
             <nav className="flex-1 px-2">
               <ul className="space-y-1">
+                {/* Back to Knowledge Link */}
+                <li>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      "w-full justify-start h-10 text-primary hover:bg-primary/10",
+                      !sidebarExpanded && "px-3"
+                    )}
+                    onClick={() => {
+                      if (currentReceptionistId) {
+                        navigate(`/knowledge/${currentReceptionistId}`);
+                      } else {
+                        navigate('/launch');
+                      }
+                    }}
+                  >
+                    <ArrowLeft className={cn("w-4 h-4", sidebarExpanded && "mr-3")} />
+                    <motion.span
+                      initial={false}
+                      animate={{
+                        opacity: sidebarExpanded ? 1 : 0,
+                        width: sidebarExpanded ? "auto" : 0
+                      }}
+                      transition={{ duration: 0.2 }}
+                      className="truncate"
+                    >
+                      {sidebarExpanded && "Back to Knowledge"}
+                    </motion.span>
+                  </Button>
+                </li>
+                
+                {/* Separator */}
+                <li className="py-2">
+                  <div className="border-t border-gray-200"></div>
+                </li>
+                
                 {sidebarItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = currentPath === item.path;
