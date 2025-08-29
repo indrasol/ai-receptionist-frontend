@@ -49,7 +49,7 @@ const Login = () => {
       
       if (result.success) {
         toast.success('Successfully signed in!');
-        navigate('/app/demo/dashboard');
+        navigate('/launch');
       } else {
         toast.error(result.error || 'Failed to sign in');
         setErrors({ general: result.error || 'Failed to sign in' });
