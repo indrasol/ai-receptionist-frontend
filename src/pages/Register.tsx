@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,7 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
+    organizationName: '',
     firstName: '',
     lastName: '',
     username: '',
@@ -27,6 +28,10 @@ const Register = () => {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
+
+    if (!formData.organizationName.trim()) {
+      newErrors.organizationName = 'Organization name is required';
+    }
 
     if (!formData.firstName.trim()) {
       newErrors.firstName = 'First name is required';
@@ -161,6 +166,22 @@ const Register = () => {
                 </div>
               )}
               <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Organization Name */}
+                <div className="space-y-2">
+                  <Label htmlFor="organizationName">Organization Name</Label>
+                  <Input
+                    id="organizationName"
+                    type="text"
+                    placeholder="Enter your organization name"
+                    value={formData.organizationName}
+                    onChange={handleInputChange('organizationName')}
+                    className={errors.organizationName ? 'border-destructive' : ''}
+                  />
+                  {errors.organizationName && (
+                    <p className="text-sm text-destructive">{errors.organizationName}</p>
+                  )}
+                </div>
+
                 {/* First Name */}
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name</Label>
