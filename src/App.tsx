@@ -27,6 +27,8 @@ import CallSummary from "./pages/CallSummary";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
+import Launch from "./pages/Launch";
+import Knowledge from "./pages/Knowledge";
 import { Navigate } from "react-router-dom";
 
 const queryClient = new QueryClient();
@@ -59,6 +61,23 @@ const App = () => (
           
           {/* Onboarding - no main layout */}
           <Route path="/onboard" element={<Onboard />} />
+          
+          {/* Launch and Knowledge - no sidebar */}
+          <Route path="/launch" element={<Launch />} />
+          <Route path="/knowledge" element={<Navigate to="/launch" replace />} />
+          <Route path="/knowledge/:id" element={<Knowledge />} />
+          <Route path="/receptionist/:id" element={<ConsoleLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="out-bound" element={<OutboundLogs />} />
+            <Route path="out-bound/call-summary/:id" element={<CallSummary />} />
+            <Route path="in-bound" element={<InboundLogs />} />
+            <Route path="in-bound/call-summary/:id" element={<CallSummary />} />
+            <Route path="voice-routing" element={<VoiceRouting />} />
+            <Route path="appointments" element={<Appointments />} />
+            <Route path="knowledge-base" element={<KnowledgeBase />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
           
           {/* Console routes with console layout */}
           <Route path="/app/:slug" element={<ConsoleLayout />}>
