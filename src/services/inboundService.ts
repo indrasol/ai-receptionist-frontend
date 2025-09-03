@@ -1,4 +1,4 @@
-import { API_ENDPOINTS } from '@/config'
+import { API_ENDPOINTS } from '../config/apiEndpoints'
 import { authService } from './authService'
 
 // Type definitions based on the API documentation
