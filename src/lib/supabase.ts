@@ -1,14 +1,15 @@
 import { createClient } from '@supabase/supabase-js'
+import { env } from "../config/env";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseServiceKey = import.meta.env.VITE_SUPABASE_SERVICE_KEY
+const supabaseUrl = env.SUPABASE_URL
+const supabaseAPIKey = env.SUPABASE_ANON_KEY
 
-if (!supabaseUrl || !supabaseServiceKey) {
+if (!supabaseUrl || !supabaseAPIKey) {
   throw new Error(`Missing Supabase environment variables. Please ensure VITE_SUPABASE_URL and VITE_SUPABASE_SERVICE_KEY are set in your .env.local file.`)
 }
 
 // Create a supabase client with service key for admin operations
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+export const supabaseAdmin = createClient(supabaseUrl, supabaseAPIKey, {
   auth: {
     autoRefreshToken: false,
     persistSession: false
@@ -16,7 +17,7 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
 })
 
 // Regular client for authenticated users
-export const supabase = createClient(supabaseUrl, supabaseServiceKey)
+export const supabase = createClient(supabaseUrl, supabaseAPIKey)
 
 export type Database = {
   public: {
