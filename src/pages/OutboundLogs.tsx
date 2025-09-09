@@ -1,21 +1,7 @@
-import { useState, useCallback, useEffect } from "react";
+import { AlertCircle, Bot, Building2, CalendarIcon, Circle, Clock, Link2, Loader2, Minus, Phone, PhoneCall, Plus, Search, Upload } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Upload, Link2, Phone, Circle, Loader2, AlertCircle, Plus, Minus, Bot, PhoneCall, CalendarIcon, Clock, Search, Building2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
-
-import { outboundService, Lead, VoiceAssistant } from "@/services/outboundService";
-import { useAuth } from "@/contexts/AuthContext";
-import React from "react";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Lead, VoiceAssistant, outboundService } from "@/services/outboundService";
 import {
   Pagination,
   PaginationContent,
@@ -24,9 +10,23 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useCallback, useEffect, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import React from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProjectResource {
-  id: number;
+  id: string;  // Changed from number to string (UUID)
   firstName: string;
   lastName: string;
   phone: string;
@@ -419,8 +419,8 @@ const CallLogs = () => {
     setIsLoading(true);
     
     try {
-      // Convert selected string IDs to numbers
-      const leadIds = selectedFiles.map(id => parseInt(id)).filter(id => !isNaN(id));
+      // Use selected string IDs directly (now UUIDs)
+      const leadIds = selectedFiles;
       
       const result = await outboundService.callLeads(leadIds, selectedAssistant);
       

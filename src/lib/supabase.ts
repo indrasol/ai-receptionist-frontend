@@ -24,7 +24,7 @@ export type Database = {
     Tables: {
       leads: {
         Row: {
-          id: number
+          id: string  // Changed from number to string (UUID)
           first_name: string
           last_name: string
           phone_number: string
@@ -42,7 +42,7 @@ export type Database = {
           sheet_url: string | null
         }
         Insert: {
-          id?: number
+          id?: string  // Changed from number to string (UUID)
           first_name: string
           last_name: string
           phone_number: string
@@ -60,7 +60,7 @@ export type Database = {
           sheet_url?: string | null
         }
         Update: {
-          id?: number
+          id?: string  // Changed from number to string (UUID)
           first_name?: string
           last_name?: string
           phone_number?: string
