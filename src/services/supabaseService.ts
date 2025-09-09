@@ -1,5 +1,6 @@
-import { supabase, supabaseAdmin } from '@/lib/supabase'
 import * as XLSX from 'xlsx'
+
+import { supabase, supabaseAdmin } from '@/lib/supabase'
 
 export interface LeadData {
   first_name: string
@@ -12,7 +13,7 @@ export interface LeadData {
 }
 
 export interface ProcessedLead {
-  id: number
+  id: string  // Changed from number to string (UUID)
   first_name: string
   last_name: string
   phone_number: string
@@ -202,7 +203,7 @@ class SupabaseService {
     return data || []
   }
 
-  async updateCallStatus(leadId: number, status: string, summary?: string, transcript?: string, recordingUrl?: string, successEvaluation?: string): Promise<void> {
+  async updateCallStatus(leadId: string, status: string, summary?: string, transcript?: string, recordingUrl?: string, successEvaluation?: string): Promise<void> {
     const { error } = await supabase
       .from('leads')
       .update({

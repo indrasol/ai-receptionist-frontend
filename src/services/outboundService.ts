@@ -3,7 +3,7 @@ import { authService } from './authService'
 
 // Type definitions based on your API documentation
 export interface Lead {
-  id: number
+  id: string  // Changed from number to string (UUID)
   first_name: string
   last_name: string
   phone_number: string
@@ -77,16 +77,16 @@ export interface UploadExcelResponse {
 }
 
 export interface GetLeadByIdRequest {
-  lead_id: number
+  lead_id: string  // Changed from number to string (UUID)
 }
 
 export interface CallLeadsRequest {
-  lead_ids: number[]
+  lead_ids: string[]  // Changed from number[] to string[] (UUIDs)
   voiceId: string
 }
 
 export interface CallResult {
-  lead_id: number
+  lead_id: string  // Changed from number to string (UUID)
   status: string
   customer_name: string
   phone_number: string
@@ -339,7 +339,7 @@ class OutboundService {
     }
   }
 
-  async getLeadById(leadId: number): Promise<ApiResponse<Lead>> {
+  async getLeadById(leadId: string): Promise<ApiResponse<Lead>> {
     try {
       const response = await this.makeRequest(API_ENDPOINTS.OUTBOUND.GET_SUMMARY_BY_ID, {
         method: 'POST',
@@ -358,7 +358,7 @@ class OutboundService {
     }
   }
 
-  async callLeads(leadIds: number[], voiceId: string): Promise<ApiResponse<CallLeadsResponse>> {
+  async callLeads(leadIds: string[], voiceId: string): Promise<ApiResponse<CallLeadsResponse>> {
     try {
       const response = await this.makeRequest(API_ENDPOINTS.OUTBOUND.CALL_LEADS, {
         method: 'POST',
