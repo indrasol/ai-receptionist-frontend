@@ -269,27 +269,32 @@ const Knowledge = () => {
 
   const selectedCount = knowledgeEntries.filter(entry => entry.isSelected).length;
 
-  // Calculate progress based on processed entries
-  const processedCount = knowledgeEntries.filter(entry => entry.status === 'processed').length;
+  // Calculate progress based on selected entries
   const totalCount = knowledgeEntries.length;
-  const progressPercentage = totalCount > 0 ? Math.round((processedCount / totalCount) * 100) : 0;
+  const progressPercentage = totalCount > 0 ? Math.round((selectedCount / totalCount) * 100) : 0;
 
-  // Handle refresh when all entries are processed
+  // Calculate total character count from all knowledge entries
+  const totalCharacters = knowledgeEntries.reduce((total, entry) => {
+    return total + (entry.content ? entry.content.length : 0);
+  }, 0);
+
+  // Handle refresh when all entries are selected (100% progress)
   useEffect(() => {
-    if (progressPercentage === 100 && totalCount > 0 && !isRefreshing) {
+    if (progressPercentage === 100 && totalCount > 0 && selectedCount === totalCount && !isRefreshing) {
       const timer = setTimeout(() => {
         setIsRefreshing(true);
-        // Simulate content refresh
+        // Simulate content refresh and training completion
         setTimeout(() => {
           setIsRefreshing(false);
           // Here you could trigger actual content refresh logic
           console.log('Knowledge base training completed and refreshed!');
+          console.log(`Training completed with ${selectedCount} sources and ${totalCharacters.toLocaleString()} characters`);
         }, 2000);
       }, 500);
       
       return () => clearTimeout(timer);
     }
-  }, [progressPercentage, totalCount, isRefreshing]);
+  }, [progressPercentage, totalCount, selectedCount, totalCharacters, isRefreshing]);
 
   // Grid View Component
   const renderGridView = () => (
@@ -319,7 +324,6 @@ const Knowledge = () => {
               <Switch
                 checked={entry.isSelected}
                 onCheckedChange={() => toggleKnowledgeSelection(entry.id)}
-                disabled={entry.status !== 'processed'}
                 className="data-[state=checked]:bg-primary"
               />
             </div>
@@ -561,22 +565,27 @@ const Knowledge = () => {
                             className="h-2 bg-muted"
                           />
                         </div>
-                        <div className="flex items-center gap-1 text-sm font-medium">
+                        <div className="flex items-center gap-3 text-sm font-medium">
                           {isRefreshing ? (
                             <>
                               <RefreshCw className="w-4 h-4 animate-spin text-primary" />
-                              <span className="text-primary">Refreshing...</span>
+                              <span className="text-primary">Training...</span>
                             </>
+                          ) : selectedCount === 0 ? (
+                            <span className="text-yellow-600 text-xs">Select sources to begin training</span>
                           ) : (
                             <>
-                              <span className={progressPercentage === 100 ? "text-green-600" : "text-muted-foreground"}>
+                              <span className={progressPercentage === 100 ? "text-green-600" : "text-primary"}>
                                 {progressPercentage}%
                               </span>
                               {progressPercentage === 100 && (
-                                <span className="text-green-600 text-xs ml-1">Complete!</span>
+                                <span className="text-green-600 text-xs ml-1">Training Complete!</span>
                               )}
                             </>
                           )}
+                          <span className="text-muted-foreground text-xs">
+                            ({totalCharacters.toLocaleString()}/1,000,000)
+                          </span>
                         </div>
                       </div>
                     )}
@@ -610,10 +619,10 @@ const Knowledge = () => {
                   </div>
                 </CardTitle>
                 <CardDescription>
-                  Select the sources below for the '{currentReceptionist?.name || 'this receptionist'}' to use to speak to your customers.
+                  Select the sources below for the <span className="font-bold">'{currentReceptionist?.name || 'this receptionist'}'</span> to use to speak to your customers.
                   {totalCount > 0 && (
                     <span className="ml-2 text-xs">
-                      Processing: {processedCount}/{totalCount} sources
+                      Selected: {selectedCount}/{totalCount} sources
                     </span>
                   )}
                 </CardDescription>
@@ -654,7 +663,6 @@ const Knowledge = () => {
                               <Switch
                                 checked={entry.isSelected}
                                 onCheckedChange={() => toggleKnowledgeSelection(entry.id)}
-                                disabled={entry.status !== 'processed'}
                                 className="data-[state=checked]:bg-primary"
                               />
                             </TableCell>
@@ -823,7 +831,7 @@ const Knowledge = () => {
                   </Badge>
                 </div>
                 <span className="text-muted-foreground">
-                  {selectedEntry?.content ? `${selectedEntry.content.length.toLocaleString()} characters` : '0 characters'}
+                  ({selectedEntry?.content ? selectedEntry.content.length.toLocaleString() : '0'}/100,000)
                 </span>
               </div>
             </div>
