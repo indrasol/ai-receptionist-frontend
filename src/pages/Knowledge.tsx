@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,21 +8,26 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Switch } from '@/components/ui/switch';
+import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   Upload,
   Globe,
   FileText,
   Link,
-  CheckCircle,
-  Circle,
   Trash2,
   Download,
   Plus,
   ArrowLeft,
   Bot,
   Type,
-  Maximize2
+  Maximize2,
+  Grid3X3,
+  List,
+  Calendar,
+  Eye,
+  RefreshCw
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -47,6 +52,8 @@ const Knowledge = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<KnowledgeEntry | null>(null);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Get receptionist data from localStorage or use mock data
   const getReceptionistById = (id: string) => {
@@ -262,6 +269,123 @@ const Knowledge = () => {
 
   const selectedCount = knowledgeEntries.filter(entry => entry.isSelected).length;
 
+  // Calculate progress based on processed entries
+  const processedCount = knowledgeEntries.filter(entry => entry.status === 'processed').length;
+  const totalCount = knowledgeEntries.length;
+  const progressPercentage = totalCount > 0 ? Math.round((processedCount / totalCount) * 100) : 0;
+
+  // Handle refresh when all entries are processed
+  useEffect(() => {
+    if (progressPercentage === 100 && totalCount > 0 && !isRefreshing) {
+      const timer = setTimeout(() => {
+        setIsRefreshing(true);
+        // Simulate content refresh
+        setTimeout(() => {
+          setIsRefreshing(false);
+          // Here you could trigger actual content refresh logic
+          console.log('Knowledge base training completed and refreshed!');
+        }, 2000);
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [progressPercentage, totalCount, isRefreshing]);
+
+  // Grid View Component
+  const renderGridView = () => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-6">
+      {knowledgeEntries.map((entry) => (
+        <Card key={entry.id} className="group hover:shadow-lg transition-shadow flex flex-col">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {entry.type === 'document' ? (
+                  <FileText className="w-4 h-4 text-blue-500" />
+                ) : entry.type === 'url' ? (
+                  <Link className="w-4 h-4 text-green-500" />
+                ) : (
+                  <Type className="w-4 h-4 text-purple-500" />
+                )}
+                <Badge 
+                  variant={
+                    entry.status === 'processed' ? 'default' : 
+                    entry.status === 'processing' ? 'secondary' : 'destructive'
+                  }
+                  className="text-xs"
+                >
+                  {entry.status}
+                </Badge>
+              </div>
+              <Switch
+                checked={entry.isSelected}
+                onCheckedChange={() => toggleKnowledgeSelection(entry.id)}
+                disabled={entry.status !== 'processed'}
+                className="data-[state=checked]:bg-primary"
+              />
+            </div>
+            <CardTitle className="text-sm font-medium truncate" title={entry.name}>
+              {entry.name}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0 flex-1 flex flex-col">
+            <div className="space-y-3 flex-1">
+              <div className="text-sm text-muted-foreground overflow-hidden" style={{
+                display: '-webkit-box',
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: 'vertical',
+                lineHeight: '1.4em',
+                maxHeight: '4.2em'
+              }}>
+                {entry.content || 'No content available'}
+              </div>
+              
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-3 h-3" />
+                  {new Date(entry.uploadedAt).toLocaleDateString()}
+                </div>
+                <span>{entry.size || 'N/A'}</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-end mt-3 pt-3 border-t border-muted/30">
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleViewContent(entry)}
+                  className="h-7 w-7 p-0 hover:bg-muted"
+                  title="View content"
+                >
+                  <Eye className="w-3 h-3" />
+                </Button>
+                {entry.type === 'document' && entry.status === 'processed' && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-7 w-7 p-0 hover:bg-muted"
+                    title="Download"
+                  >
+                    <Download className="w-3 h-3" />
+                  </Button>
+                )}
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => removeKnowledgeEntry(entry.id)}
+                  className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                  title="Delete"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+
   return (
     <div className="h-screen h-[100dvh] bg-gradient-to-br from-background via-muted/30 to-background overflow-y-auto">
       {/* Background decoration */}
@@ -427,16 +551,74 @@ const Knowledge = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  <span>{currentReceptionist?.name || 'Receptionist'}'s Knowledge</span>
-                  <Badge variant="outline">
-                    {knowledgeEntries.length} total
-                  </Badge>
+                  <div className="flex items-center gap-4 flex-1">
+                    <span>{currentReceptionist?.name || 'Receptionist'}'s Knowledge</span>
+                    {totalCount > 0 && (
+                      <div className="flex items-center gap-3 flex-1 max-w-md">
+                        <div className="flex-1">
+                          <Progress 
+                            value={progressPercentage} 
+                            className="h-2 bg-muted"
+                          />
+                        </div>
+                        <div className="flex items-center gap-1 text-sm font-medium">
+                          {isRefreshing ? (
+                            <>
+                              <RefreshCw className="w-4 h-4 animate-spin text-primary" />
+                              <span className="text-primary">Refreshing...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className={progressPercentage === 100 ? "text-green-600" : "text-muted-foreground"}>
+                                {progressPercentage}%
+                              </span>
+                              {progressPercentage === 100 && (
+                                <span className="text-green-600 text-xs ml-1">Complete!</span>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex border rounded-md">
+                      <Button
+                        variant={viewMode === 'list' ? 'default' : 'ghost'}
+                        size="sm"
+                        onClick={() => setViewMode('list')}
+                        className="rounded-r-none h-8"
+                        title="List view"
+                      >
+                        <List className="w-4 h-4" />
+                        <span className="ml-1 hidden sm:inline">List</span>
+                      </Button>
+                      <Button
+                        variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                        size="sm"
+                        onClick={() => setViewMode('grid')}
+                        className="rounded-l-none h-8"
+                        title="Grid view"
+                      >
+                        <Grid3X3 className="w-4 h-4" />
+                        <span className="ml-1 hidden sm:inline">Grid</span>
+                      </Button>
+                    </div>
+                    <Badge variant="outline">
+                      {knowledgeEntries.length} total
+                    </Badge>
+                  </div>
                 </CardTitle>
                 <CardDescription>
-                  Select the knowledge sources to use for training {currentReceptionist?.name || 'this receptionist'}.
+                  Select the sources below for the '{currentReceptionist?.name || 'this receptionist'}' to use.
+                  {totalCount > 0 && (
+                    <span className="ml-2 text-xs">
+                      Processing: {processedCount}/{totalCount} sources
+                    </span>
+                  )}
                 </CardDescription>
               </CardHeader>
-                            <CardContent className="p-0">
+              <CardContent className={viewMode === 'grid' ? 'p-0' : 'p-0'}>
                 {knowledgeEntries.length === 0 ? (
                   <div className="text-center py-8 px-6">
                     <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -445,12 +627,14 @@ const Knowledge = () => {
                       Upload documents or add URLs to get started
                     </p>
                   </div>
+                ) : viewMode === 'grid' ? (
+                  renderGridView()
                 ) : (
                   <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-12"></TableHead>
+                          <TableHead className="w-12">Select</TableHead>
                           <TableHead className="w-20">Type</TableHead>
                           <TableHead>Title</TableHead>
                           <TableHead className="min-w-[300px]">Content</TableHead>
@@ -467,17 +651,12 @@ const Knowledge = () => {
                             className="group"
                           >
                             <TableCell>
-                              <button
-                                onClick={() => toggleKnowledgeSelection(entry.id)}
-                                className="flex items-center"
+                              <Switch
+                                checked={entry.isSelected}
+                                onCheckedChange={() => toggleKnowledgeSelection(entry.id)}
                                 disabled={entry.status !== 'processed'}
-                              >
-                                {entry.isSelected ? (
-                                  <CheckCircle className="w-4 h-4 text-primary" />
-                                ) : (
-                                  <Circle className="w-4 h-4 text-muted-foreground" />
-                                )}
-                              </button>
+                                className="data-[state=checked]:bg-primary"
+                              />
                             </TableCell>
                             
                             <TableCell>
@@ -629,18 +808,23 @@ const Knowledge = () => {
                 </div>
               )}
 
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <span>Created: {selectedEntry ? new Date(selectedEntry.uploadedAt).toLocaleDateString() : ''}</span>
-                {selectedEntry?.size && <span>Size: {selectedEntry.size}</span>}
-                <Badge 
-                  variant={
-                    selectedEntry?.status === 'processed' ? 'default' : 
-                    selectedEntry?.status === 'processing' ? 'secondary' : 'destructive'
-                  }
-                  className="text-xs"
-                >
-                  {selectedEntry?.status}
-                </Badge>
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <div className="flex items-center gap-4">
+                  <span>Created: {selectedEntry ? new Date(selectedEntry.uploadedAt).toLocaleDateString() : ''}</span>
+                  {selectedEntry?.size && <span>Size: {selectedEntry.size}</span>}
+                  <Badge 
+                    variant={
+                      selectedEntry?.status === 'processed' ? 'default' : 
+                      selectedEntry?.status === 'processing' ? 'secondary' : 'destructive'
+                    }
+                    className="text-xs"
+                  >
+                    {selectedEntry?.status}
+                  </Badge>
+                </div>
+                <span className="text-muted-foreground">
+                  {selectedEntry?.content ? `${selectedEntry.content.length.toLocaleString()} characters` : '0 characters'}
+                </span>
               </div>
             </div>
           </div>
