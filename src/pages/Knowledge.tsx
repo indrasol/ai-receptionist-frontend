@@ -610,7 +610,7 @@ const Knowledge = () => {
                   </div>
                 </CardTitle>
                 <CardDescription>
-                  Select the sources below for the '{currentReceptionist?.name || 'this receptionist'}' to use.
+                  Select the sources below for the '{currentReceptionist?.name || 'this receptionist'}' to use to speak to your customers.
                   {totalCount > 0 && (
                     <span className="ml-2 text-xs">
                       Processing: {processedCount}/{totalCount} sources
