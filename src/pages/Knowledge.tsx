@@ -27,7 +27,9 @@ import {
   List,
   Calendar,
   Eye,
-  RefreshCw
+  RefreshCw,
+  Edit,
+  Save
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -54,6 +56,9 @@ const Knowledge = () => {
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editContent, setEditContent] = useState('');
+  const [isTrainingModalOpen, setIsTrainingModalOpen] = useState(false);
 
   // Get receptionist data from localStorage or use mock data
   const getReceptionistById = (id: string) => {
@@ -264,7 +269,30 @@ const Knowledge = () => {
 
   const handleViewContent = (entry: KnowledgeEntry) => {
     setSelectedEntry(entry);
+    setIsEditMode(false);
     setIsContentModalOpen(true);
+  };
+
+  const handleEditContent = (entry: KnowledgeEntry) => {
+    setSelectedEntry(entry);
+    setEditContent(entry.content || '');
+    setIsEditMode(true);
+    setIsContentModalOpen(true);
+  };
+
+  const handleSaveContent = () => {
+    if (selectedEntry) {
+      // Update the knowledge entry with edited content
+      setKnowledgeEntries(prev => 
+        prev.map(entry => 
+          entry.id === selectedEntry.id 
+            ? { ...entry, content: editContent }
+            : entry
+        )
+      );
+      setIsEditMode(false);
+      console.log('Content saved for entry:', selectedEntry.id);
+    }
   };
 
   const selectedCount = knowledgeEntries.filter(entry => entry.isSelected).length;
@@ -311,15 +339,9 @@ const Knowledge = () => {
                 ) : (
                   <Type className="w-4 h-4 text-purple-500" />
                 )}
-                <Badge 
-                  variant={
-                    entry.status === 'processed' ? 'default' : 
-                    entry.status === 'processing' ? 'secondary' : 'destructive'
-                  }
-                  className="text-xs"
-                >
-                  {entry.status}
-                </Badge>
+                <CardTitle className="text-sm font-medium truncate" title={entry.name}>
+                  {entry.name}
+                </CardTitle>
               </div>
               <Switch
                 checked={entry.isSelected}
@@ -327,9 +349,6 @@ const Knowledge = () => {
                 className="data-[state=checked]:bg-primary"
               />
             </div>
-            <CardTitle className="text-sm font-medium truncate" title={entry.name}>
-              {entry.name}
-            </CardTitle>
           </CardHeader>
           <CardContent className="pt-0 flex-1 flex flex-col">
             <div className="space-y-3 flex-1">
@@ -348,7 +367,7 @@ const Knowledge = () => {
                   <Calendar className="w-3 h-3" />
                   {new Date(entry.uploadedAt).toLocaleDateString()}
                 </div>
-                <span>{entry.size || 'N/A'}</span>
+                <span>({(entry.content?.length || 0).toLocaleString()}/100,000) characters</span>
               </div>
             </div>
             
@@ -363,7 +382,25 @@ const Knowledge = () => {
                 >
                   <Eye className="w-3 h-3" />
                 </Button>
-                {entry.type === 'document' && entry.status === 'processed' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleEditContent(entry)}
+                  className="h-7 w-7 p-0 hover:bg-muted"
+                  title="Edit content"
+                >
+                  <Edit className="w-3 h-3" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSaveContent}
+                  className="h-7 w-7 p-0 hover:bg-muted text-green-600 hover:text-green-600"
+                  title="Save content"
+                >
+                  <Save className="w-3 h-3" />
+                </Button>
+                {entry.type === 'document' && (
                   <Button 
                     variant="ghost" 
                     size="sm" 
@@ -556,7 +593,18 @@ const Knowledge = () => {
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1">
-                    <span>{currentReceptionist?.name || 'Receptionist'}'s Knowledge</span>
+                    <div className="flex items-center gap-2">
+                      <span>{currentReceptionist?.name || 'Receptionist'}'s Knowledge</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIsTrainingModalOpen(true)}
+                        className="h-6 w-6 p-0 hover:bg-muted"
+                        title="View training steps"
+                      >
+                        <Eye className="w-4 h-4 text-muted-foreground hover:text-primary" />
+                      </Button>
+                    </div>
                     {totalCount > 0 && (
                       <div className="flex items-center gap-3 flex-1 max-w-md">
                         <div className="flex-1">
@@ -584,13 +632,31 @@ const Knowledge = () => {
                             </>
                           )}
                           <span className="text-muted-foreground text-xs">
-                            ({totalCharacters.toLocaleString()}/1,000,000)
+                            ({totalCharacters.toLocaleString()}/1,000,000) characters
                           </span>
                         </div>
                       </div>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
+                    <Button
+                      onClick={() => {
+                        // Update the training with selected knowledge sources
+                        const selectedEntries = knowledgeEntries.filter(e => e.isSelected);
+                        console.log('Updating training with selected sources:', selectedEntries);
+                        console.log(`Training updated with ${selectedEntries.length} sources and ${selectedEntries.reduce((total, entry) => total + (entry.content?.length || 0), 0).toLocaleString()} characters`);
+                        // Here you would typically make an API call to update the training
+                        // For now, we'll show a success indication
+                        alert(`Training updated successfully with ${selectedEntries.length} selected sources!`);
+                      }}
+                      disabled={selectedCount === 0}
+                      size="sm"
+                      className="h-8"
+                      title="Update training with selected sources"
+                    >
+                      <RefreshCw className="w-4 h-4 mr-1" />
+                      <span className="hidden sm:inline">Update</span>
+                    </Button>
                     <div className="flex border rounded-md">
                       <Button
                         variant={viewMode === 'list' ? 'default' : 'ghost'}
@@ -648,8 +714,7 @@ const Knowledge = () => {
                           <TableHead>Title</TableHead>
                           <TableHead className="min-w-[300px]">Content</TableHead>
                           <TableHead className="w-32">Created</TableHead>
-                          <TableHead className="w-20">Size</TableHead>
-                          <TableHead className="w-24">Status</TableHead>
+                          <TableHead className="w-32">Characters</TableHead>
                           <TableHead className="w-20">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -708,25 +773,40 @@ const Knowledge = () => {
                             
                             <TableCell>
                               <div className="text-sm text-muted-foreground">
-                                {entry.size || 'N/A'}
+                                ({(entry.content?.length || 0).toLocaleString()}/100,000)
                               </div>
                             </TableCell>
                             
                             <TableCell>
-                              <Badge 
-                                variant={
-                                  entry.status === 'processed' ? 'default' : 
-                                  entry.status === 'processing' ? 'secondary' : 'destructive'
-                                }
-                                className="text-xs"
-                              >
-                                {entry.status}
-                              </Badge>
-                            </TableCell>
-                            
-                            <TableCell>
                               <div className="flex items-center space-x-1">
-                                {entry.type === 'document' && entry.status === 'processed' && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleViewContent(entry)}
+                                  className="h-6 w-6 p-0"
+                                  title="View content"
+                                >
+                                  <Eye className="w-3 h-3" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleEditContent(entry)}
+                                  className="h-6 w-6 p-0"
+                                  title="Edit content"
+                                >
+                                  <Edit className="w-3 h-3" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={handleSaveContent}
+                                  className="h-6 w-6 p-0 text-green-600 hover:text-green-600"
+                                  title="Save content"
+                                >
+                                  <Save className="w-3 h-3" />
+                                </Button>
+                                {entry.type === 'document' && (
                                   <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
                                     <Download className="w-3 h-3" />
                                   </Button>
@@ -758,25 +838,9 @@ const Knowledge = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 px-4 sm:px-0"
           >
-
-            {knowledgeEntries.length > 0 && (
-              <Button 
-                onClick={() => {
-                  // In a real app, this would save the knowledge configuration
-                  console.log('Selected knowledge sources:', knowledgeEntries.filter(e => e.isSelected));
-                  // For now, just show success message
-                }}
-                disabled={selectedCount === 0}
-                variant="outline"
-                className="w-full sm:w-auto order-3 sm:order-2"
-              >
-                Save Knowledge Configuration
-              </Button>
-            )}
-            
             <Button 
               onClick={() => navigate(`/receptionist/${receptionistId}`)}
-              className="bg-primary hover:bg-primary/90 w-full sm:w-auto order-1 sm:order-3"
+              className="bg-primary hover:bg-primary/90 w-full sm:w-auto"
             >
               <Bot className="w-4 h-4 mr-2" />
               <span className="truncate">Go to {currentReceptionist?.name || 'Receptionist'} Dashboard</span>
@@ -786,7 +850,13 @@ const Knowledge = () => {
       </div>
 
       {/* Content View Modal */}
-      <Dialog open={isContentModalOpen} onOpenChange={setIsContentModalOpen}>
+      <Dialog open={isContentModalOpen} onOpenChange={(open) => {
+        setIsContentModalOpen(open);
+        if (!open) {
+          setIsEditMode(false);
+          setEditContent('');
+        }
+      }}>
         <DialogContent className="max-w-2xl max-h-[80vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -809,30 +879,120 @@ const Knowledge = () => {
               
               {selectedEntry?.content && (
                 <div>
-                  <h4 className="text-sm font-medium text-muted-foreground mb-2">Content</h4>
-                  <div className="max-h-[300px] overflow-y-auto bg-muted/30 rounded-lg p-4">
-                    <p className="text-sm whitespace-pre-wrap">{selectedEntry.content}</p>
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-sm font-medium text-muted-foreground">Content</h4>
+                    {!isEditMode && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditContent(selectedEntry)}
+                        className="h-6 text-xs"
+                      >
+                        <Edit className="w-3 h-3 mr-1" />
+                        Edit
+                      </Button>
+                    )}
                   </div>
+                  {isEditMode ? (
+                    <div className="space-y-3">
+                      <textarea
+                        value={editContent}
+                        onChange={(e) => setEditContent(e.target.value)}
+                        className="w-full h-[300px] rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+                        placeholder="Enter content..."
+                      />
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setIsEditMode(false);
+                            setEditContent(selectedEntry.content || '');
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={handleSaveContent}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          <Save className="w-3 h-3 mr-1" />
+                          Save
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="max-h-[300px] overflow-y-auto bg-muted/30 rounded-lg p-4">
+                      <p className="text-sm whitespace-pre-wrap">{selectedEntry.content}</p>
+                    </div>
+                  )}
                 </div>
               )}
 
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <div className="flex items-center gap-4">
                   <span>Created: {selectedEntry ? new Date(selectedEntry.uploadedAt).toLocaleDateString() : ''}</span>
-                  {selectedEntry?.size && <span>Size: {selectedEntry.size}</span>}
-                  <Badge 
-                    variant={
-                      selectedEntry?.status === 'processed' ? 'default' : 
-                      selectedEntry?.status === 'processing' ? 'secondary' : 'destructive'
-                    }
-                    className="text-xs"
-                  >
-                    {selectedEntry?.status}
-                  </Badge>
                 </div>
                 <span className="text-muted-foreground">
-                  ({selectedEntry?.content ? selectedEntry.content.length.toLocaleString() : '0'}/100,000)
+                  ({isEditMode ? editContent.length.toLocaleString() : (selectedEntry?.content ? selectedEntry.content.length.toLocaleString() : '0')}/100,000) characters
                 </span>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Training Steps Modal */}
+      <Dialog open={isTrainingModalOpen} onOpenChange={setIsTrainingModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Bot className="w-5 h-5 text-primary" />
+              How to Train {currentReceptionist?.name || 'Your Receptionist'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4 space-y-6 max-h-[75vh] overflow-y-auto pr-2">
+            <div className="grid gap-4">
+              {/* Progress Bar Info */}
+              <div className="flex items-center gap-1 text-sm text-muted-foreground p-4 bg-muted/20 rounded-lg">
+                <RefreshCw className="w-4 h-4" />
+                <span>Progress bar shows your selection completion</span>
+              </div>
+
+              {/* Step 5 */}
+              <div className="flex gap-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                <div className="flex-shrink-0 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                  ✨
+                </div>
+                <div className="flex-1 space-y-2">
+                  <h3 className="font-semibold text-sm text-green-800 dark:text-green-400">Update Training & Launch</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Click the "Update" button to apply your selected knowledge sources to the AI training. Once complete, your receptionist will be ready to handle customer calls with your business knowledge.
+                  </p>
+                  <div className="flex items-center gap-1 text-xs text-green-700 dark:text-green-400">
+                    <Bot className="w-3 h-3" />
+                    <span>Your AI receptionist will be trained and ready to use</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Character Limit Info */}
+            <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-white text-xs">💡</span>
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-sm font-medium text-blue-800 dark:text-blue-400">Training Tips</h4>
+                  <ul className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+                    <li>• Keep your total content under 1,000,000 characters for optimal performance</li>
+                    <li>• Each individual source should be under 100,000 characters</li>
+                    <li>• More relevant, specific content leads to better AI responses</li>
+                    <li>• You can edit any source content using the edit button</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
