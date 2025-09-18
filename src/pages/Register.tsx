@@ -4,93 +4,130 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
-import { Eye, EyeOff, ArrowLeft, Loader2 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ArrowLeft, Loader2, Mail, User, Building2, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 // Using uploaded AI receptionist image
 
+type AuthStep = 'form' | 'otp';
+type AuthMode = 'signup' | 'login';
+
 const Register = () => {
   const navigate = useNavigate();
-  const { signUp } = useAuth();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { sendOTPForSignup, sendOTPForLogin, verifyOTPAndSignup, verifyOTPAndLogin } = useAuth();
+  
+  // State management
+  const [activeTab, setActiveTab] = useState<AuthMode>('signup');
+  const [currentStep, setCurrentStep] = useState<AuthStep>('form');
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [otpSent, setOtpSent] = useState(false);
+  
+  // Form data
+  const [signupData, setSignupData] = useState({
     organizationName: '',
     firstName: '',
     lastName: '',
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    email: ''
   });
+  
+  const [loginData, setLoginData] = useState({
+    email: ''
+  });
+  
+  const [otp, setOtp] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const validateForm = () => {
+  // Validation functions
+  const validateSignupForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.organizationName.trim()) {
+    if (!signupData.organizationName.trim()) {
       newErrors.organizationName = 'Organization name is required';
     }
 
-    if (!formData.firstName.trim()) {
+    if (!signupData.firstName.trim()) {
       newErrors.firstName = 'First name is required';
     }
 
-    if (!formData.lastName.trim()) {
+    if (!signupData.lastName.trim()) {
       newErrors.lastName = 'Last name is required';
     }
 
-    if (!formData.username.trim()) {
-      newErrors.username = 'Username is required';
-    } else if (formData.username.length < 3) {
-      newErrors.username = 'Username must be at least 3 characters';
-    }
-
-    if (!formData.email.trim()) {
+    if (!signupData.email.trim()) {
       newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(signupData.email)) {
       newErrors.email = 'Please enter a valid email address';
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
-    }
-
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const validateLoginForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!loginData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateOTP = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!otp.trim()) {
+      newErrors.otp = 'OTP is required';
+    } else if (otp.length !== 6) {
+      newErrors.otp = 'OTP must be 6 digits';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Handle form submissions
+  const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) return;
+    if (activeTab === 'signup' && !validateSignupForm()) return;
+    if (activeTab === 'login' && !validateLoginForm()) return;
 
     setIsLoading(true);
     
     try {
-      const result = await signUp(
-        formData.email, 
-        formData.password, 
-        formData.username,
-        formData.firstName,
-        formData.lastName
-      );
+      let result;
+      
+      if (activeTab === 'signup') {
+        result = await sendOTPForSignup(
+          signupData.email,
+          signupData.organizationName,
+          signupData.firstName,
+          signupData.lastName
+        );
+      } else {
+        result = await sendOTPForLogin(loginData.email);
+      }
       
       if (result.success) {
-        toast.success('Account created successfully! Please sign in.');
-        navigate('/login');
+        toast.success(result.message || 'OTP sent successfully!');
+        setCurrentStep('otp');
+        setOtpSent(true);
       } else {
-        toast.error(result.error || 'Failed to create account');
-        setErrors({ general: result.error || 'Failed to create account' });
+        // Handle user not found for login
+        if (result.error === 'USER_NOT_FOUND' || result.message?.includes('No account found')) {
+          setActiveTab('signup');
+          setSignupData(prev => ({ ...prev, email: loginData.email }));
+          toast.error('No account found with this email. Please sign up first.');
+          setErrors({ general: 'No account found with this email. Please sign up first.' });
+        } else {
+          toast.error(result.error || 'Failed to send OTP');
+          setErrors({ general: result.error || 'Failed to send OTP' });
+        }
       }
     } catch (error) {
       toast.error('An unexpected error occurred');
@@ -100,22 +137,96 @@ const Register = () => {
     }
   };
 
-  const handleInputChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, [field]: e.target.value }));
-    // Clear error when user starts typing
+  const handleVerifyOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateOTP()) return;
+
+    setIsLoading(true);
+    
+    try {
+      let result;
+      
+      if (activeTab === 'signup') {
+        result = await verifyOTPAndSignup(
+          signupData.email,
+          otp,
+          signupData.organizationName,
+          signupData.firstName,
+          signupData.lastName
+        );
+      } else {
+        result = await verifyOTPAndLogin(loginData.email, otp);
+      }
+      
+      if (result.success) {
+        toast.success(result.message || 'Verification successful!');
+        navigate('/launch');
+      } else {
+        // Handle user not found during login verification
+        if (result.error === 'USER_NOT_FOUND') {
+          setActiveTab('signup');
+          setSignupData(prev => ({ ...prev, email: loginData.email }));
+          setCurrentStep('form');
+          setOtpSent(false);
+          toast.error(result.message || 'No account found. Please sign up first.');
+        } else {
+          toast.error(result.error || 'Verification failed');
+          setErrors({ otp: result.error || 'Verification failed' });
+        }
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred');
+      setErrors({ otp: 'An unexpected error occurred' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Input change handlers
+  const handleSignupInputChange = (field: keyof typeof signupData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSignupData(prev => ({ ...prev, [field]: e.target.value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
 
-  const getPasswordStrength = (password: string) => {
-    if (password.length === 0) return '';
-    if (password.length < 6) return 'Weak';
-    if (password.length < 10) return 'Medium';
-    return 'Strong';
+  const handleLoginInputChange = (field: keyof typeof loginData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLoginData(prev => ({ ...prev, [field]: e.target.value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
   };
 
-  const passwordStrength = getPasswordStrength(formData.password);
+  const handleOTPChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+    setOtp(value);
+    if (errors.otp) {
+      setErrors(prev => ({ ...prev, otp: '' }));
+    }
+  };
+
+  // Reset form when switching tabs
+  const handleTabChange = (newTab: AuthMode) => {
+    setActiveTab(newTab);
+    setCurrentStep('form');
+    setOtpSent(false);
+    setOtp('');
+    setErrors({});
+    
+    if (newTab === 'login') {
+      setLoginData({ email: '' });
+    } else {
+      setSignupData({ organizationName: '', firstName: '', lastName: '', email: '' });
+    }
+  };
+
+  const handleBackToForm = () => {
+    setCurrentStep('form');
+    setOtpSent(false);
+    setOtp('');
+    setErrors({});
+  };
 
   return (
     <div className="min-h-screen flex">
@@ -154,181 +265,261 @@ const Register = () => {
           </Link>
 
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold text-foreground">Create account</h1>
-            <p className="text-muted-foreground">Let's get started. It's totally free.</p>
+            <h1 className="text-3xl font-bold text-foreground">
+              {currentStep === 'form' ? 'Welcome' : 'Verify Your Email'}
+            </h1>
+            <p className="text-muted-foreground">
+              {currentStep === 'form' 
+                ? "Let's get started. It's totally free." 
+                : `We've sent a verification code to ${activeTab === 'signup' ? signupData.email : loginData.email}`
+              }
+            </p>
           </div>
 
           <Card className="border-border/50 shadow-lg">
             <CardContent className="p-6">
               {errors.general && (
-                <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md flex items-center">
+                  <AlertCircle className="w-4 h-4 mr-2 text-destructive" />
                   <p className="text-sm text-destructive">{errors.general}</p>
                 </div>
               )}
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Organization Name */}
-                <div className="space-y-2">
-                  <Label htmlFor="organizationName">Organization Name</Label>
-                  <Input
-                    id="organizationName"
-                    type="text"
-                    placeholder="Enter your organization name"
-                    value={formData.organizationName}
-                    onChange={handleInputChange('organizationName')}
-                    className={errors.organizationName ? 'border-destructive' : ''}
-                  />
-                  {errors.organizationName && (
-                    <p className="text-sm text-destructive">{errors.organizationName}</p>
-                  )}
-                </div>
 
-                {/* First Name */}
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input
-                    id="firstName"
-                    type="text"
-                    placeholder="Enter your first name"
-                    value={formData.firstName}
-                    onChange={handleInputChange('firstName')}
-                    className={errors.firstName ? 'border-destructive' : ''}
-                  />
-                  {errors.firstName && (
-                    <p className="text-sm text-destructive">{errors.firstName}</p>
-                  )}
-                </div>
+              {currentStep === 'form' ? (
+                // Form Step - Tabbed Interface
+                <Tabs value={activeTab} onValueChange={(value) => handleTabChange(value as AuthMode)}>
+                  <TabsList className="grid w-full grid-cols-2 mb-6">
+                    <TabsTrigger value="signup" className="flex items-center gap-2">
+                      <User className="w-4 h-4" />
+                      Sign Up
+                    </TabsTrigger>
+                    <TabsTrigger value="login" className="flex items-center gap-2">
+                      <Mail className="w-4 h-4" />
+                      Login
+                    </TabsTrigger>
+                  </TabsList>
 
-                {/* Last Name */}
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    type="text"
-                    placeholder="Enter your last name"
-                    value={formData.lastName}
-                    onChange={handleInputChange('lastName')}
-                    className={errors.lastName ? 'border-destructive' : ''}
-                  />
-                  {errors.lastName && (
-                    <p className="text-sm text-destructive">{errors.lastName}</p>
-                  )}
-                </div>
+                  <TabsContent value="signup">
+                    <form onSubmit={handleSendOTP} className="space-y-4">
+                      {/* Organization Name */}
+                      <div className="space-y-2">
+                        <Label htmlFor="organizationName" className="flex items-center gap-2">
+                          <Building2 className="w-4 h-4" />
+                          Organization Name
+                        </Label>
+                        <Input
+                          id="organizationName"
+                          type="text"
+                          placeholder="Enter your organization name"
+                          value={signupData.organizationName}
+                          onChange={handleSignupInputChange('organizationName')}
+                          className={errors.organizationName ? 'border-destructive' : ''}
+                        />
+                        {errors.organizationName && (
+                          <p className="text-sm text-destructive">{errors.organizationName}</p>
+                        )}
+                      </div>
 
-                {/* Username */}
-                <div className="space-y-2">
-                  <Label htmlFor="username">Username</Label>
-                  <Input
-                    id="username"
-                    type="text"
-                    placeholder="Choose a username"
-                    value={formData.username}
-                    onChange={handleInputChange('username')}
-                    className={errors.username ? 'border-destructive' : ''}
-                  />
-                  {errors.username && (
-                    <p className="text-sm text-destructive">{errors.username}</p>
-                  )}
-                </div>
+                      {/* First Name */}
+                      <div className="space-y-2">
+                        <Label htmlFor="firstName">First Name</Label>
+                        <Input
+                          id="firstName"
+                          type="text"
+                          placeholder="Enter your first name"
+                          value={signupData.firstName}
+                          onChange={handleSignupInputChange('firstName')}
+                          className={errors.firstName ? 'border-destructive' : ''}
+                        />
+                        {errors.firstName && (
+                          <p className="text-sm text-destructive">{errors.firstName}</p>
+                        )}
+                      </div>
 
-                {/* Email */}
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email address"
-                    value={formData.email}
-                    onChange={handleInputChange('email')}
-                    className={errors.email ? 'border-destructive' : ''}
-                  />
-                  {errors.email && (
-                    <p className="text-sm text-destructive">{errors.email}</p>
-                  )}
-                </div>
+                      {/* Last Name */}
+                      <div className="space-y-2">
+                        <Label htmlFor="lastName">Last Name</Label>
+                        <Input
+                          id="lastName"
+                          type="text"
+                          placeholder="Enter your last name"
+                          value={signupData.lastName}
+                          onChange={handleSignupInputChange('lastName')}
+                          className={errors.lastName ? 'border-destructive' : ''}
+                        />
+                        {errors.lastName && (
+                          <p className="text-sm text-destructive">{errors.lastName}</p>
+                        )}
+                      </div>
 
-                {/* Password */}
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Create a password"
-                      value={formData.password}
-                      onChange={handleInputChange('password')}
-                      className={errors.password ? 'border-destructive pr-10' : 'pr-10'}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                  {formData.password && (
-                    <p className={`text-sm ${
-                      passwordStrength === 'Strong' ? 'text-green-600' : 
-                      passwordStrength === 'Medium' ? 'text-yellow-600' : 
-                      'text-red-600'
-                    }`}>
-                      Password strength: {passwordStrength}
+                      {/* Email */}
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-email" className="flex items-center gap-2">
+                          <Mail className="w-4 h-4" />
+                          Email
+                        </Label>
+                        <Input
+                          id="signup-email"
+                          type="email"
+                          placeholder="Enter your email address"
+                          value={signupData.email}
+                          onChange={handleSignupInputChange('email')}
+                          className={errors.email ? 'border-destructive' : ''}
+                        />
+                        {errors.email && (
+                          <p className="text-sm text-destructive">{errors.email}</p>
+                        )}
+                      </div>
+
+                      <Button 
+                        type="submit" 
+                        className="w-full hover-glow" 
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Sending OTP...
+                          </>
+                        ) : (
+                          'Send OTP →'
+                        )}
+                      </Button>
+                    </form>
+                  </TabsContent>
+
+                  <TabsContent value="login">
+                    <form onSubmit={handleSendOTP} className="space-y-4">
+                      {/* Email */}
+                      <div className="space-y-2">
+                        <Label htmlFor="login-email" className="flex items-center gap-2">
+                          <Mail className="w-4 h-4" />
+                          Email
+                        </Label>
+                        <Input
+                          id="login-email"
+                          type="email"
+                          placeholder="Enter your email address"
+                          value={loginData.email}
+                          onChange={handleLoginInputChange('email')}
+                          className={errors.email ? 'border-destructive' : ''}
+                        />
+                        {errors.email && (
+                          <p className="text-sm text-destructive">{errors.email}</p>
+                        )}
+                      </div>
+
+                      <Button 
+                        type="submit" 
+                        className="w-full hover-glow" 
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Sending OTP...
+                          </>
+                        ) : (
+                          'Send OTP →'
+                        )}
+                      </Button>
+                    </form>
+                  </TabsContent>
+                </Tabs>
+              ) : (
+                // OTP Verification Step
+                <div className="space-y-4">
+                  <div className="text-center space-y-2">
+                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                      <Mail className="w-8 h-8 text-primary" />
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Enter the 6-digit code we sent to your email
                     </p>
-                  )}
-                  {errors.password && (
-                    <p className="text-sm text-destructive">{errors.password}</p>
-                  )}
-                </div>
-
-                {/* Confirm Password */}
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
-                  <div className="relative">
-                    <Input
-                      id="confirmPassword"
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      placeholder="Confirm your password"
-                      value={formData.confirmPassword}
-                      onChange={handleInputChange('confirmPassword')}
-                      className={errors.confirmPassword ? 'border-destructive pr-10' : 'pr-10'}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
-                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
                   </div>
-                  {errors.confirmPassword && (
-                    <p className="text-sm text-destructive">{errors.confirmPassword}</p>
-                  )}
-                </div>
 
-                <Button 
-                  type="submit" 
-                  className="w-full hover-glow" 
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Creating Account...
-                    </>
-                  ) : (
-                    'Create Account →'
-                  )}
-                </Button>
-              </form>
+                  <form onSubmit={handleVerifyOTP} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="otp">Verification Code</Label>
+                      <Input
+                        id="otp"
+                        type="text"
+                        placeholder="000000"
+                        value={otp}
+                        onChange={handleOTPChange}
+                        className={`text-center text-lg tracking-widest ${errors.otp ? 'border-destructive' : ''}`}
+                        maxLength={6}
+                      />
+                      {errors.otp && (
+                        <p className="text-sm text-destructive">{errors.otp}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-3">
+                      <Button 
+                        type="submit" 
+                        className="w-full hover-glow" 
+                        disabled={isLoading || otp.length !== 6}
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Verifying...
+                          </>
+                        ) : (
+                          'Verify & Continue →'
+                        )}
+                      </Button>
+
+                      <div className="flex items-center justify-between text-sm">
+                        <button
+                          type="button"
+                          onClick={handleBackToForm}
+                          className="text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          ← Back to form
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleSendOTP({ preventDefault: () => {} } as React.FormEvent)}
+                          disabled={isLoading}
+                          className="text-primary hover:text-primary/80 transition-colors"
+                        >
+                          Resend OTP
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              )}
             </CardContent>
           </Card>
 
-          <p className="text-center text-sm text-muted-foreground">
-            Already have an account?{' '}
-            <Link to="/login" className="text-primary hover:underline font-medium">
-              Sign in
-            </Link>
-          </p>
+          {currentStep === 'form' && (
+            <p className="text-center text-sm text-muted-foreground">
+              {activeTab === 'signup' ? (
+                <>
+                  Already have an account?{' '}
+                  <button 
+                    onClick={() => handleTabChange('login')}
+                    className="text-primary hover:underline font-medium"
+                  >
+                    Sign in
+                  </button>
+                </>
+              ) : (
+                <>
+                  Don't have an account?{' '}
+                  <button 
+                    onClick={() => handleTabChange('signup')}
+                    className="text-primary hover:underline font-medium"
+                  >
+                    Sign up
+                  </button>
+                </>
+              )}
+            </p>
+          )}
         </div>
       </div>
     </div>

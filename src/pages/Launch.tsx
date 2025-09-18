@@ -8,8 +8,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
-import { Bot, Plus, Settings, ArrowRight, Edit, Trash2, Search, Filter, Calendar, Tag, Phone } from 'lucide-react';
+import { Bot, Plus, Settings, ArrowRight, Edit, Trash2, Search, Filter, Calendar, Tag, Phone, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 
 interface Receptionist {
   id: string;
@@ -21,8 +22,9 @@ interface Receptionist {
 
 const Launch = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const [receptionistData, setReceptionistData] = useState({
     name: '',
     description: '',
@@ -85,8 +87,18 @@ const Launch = () => {
     }
   }, []); // Empty dependency array - only run once on mount
 
-  // Get organization name from user data or fallback
-  const organizationName = user?.organization_name || user?.organizationName || 'Your Organization';
+  // Get organization name from user data or fallback with title casing
+  const getFormattedOrganizationName = (name: string) => {
+    return name
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+  
+  const organizationName = getFormattedOrganizationName(
+    user?.organization_name || user?.organizationName || 'Your Organization'
+  );
 
   // Get unique use cases for filter dropdown
   const availableUseCases = [...new Set(receptionists.map(r => r.useCase).filter(Boolean))];
@@ -199,6 +211,28 @@ const Launch = () => {
     }
   };
 
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    
+    try {
+      const result = await signOut();
+      
+      if (result.success) {
+        toast.success('Signed out successfully!');
+        // Add a small delay to show the loading animation
+        setTimeout(() => {
+          navigate('/');
+        }, 1500);
+      } else {
+        toast.error(result.error || 'Failed to sign out');
+        setIsSigningOut(false);
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred');
+      setIsSigningOut(false);
+    }
+  };
+
   return (
     <div className="h-screen h-[100dvh] bg-gradient-to-br from-background via-muted/30 to-background overflow-y-auto">
       {/* Background decoration */}
@@ -212,14 +246,39 @@ const Launch = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-6 sm:mb-8"
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8"
         >
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2 px-2">
-            Welcome {organizationName}
-          </h1>
-          <p className="text-base sm:text-lg text-muted-foreground px-2">
-            Manage your AI receptionists and launch new ones
-          </p>
+          <div className="text-center sm:text-left flex-1">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2 px-2">
+              Welcome to <span className="gradient-primary-text">{organizationName}</span>
+            </h1>
+            <p className="text-base sm:text-lg text-muted-foreground px-2">
+              Manage your AI receptionists and launch new ones
+            </p>
+          </div>
+          
+          {/* Sign Out Button */}
+          <div className="flex justify-center sm:justify-end mt-4 sm:mt-0 px-2">
+            <Button
+              onClick={handleSignOut}
+              variant="outline"
+              size="sm"
+              disabled={isSigningOut}
+              className="flex items-center gap-2 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 transition-colors"
+            >
+              {isSigningOut ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  Signing out...
+                </>
+              ) : (
+                <>
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </>
+              )}
+            </Button>
+          </div>
         </motion.div>
 
         {/* Search and Filter Section */}
@@ -243,8 +302,8 @@ const Launch = () => {
             
             {/* Filters */}
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-              {/* Use Case Filter */}
-              <Select value={filterByUseCase} onValueChange={setFilterByUseCase}>
+              {/* Use Case Filter - Hidden for now */}
+              {/* <Select value={filterByUseCase} onValueChange={setFilterByUseCase}>
                 <SelectTrigger className="w-full sm:w-[180px]">
                   <Tag className="w-4 h-4 mr-2" />
                   <SelectValue placeholder="Filter by use case" />
@@ -257,7 +316,7 @@ const Launch = () => {
                     </SelectItem>
                   ))}
                 </SelectContent>
-              </Select>
+              </Select> */}
               
               {/* Created Date Filter */}
               <Select value={filterByCreated} onValueChange={setFilterByCreated}>
@@ -331,14 +390,6 @@ const Launch = () => {
                 size="lg" 
                 className="text-sm sm:text-base lg:text-lg px-4 sm:px-6 lg:px-8 py-4 sm:py-5 lg:py-6 hover-glow w-full sm:w-auto max-w-sm"
               >
-                <div className="relative mr-2">
-                  <div className="w-4 sm:w-5 lg:w-6 h-4 sm:h-5 lg:h-6 bg-white/20 rounded flex items-center justify-center">
-                    <Bot className="w-3 sm:w-4 lg:w-5 h-3 sm:h-4 lg:h-5 text-white" />
-                  </div>
-                  <div className="absolute -top-0.5 -right-0.5 w-2 sm:w-2.5 lg:w-3 h-2 sm:h-2.5 lg:h-3 bg-green-400 rounded-full border border-white flex items-center justify-center">
-                    <Phone className="w-1 sm:w-1.5 lg:w-2 h-1 sm:h-1.5 lg:h-2 text-white" />
-                  </div>
-                </div>
                 Launch your new Receptionist
                 <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5 ml-2" />
               </Button>
@@ -347,10 +398,10 @@ const Launch = () => {
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <div className="relative">
-                    <div className="w-5 h-5 gradient-primary rounded flex items-center justify-center">
+                    <div className="w-5 h-5 gradient-primary rounded-xl flex items-center justify-center">
                       <Bot className="w-3 h-3 text-white" />
                     </div>
-                    <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border border-white flex items-center justify-center">
+                    <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
                       <Phone className="w-1 h-1 text-white" />
                     </div>
                   </div>
@@ -511,6 +562,78 @@ const Launch = () => {
           )}
         </motion.div>
       </div>
+
+      {/* Animated Sign Out Loader Overlay */}
+      {isSigningOut && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center"
+        >
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="bg-background rounded-lg p-8 shadow-2xl border border-border/50 max-w-sm mx-4"
+          >
+            <div className="text-center space-y-4">
+              <div className="relative">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full mx-auto"
+                />
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                  className="absolute inset-0 flex items-center justify-center"
+                >
+                  <LogOut className="w-5 h-5 text-primary" />
+                </motion.div>
+              </div>
+              
+              <div className="space-y-2">
+                <motion.h3
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-lg font-semibold text-foreground"
+                >
+                  Logging out...
+                </motion.h3>
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="text-sm text-muted-foreground"
+                >
+                  Thank you for using AI Receptionist
+                </motion.p>
+              </div>
+              
+              {/* Animated dots */}
+              <div className="flex justify-center space-x-1">
+                {[0, 1, 2].map((i) => (
+                  <motion.div
+                    key={i}
+                    animate={{
+                      y: [0, -8, 0],
+                    }}
+                    transition={{
+                      duration: 0.6,
+                      repeat: Infinity,
+                      delay: i * 0.1,
+                    }}
+                    className="w-2 h-2 bg-primary rounded-full"
+                  />
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 };
