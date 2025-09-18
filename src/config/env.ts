@@ -19,7 +19,7 @@ interface EnvConfig {
   export const env: EnvConfig = {
     APP_ENV: import.meta.env.VITE_APP_ENV || 'development',
     SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL || '',
-    SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
+    SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_SERVICE_KEY || '',
     SUPABASE_SERVICE_KEY: import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY || '',
     BASE_API_URL: import.meta.env.VITE_BASE_API_URL || 'http://localhost:8000/api/v1',
     DEV_BASE_API_URL: import.meta.env.VITE_DEV_BASE_API_URL || 'http://localhost:8000/api/v1',
