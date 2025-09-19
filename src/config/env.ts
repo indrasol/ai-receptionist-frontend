@@ -1,5 +1,5 @@
 // src/config/env.ts
-// This file provides typed access to environment variables
+// This file provides typed access to environment variables.
 
 interface EnvConfig {
     APP_ENV: string;
