@@ -16,7 +16,8 @@ interface Receptionist {
   id: string;
   name: string;
   description: string;
-  useCase?: string;
+  assistant?: string;
+  phoneNumber?: string;
   createdAt: string;
 }
 
@@ -28,7 +29,8 @@ const Launch = () => {
   const [receptionistData, setReceptionistData] = useState({
     name: '',
     description: '',
-    useCase: ''
+    assistant: '',
+    phoneNumber: ''
   });
   
   // Search and filter states
@@ -50,28 +52,32 @@ const Launch = () => {
         id: '1',
         name: 'Customer Service Bot',
         description: 'Handles customer inquiries and support requests with friendly, professional responses.',
-        useCase: 'Customer Support',
+        assistant: 'sarah-professional',
+        phoneNumber: '+1-555-0101',
         createdAt: new Date().toISOString().split('T')[0] // Today
       },
       {
         id: '2',
         name: 'Appointment Scheduler',
         description: 'Manages appointment bookings, cancellations, and reminders for healthcare practices.',
-        useCase: 'Healthcare',
+        assistant: 'lisa-healthcare',
+        phoneNumber: '+1-555-0105',
         createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 5 days ago
       },
       {
         id: '3',
         name: 'Sales Assistant',
         description: 'Helps qualify leads and provides product information to potential customers.',
-        useCase: 'Sales',
+        assistant: 'david-sales',
+        phoneNumber: '+1-555-0103',
         createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 20 days ago
       },
       {
         id: '4',
         name: 'Technical Support',
         description: 'Provides technical assistance and troubleshooting guidance for software issues.',
-        useCase: 'Support',
+        assistant: 'emma-technical',
+        phoneNumber: '+1-555-0102',
         createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 90 days ago
       }
     ];
@@ -100,8 +106,8 @@ const Launch = () => {
     user?.organization_name || user?.organizationName || 'Your Organization'
   );
 
-  // Get unique use cases for filter dropdown
-  const availableUseCases = [...new Set(receptionists.map(r => r.useCase).filter(Boolean))];
+  // Get unique assistants for filter dropdown (if needed in future)
+  const availableAssistants = [...new Set(receptionists.map(r => r.assistant).filter(Boolean))];
 
   // Helper function to check if date matches filter
   const matchesDateFilter = (createdAt: string, filter: string) => {
@@ -133,10 +139,11 @@ const Launch = () => {
       const matchesSearch = !searchQuery || 
         receptionist.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         receptionist.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (receptionist.useCase && receptionist.useCase.toLowerCase().includes(searchQuery.toLowerCase()));
+        (receptionist.assistant && receptionist.assistant.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (receptionist.phoneNumber && receptionist.phoneNumber.toLowerCase().includes(searchQuery.toLowerCase()));
       
-      // Use case filter
-      const matchesUseCase = filterByUseCase === 'all' || receptionist.useCase === filterByUseCase;
+      // Use case filter (keeping for backwards compatibility, always true now)
+      const matchesUseCase = true;
       
       // Created date filter
       const matchesCreated = filterByCreated === 'all' || matchesDateFilter(receptionist.createdAt, filterByCreated);
@@ -163,7 +170,8 @@ const Launch = () => {
         id: Date.now().toString(), // Generate unique ID
         name: receptionistData.name,
         description: receptionistData.description,
-        useCase: receptionistData.useCase,
+        assistant: receptionistData.assistant,
+        phoneNumber: receptionistData.phoneNumber,
         createdAt: new Date().toISOString().split('T')[0] // Today's date in YYYY-MM-DD format
       };
 
@@ -179,7 +187,8 @@ const Launch = () => {
       setReceptionistData({
         name: '',
         description: '',
-        useCase: ''
+        assistant: '',
+        phoneNumber: ''
       });
     }
   };
@@ -194,7 +203,8 @@ const Launch = () => {
     setReceptionistData({
       name: receptionist.name,
       description: receptionist.description,
-      useCase: receptionist.useCase || ''
+      assistant: receptionist.assistant || '',
+      phoneNumber: receptionist.phoneNumber || ''
     });
     setIsModalOpen(true);
     // For now, we'll delete the old one when a new one is created
@@ -293,7 +303,7 @@ const Launch = () => {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
-                placeholder="Search receptionists by name, description, or use case..."
+                placeholder="Search receptionists by name, description, assistant, or phone number..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -349,12 +359,11 @@ const Launch = () => {
           </div>
           
           {/* Results Summary and Clear Filters */}
-          {(searchQuery || filterByUseCase !== 'all' || filterByCreated !== 'all') && (
+          {(searchQuery || filterByCreated !== 'all') && (
             <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="text-sm text-muted-foreground">
                 Showing {filteredReceptionists.length} of {receptionists.length} receptionists
                 {searchQuery && ` matching "${searchQuery}"`}
-                {filterByUseCase !== 'all' && ` in "${filterByUseCase}"`}
                 {filterByCreated !== 'all' && ` created ${filterByCreated === 'today' ? 'today' : 
                   filterByCreated === 'week' ? 'in last 7 days' :
                   filterByCreated === 'month' ? 'in last 30 days' :
@@ -365,7 +374,6 @@ const Launch = () => {
                 size="sm"
                 onClick={() => {
                   setSearchQuery('');
-                  setFilterByUseCase('all');
                   setFilterByCreated('all');
                   setSortBy('newest');
                 }}
@@ -431,16 +439,35 @@ const Launch = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="use-case">Use Case (Optional)</Label>
-                  <Input
-                    id="use-case"
-                    placeholder="e.g., Customer Support, Healthcare, Sales"
-                    value={receptionistData.useCase}
-                    onChange={(e) => setReceptionistData(prev => ({ ...prev, useCase: e.target.value }))}
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    This section can be extended with predefined use case templates
-                  </p>
+                  <Label htmlFor="assistant">Assistant</Label>
+                  <Select value={receptionistData.assistant} onValueChange={(value) => setReceptionistData(prev => ({ ...prev, assistant: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an assistant" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="sarah-professional">Sarah - Professional Assistant</SelectItem>
+                      <SelectItem value="mike-friendly">Mike - Friendly Assistant</SelectItem>
+                      <SelectItem value="emma-technical">Emma - Technical Support</SelectItem>
+                      <SelectItem value="david-sales">David - Sales Assistant</SelectItem>
+                      <SelectItem value="lisa-healthcare">Lisa - Healthcare Assistant</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone-number">Phone Number</Label>
+                  <Select value={receptionistData.phoneNumber} onValueChange={(value) => setReceptionistData(prev => ({ ...prev, phoneNumber: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a phone number" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="+1-555-0101">+1 (555) 010-1001 - Main Line</SelectItem>
+                      <SelectItem value="+1-555-0102">+1 (555) 010-1002 - Support Line</SelectItem>
+                      <SelectItem value="+1-555-0103">+1 (555) 010-1003 - Sales Line</SelectItem>
+                      <SelectItem value="+1-555-0104">+1 (555) 010-1004 - Emergency Line</SelectItem>
+                      <SelectItem value="+1-555-0105">+1 (555) 010-1005 - Appointment Line</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <Button 
@@ -539,11 +566,18 @@ const Launch = () => {
                       <CardTitle className="text-lg">
                         {receptionist.name}
                       </CardTitle>
-                      {receptionist.useCase && (
-                        <div className="text-xs text-primary bg-primary/10 px-2 py-1 rounded-full w-fit font-semibold">
-                          {receptionist.useCase}
-                        </div>
-                      )}
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {receptionist.assistant && (
+                          <div className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full w-fit font-semibold">
+                            {receptionist.assistant.split('-')[0]} Assistant
+                          </div>
+                        )}
+                        {receptionist.phoneNumber && (
+                          <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full w-fit font-semibold">
+                            {receptionist.phoneNumber.split(' ')[0]}
+                          </div>
+                        )}
+                      </div>
                     </CardHeader>
                     <CardContent className="flex-1 flex flex-col justify-between">
                       <CardDescription className="text-sm mb-3 flex-1">
