@@ -8,9 +8,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
-import { Bot, Plus, Settings, ArrowRight, Edit, Trash2, Search, Filter, Calendar, Tag, Phone, LogOut } from 'lucide-react';
+import { Bot, Plus, Settings, ArrowRight, Edit, Trash2, Search, Filter, Calendar, Tag, Phone, LogOut, User, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { receptionistService, Assistant, PhoneNumber } from '@/services/receptionistService';
 
 interface Receptionist {
   id: string;
@@ -39,6 +40,61 @@ const Launch = () => {
   const [filterByUseCase, setFilterByUseCase] = useState('all');
   const [filterByCreated, setFilterByCreated] = useState('all');
 
+  // API data states
+  const [assistants, setAssistants] = useState<Assistant[]>([]);
+  const [phoneNumbers, setPhoneNumbers] = useState<PhoneNumber[]>([]);
+  const [loadingAssistants, setLoadingAssistants] = useState(false);
+  const [loadingPhoneNumbers, setLoadingPhoneNumbers] = useState(false);
+
+  // Fallback data in case API calls fail
+  const fallbackAssistants: Assistant[] = [
+    {
+      display_name: "Alex",
+      age: "22",
+      gender: "male",
+      ethnicity: "white",
+      tone: "deeper tone",
+      personality: ["calming", "professional"],
+      description: "22 year old white male with deeper tone, calming and professional"
+    },
+    {
+      display_name: "Emma",
+      age: "23",
+      gender: "female",
+      ethnicity: "american",
+      description: "23 year old American female"
+    },
+    {
+      display_name: "Priya",
+      age: "30",
+      gender: "female",
+      ethnicity: "indian",
+      personality: ["professional", "charming"],
+      description: "30 year old Indian female, professional and charming"
+    }
+  ];
+
+  const fallbackPhoneNumbers: PhoneNumber[] = [
+    {
+      id: "phone_001",
+      number: "+1-555-123-6186",
+      provider: "Twilio",
+      country: "US",
+      country_code: "+1",
+      status: "active",
+      description: "US local number for general outbound calls"
+    },
+    {
+      id: "phone_002",
+      number: "+1-555-123-6187",
+      provider: "Twilio",
+      country: "US",
+      country_code: "+1", 
+      status: "active",
+      description: "US local number for sales calls"
+    }
+  ];
+
   // Initialize receptionists from localStorage or use mock data
   const getInitialReceptionists = (): Receptionist[] => {
     const saved = localStorage.getItem('receptionists');
@@ -52,32 +108,32 @@ const Launch = () => {
         id: '1',
         name: 'Customer Service Bot',
         description: 'Handles customer inquiries and support requests with friendly, professional responses.',
-        assistant: 'sarah-professional',
-        phoneNumber: '+1-555-0101',
+        assistant: 'Alex',
+        phoneNumber: '+1-555-123-6186',
         createdAt: new Date().toISOString().split('T')[0] // Today
       },
       {
         id: '2',
         name: 'Appointment Scheduler',
         description: 'Manages appointment bookings, cancellations, and reminders for healthcare practices.',
-        assistant: 'lisa-healthcare',
-        phoneNumber: '+1-555-0105',
+        assistant: 'Priya',
+        phoneNumber: '+1-555-123-6186',
         createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 5 days ago
       },
       {
         id: '3',
         name: 'Sales Assistant',
         description: 'Helps qualify leads and provides product information to potential customers.',
-        assistant: 'david-sales',
-        phoneNumber: '+1-555-0103',
+        assistant: 'Emma',
+        phoneNumber: '+1-555-123-6186',
         createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 20 days ago
       },
       {
         id: '4',
         name: 'Technical Support',
         description: 'Provides technical assistance and troubleshooting guidance for software issues.',
-        assistant: 'emma-technical',
-        phoneNumber: '+1-555-0102',
+        assistant: 'Jordan',
+        phoneNumber: '+1-555-123-6186',
         createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 90 days ago
       }
     ];
@@ -92,6 +148,128 @@ const Launch = () => {
       localStorage.setItem('receptionists', JSON.stringify(getInitialReceptionists()));
     }
   }, []); // Empty dependency array - only run once on mount
+
+  // Fetch assistants and phone numbers on component mount, but only if user is authenticated
+  useEffect(() => {
+    if (user) {
+      fetchAssistants();
+      fetchPhoneNumbers();
+    } else {
+      // Use fallback data when user is not authenticated
+      console.warn('User not authenticated, using fallback data for assistants and phone numbers');
+      setAssistants(fallbackAssistants);
+      setPhoneNumbers(fallbackPhoneNumbers);
+    }
+  }, [user]);
+
+  const fetchAssistants = async () => {
+    if (!user) {
+      console.warn('Cannot fetch assistants: User not authenticated');
+      return;
+    }
+    
+    setLoadingAssistants(true);
+    try {
+      const response = await receptionistService.getAssistants();
+      if (response.data) {
+        setAssistants(response.data.assistants);
+      } else if (response.error) {
+        console.error('Failed to load assistants:', response.error);
+        toast.error(`Failed to load assistants: ${response.error}`);
+      }
+    } catch (error) {
+      console.error('Error fetching assistants:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load assistants';
+      
+      // Use fallback data when API fails
+      console.warn('Using fallback assistants data due to API error');
+      setAssistants(fallbackAssistants);
+      
+      if (errorMessage.includes('authentication token')) {
+        toast.error('Please sign in to load latest assistants. Using default options.');
+      } else {
+        toast.error(`Failed to load assistants from server. Using default options.`);
+      }
+    } finally {
+      setLoadingAssistants(false);
+    }
+  };
+
+  const fetchPhoneNumbers = async () => {
+    if (!user) {
+      console.warn('Cannot fetch phone numbers: User not authenticated');
+      return;
+    }
+    
+    setLoadingPhoneNumbers(true);
+    try {
+      const response = await receptionistService.getPhoneNumbers();
+      if (response.data) {
+        setPhoneNumbers(response.data.phone_numbers);
+      } else if (response.error) {
+        console.error('Failed to load phone numbers:', response.error);
+        toast.error(`Failed to load phone numbers: ${response.error}`);
+      }
+    } catch (error) {
+      console.error('Error fetching phone numbers:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load phone numbers';
+      
+      // Use fallback data when API fails
+      console.warn('Using fallback phone numbers data due to API error');
+      setPhoneNumbers(fallbackPhoneNumbers);
+      
+      if (errorMessage.includes('authentication token')) {
+        toast.error('Please sign in to load latest phone numbers. Using default options.');
+      } else {
+        toast.error(`Failed to load phone numbers from server. Using default options.`);
+      }
+    } finally {
+      setLoadingPhoneNumbers(false);
+    }
+  };
+
+  // Helper function to get assistant display name
+  const getAssistantDisplayName = (assistantValue: string) => {
+    const assistant = assistants.find(a => a.display_name.toLowerCase() === assistantValue.toLowerCase());
+    return assistant ? assistant.display_name : assistantValue;
+  };
+
+  // Helper function to get phone number display
+  const getPhoneNumberDisplay = (phoneValue: string) => {
+    const phone = phoneNumbers.find(p => p.number === phoneValue);
+    return phone ? phone.number : phoneValue;
+  };
+
+  // Helper function to get avatar gradient based on assistant properties
+  const getAssistantAvatarStyle = (assistant: Assistant) => {
+    // Using consistent yellow brand color for all avatars
+    return 'gradient-primary'; // Yellow brand color
+  };
+
+  // Helper function to get avatar URL from DiceBear (free avatar service)
+  const getAvatarUrl = (assistant: Assistant, size: number = 40) => {
+    const seed = assistant.display_name.toLowerCase().replace(/\s+/g, '');
+    const style = assistant.gender === 'female' ? 'avataaars' : 'micah';
+    return `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}&size=${size}&backgroundColor=transparent`;
+  };
+
+  // Helper function to determine if we should use generated avatar or gradient
+  const shouldUseGeneratedAvatar = (assistant: Assistant) => {
+    // 🎨 AVATAR STYLE: Using beautiful gradient avatars with initials and brand colors
+    return false; // Using gradient avatars with initials for clean, branded look
+  };
+
+  // Helper function to get better initials from assistant name
+  const getAssistantInitials = (name: string) => {
+    const nameParts = name.trim().split(' ');
+    if (nameParts.length >= 2) {
+      // First letter of first name + first letter of last name
+      return (nameParts[0].charAt(0) + nameParts[nameParts.length - 1].charAt(0)).toUpperCase();
+    } else {
+      // Just first two letters of single name
+      return name.substring(0, 2).toUpperCase();
+    }
+  };
 
   // Get organization name from user data or fallback with title casing
   const getFormattedOrganizationName = (name: string) => {
@@ -440,32 +618,232 @@ const Launch = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="assistant">Assistant</Label>
-                  <Select value={receptionistData.assistant} onValueChange={(value) => setReceptionistData(prev => ({ ...prev, assistant: value }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an assistant" />
+                  <Select 
+                    value={receptionistData.assistant} 
+                    onValueChange={(value) => setReceptionistData(prev => ({ ...prev, assistant: value }))}
+                    disabled={loadingAssistants}
+                  >
+                    <SelectTrigger className="h-auto min-h-[40px]">
+                      {loadingAssistants ? (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Loading assistants...
+                        </div>
+                      ) : receptionistData.assistant ? (
+                        <div className="flex items-center gap-3 py-1">
+                          {(() => {
+                            const assistant = assistants.find(a => a.display_name === receptionistData.assistant);
+                            if (assistant && shouldUseGeneratedAvatar(assistant)) {
+                              return (
+                                <img 
+                                  src={getAvatarUrl(assistant, 32)} 
+                                  alt={assistant.display_name}
+                                  className="w-8 h-8 rounded-full bg-white p-0.5 shadow-sm"
+                                  onError={(e) => {
+                                    // Fallback to gradient if image fails to load
+                                    const img = e.currentTarget;
+                                    const fallback = img.nextElementSibling as HTMLElement;
+                                    if (fallback) {
+                                      img.style.display = 'none';
+                                      fallback.style.display = 'flex';
+                                    }
+                                  }}
+                                />
+                              );
+                            }
+                            return null;
+                          })()}
+                          <div 
+                            className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-md ${
+                              assistants.find(a => a.display_name === receptionistData.assistant) 
+                                ? getAssistantAvatarStyle(assistants.find(a => a.display_name === receptionistData.assistant)!)
+                                : 'gradient-primary'
+                            }`}
+                            style={{ 
+                              display: assistants.find(a => a.display_name === receptionistData.assistant) && shouldUseGeneratedAvatar(assistants.find(a => a.display_name === receptionistData.assistant)!) ? 'none' : 'flex' 
+                            }}
+                          >
+                            {getAssistantInitials(getAssistantDisplayName(receptionistData.assistant))}
+                          </div>
+                          <div className="text-left">
+                            <div className="font-medium text-sm">{getAssistantDisplayName(receptionistData.assistant)}</div>
+                          </div>
+                        </div>
+                      ) : (
+                        <SelectValue placeholder="Select an assistant" />
+                      )}
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="sarah-professional">Sarah - Professional Assistant</SelectItem>
-                      <SelectItem value="mike-friendly">Mike - Friendly Assistant</SelectItem>
-                      <SelectItem value="emma-technical">Emma - Technical Support</SelectItem>
-                      <SelectItem value="david-sales">David - Sales Assistant</SelectItem>
-                      <SelectItem value="lisa-healthcare">Lisa - Healthcare Assistant</SelectItem>
+                    <SelectContent className="max-w-[400px]">
+                      {assistants.length === 0 ? (
+                        <div className="px-3 py-2 text-sm text-muted-foreground">
+                          {loadingAssistants ? 'Loading assistants...' : 'No assistants available'}
+                        </div>
+                      ) : (
+                        assistants.map((assistant) => (
+                          <SelectItem 
+                            key={assistant.display_name} 
+                            value={assistant.display_name}
+                            className="cursor-pointer hover:bg-accent/50 p-0"
+                          >
+                            <div className="flex items-start gap-3 p-3 w-full">
+                              {/* Avatar */}
+                              <div className="relative flex-shrink-0">
+                                {shouldUseGeneratedAvatar(assistant) ? (
+                                  <>
+                                    <img 
+                                      src={getAvatarUrl(assistant, 40)} 
+                                      alt={assistant.display_name}
+                                      className="w-10 h-10 rounded-full bg-white p-1 shadow-md border border-gray-100"
+                                      onError={(e) => {
+                                        // Fallback to gradient if image fails to load
+                                        const img = e.currentTarget;
+                                        const fallback = img.nextElementSibling as HTMLElement;
+                                        if (fallback) {
+                                          img.style.display = 'none';
+                                          fallback.style.display = 'flex';
+                                        }
+                                      }}
+                                    />
+                                    <div 
+                                      className={`w-10 h-10 ${getAssistantAvatarStyle(assistant)} rounded-full flex items-center justify-center text-white font-semibold shadow-md`}
+                                      style={{ display: 'none' }}
+                                    >
+                                      {getAssistantInitials(assistant.display_name)}
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className={`w-10 h-10 ${getAssistantAvatarStyle(assistant)} rounded-full flex items-center justify-center text-white font-semibold shadow-md`}>
+                                    {getAssistantInitials(assistant.display_name)}
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {/* Assistant Info */}
+                              <div className="flex-1 min-w-0">
+                                <div className="font-semibold text-sm text-foreground mb-1">
+                                  {assistant.display_name}
+                                </div>
+                                
+                                {/* Details */}
+                                <div className="flex flex-wrap gap-2 mb-2">
+                                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                    {assistant.age} years old
+                                  </span>
+                                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full capitalize">
+                                    {assistant.gender}
+                                  </span>
+                                  {assistant.ethnicity && (
+                                    <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full capitalize">
+                                      {assistant.ethnicity}
+                                    </span>
+                                  )}
+                                  {assistant.tone && (
+                                    <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">
+                                      {assistant.tone}
+                                    </span>
+                                  )}
+                                </div>
+                                
+                                {/* Personality traits */}
+                                {assistant.personality && assistant.personality.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 mb-2">
+                                    {assistant.personality.map((trait, index) => (
+                                      <span key={index} className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
+                                        {trait}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                                
+                                {/* Description */}
+                                <p className="text-xs text-muted-foreground overflow-hidden" style={{
+                                  display: '-webkit-box',
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: 'vertical'
+                                }}>
+                                  {assistant.description}
+                                </p>
+                              </div>
+                            </div>
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="phone-number">Phone Number</Label>
-                  <Select value={receptionistData.phoneNumber} onValueChange={(value) => setReceptionistData(prev => ({ ...prev, phoneNumber: value }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a phone number" />
+                  <Select 
+                    value={receptionistData.phoneNumber} 
+                    onValueChange={(value) => setReceptionistData(prev => ({ ...prev, phoneNumber: value }))}
+                    disabled={loadingPhoneNumbers}
+                  >
+                    <SelectTrigger className="h-auto min-h-[40px]">
+                      {loadingPhoneNumbers ? (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Loading phone numbers...
+                        </div>
+                      ) : receptionistData.phoneNumber ? (
+                        <div className="flex items-center gap-3 py-1">
+                          <div className="w-8 h-8 gradient-primary rounded-full flex items-center justify-center text-white text-xs shadow-md">
+                            <Phone className="w-4 h-4" />
+                          </div>
+                          <div className="text-left">
+                            <div className="font-medium text-sm">{getPhoneNumberDisplay(receptionistData.phoneNumber)}</div>
+                          </div>
+                        </div>
+                      ) : (
+                        <SelectValue placeholder="Select a phone number" />
+                      )}
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="+1-555-0101">+1 (555) 010-1001 - Main Line</SelectItem>
-                      <SelectItem value="+1-555-0102">+1 (555) 010-1002 - Support Line</SelectItem>
-                      <SelectItem value="+1-555-0103">+1 (555) 010-1003 - Sales Line</SelectItem>
-                      <SelectItem value="+1-555-0104">+1 (555) 010-1004 - Emergency Line</SelectItem>
-                      <SelectItem value="+1-555-0105">+1 (555) 010-1005 - Appointment Line</SelectItem>
+                    <SelectContent className="max-w-[350px]">
+                      {phoneNumbers.length === 0 ? (
+                        <div className="px-3 py-2 text-sm text-muted-foreground">
+                          {loadingPhoneNumbers ? 'Loading phone numbers...' : 'No phone numbers available'}
+                        </div>
+                      ) : (
+                        phoneNumbers.map((phone) => (
+                          <SelectItem 
+                            key={phone.id} 
+                            value={phone.number}
+                            className="cursor-pointer hover:bg-accent/50 p-0"
+                          >
+                            <div className="flex items-center gap-3 p-3 w-full">
+                              {/* Phone Icon */}
+                              <div className="w-8 h-8 gradient-primary rounded-full flex items-center justify-center text-white flex-shrink-0 shadow-md">
+                                <Phone className="w-4 h-4" />
+                              </div>
+                              
+                              {/* Phone Info */}
+                              <div className="flex-1 min-w-0">
+                                <div className="font-semibold text-sm text-foreground mb-1">
+                                  {phone.number}
+                                </div>
+                                
+                                {/* Details */}
+                                <div className="flex flex-wrap gap-2 mb-1">
+                                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                    {phone.provider}
+                                  </span>
+                                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                                    {phone.country}
+                                  </span>
+                                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full capitalize">
+                                    {phone.status}
+                                  </span>
+                                </div>
+                                
+                                {/* Description */}
+                                <p className="text-xs text-muted-foreground">
+                                  {phone.description}
+                                </p>
+                              </div>
+                            </div>
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -568,15 +946,15 @@ const Launch = () => {
                       </CardTitle>
                       <div className="flex flex-wrap gap-1 mt-1">
                         {receptionist.assistant && (
-                          <div className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full w-fit font-semibold">
-                            {receptionist.assistant.split('-')[0]} Assistant
+                          <div className="text-xs text-white gradient-primary px-2 py-1 rounded-full w-fit font-semibold shadow-sm">
+                            {getAssistantDisplayName(receptionist.assistant)}
                           </div>
                         )}
                         {receptionist.phoneNumber && (
-                          <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full w-fit font-semibold">
-                            {receptionist.phoneNumber.split(' ')[0]}
-                          </div>
-                        )}
+                          <div className="text-xs text-white gradient-primary px-2 py-1 rounded-full w-fit font-semibold shadow-sm">
+                            {getPhoneNumberDisplay(receptionist.phoneNumber)}
+                        </div>
+                      )}
                       </div>
                     </CardHeader>
                     <CardContent className="flex-1 flex flex-col justify-between">

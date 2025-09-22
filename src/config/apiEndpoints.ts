@@ -33,5 +33,9 @@ export const API_ENDPOINTS = {
       GET_CALL: `${API_BASE_URL}/inbound/get_call`,
       DASHBOARD_STATS: `${API_BASE_URL}/inbound/dashboard/stats`,
     },
+    RECEPTIONIST: {
+      GET_ASSISTANTS: `${API_BASE_URL}/create_receptionist/get_assistants`,
+      GET_PHONE_NUMBERS: `${API_BASE_URL}/create_receptionist/get_available_phoneNumber`,
+    },
   };
   
