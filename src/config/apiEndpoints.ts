@@ -19,6 +19,9 @@ export const API_ENDPOINTS = {
       VERIFY_TOKEN: `${API_BASE_URL}/auth/token/verify`,
       RESET_PASSWORD: `${API_BASE_URL}/auth/password/reset`,
       ME: `${API_BASE_URL}/auth/me`,
+      // OTP signup/login flow (backend)
+      OTP_REQUEST: `${API_BASE_URL}/auth/otp/request`,
+      OTP_VERIFY: `${API_BASE_URL}/auth/otp/verify`,
     },
     OUTBOUND: {
       UPLOAD_URL: `${API_BASE_URL}/outbound/upload_url`,

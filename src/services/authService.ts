@@ -257,6 +257,55 @@ class AuthService {
     }
   }
 
+  // ------------------------------------------------------------------
+  // Email OTP Signup/Login via custom FastAPI backend
+  // ------------------------------------------------------------------
+
+  async requestEmailOtp(email: string, organizationName?: string, firstName?: string, lastName?: string): Promise<AuthResponse> {
+    try {
+      const payload: Record<string, any> = { email }
+      if (organizationName) payload.organization_name = organizationName
+      if (firstName) payload.first_name = firstName
+      if (lastName) payload.last_name = lastName
+
+      const response = await this.makeRequest(API_ENDPOINTS.AUTH.OTP_REQUEST, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      })
+
+      return {
+        success: true,
+        message: response.message || 'OTP sent successfully!',
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to send OTP'
+      }
+    }
+  }
+
+  async verifyEmailOtp(email: string, otp: string): Promise<AuthResponse> {
+    try {
+      const response = await this.makeRequest(API_ENDPOINTS.AUTH.OTP_VERIFY, {
+        method: 'POST',
+        body: JSON.stringify({ email, otp })
+      })
+
+      // Backend does not return user yet; it only confirms verification
+      if (response.message) {
+        return { success: true, message: response.message }
+      }
+
+      return { success: true }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'OTP verification failed'
+      }
+    }
+  }
+
   // Note: Token refresh endpoint not available on backend
   // Tokens will be cleared on 401 errors and user redirected to login
 
