@@ -36,6 +36,23 @@ export interface PhoneNumbersResponse {
   total_count: number;
 }
 
+export interface ReceptionistRecord {
+  id: string;
+  org_id: string;
+  name: string;
+  description?: string;
+  assistant_voice?: string;
+  phone_number?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ReceptionistsResponse {
+  message: string;
+  receptionists: ReceptionistRecord[];
+  total_count: number;
+}
+
 export interface ApiResponse<T = any> {
   data?: T;
   error?: string;
@@ -137,6 +154,16 @@ class ReceptionistService {
       return {
         error: error instanceof Error ? error.message : 'Failed to fetch phone numbers'
       };
+    }
+  }
+
+  async getReceptionists(): Promise<ApiResponse<ReceptionistsResponse>> {
+    try {
+      const data = await this.makeRequest(API_ENDPOINTS.RECEPTIONIST.GET_RECEPTIONISTS);
+      return { data, message: 'Successfully fetched receptionists' };
+    } catch (error) {
+      console.error('Error fetching receptionists:', error);
+      return { error: error instanceof Error ? error.message : 'Failed to fetch receptionists' };
     }
   }
 

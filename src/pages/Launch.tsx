@@ -13,6 +13,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { type ReceptionistRecord } from '@/services/receptionistService';
 
 interface Receptionist {
   id: string;
@@ -98,50 +99,7 @@ const Launch = () => {
   ];
 
   // Initialize receptionists from localStorage or use mock data
-  const getInitialReceptionists = (): Receptionist[] => {
-    const saved = localStorage.getItem('receptionists');
-    if (saved) {
-      return JSON.parse(saved);
-    }
-    
-    // Default mock data
-    return [
-      {
-        id: '1',
-        name: 'Customer Service Bot',
-        description: 'Handles customer inquiries and support requests with friendly, professional responses.',
-        assistant: 'Alex',
-        phoneNumber: '+1-555-123-6186',
-        createdAt: new Date().toISOString().split('T')[0] // Today
-      },
-      {
-        id: '2',
-        name: 'Appointment Scheduler',
-        description: 'Manages appointment bookings, cancellations, and reminders for healthcare practices.',
-        assistant: 'Priya',
-        phoneNumber: '+1-555-123-6186',
-        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 5 days ago
-      },
-      {
-        id: '3',
-        name: 'Sales Assistant',
-        description: 'Helps qualify leads and provides product information to potential customers.',
-        assistant: 'Emma',
-        phoneNumber: '+1-555-123-6186',
-        createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 20 days ago
-      },
-      {
-        id: '4',
-        name: 'Technical Support',
-        description: 'Provides technical assistance and troubleshooting guidance for software issues.',
-        assistant: 'Jordan',
-        phoneNumber: '+1-555-123-6186',
-        createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 90 days ago
-      }
-    ];
-  };
-
-  const [receptionists, setReceptionists] = useState<Receptionist[]>(getInitialReceptionists);
+  const [receptionists, setReceptionists] = useState<Receptionist[]>([]);
 
   // Save initial data to localStorage on first load
   useEffect(() => {
@@ -161,6 +119,35 @@ const Launch = () => {
       console.warn('User not authenticated, using fallback data for assistants and phone numbers');
       setAssistants(fallbackAssistants);
       setPhoneNumbers(fallbackPhoneNumbers);
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    const loadReceptionists = async () => {
+      try {
+        const { data, error } = await receptionistService.getReceptionists();
+        if (error) {
+          toast.error(error);
+          return;
+        }
+
+        const mapped: Receptionist[] = (data?.receptionists || []).map((r: ReceptionistRecord) => ({
+          id: r.id,
+          name: r.name,
+          description: r.description || '',
+          assistant: r.assistant_voice || '',
+          phoneNumber: r.phone_number || '',
+          createdAt: r.created_at || '',
+        }));
+
+        setReceptionists(mapped);
+      } catch (e) {
+        toast.error('Failed to load receptionists');
+      }
+    };
+
+    if (currentUser) {
+      loadReceptionists();
     }
   }, [currentUser]);
 
