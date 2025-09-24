@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { ArrowRight, Bot, Calendar, Edit, Filter, Loader2, LogOut, Phone, Plus, Search, Settings, Tag, Trash2, User } from 'lucide-react';
+import { Assistant, PhoneNumber, receptionistService } from '@/services/receptionistService';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import React, { useEffect, useState } from 'react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useAuth } from '@/contexts/AuthContext';
-import { Bot, Plus, Settings, ArrowRight, Edit, Trash2, Search, Filter, Calendar, Tag, Phone, LogOut, User, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { receptionistService, Assistant, PhoneNumber } from '@/services/receptionistService';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface Receptionist {
   id: string;
@@ -24,7 +25,8 @@ interface Receptionist {
 
 const Launch = () => {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user: currentUser, signOut } = useAuth();
+  const organizationName = currentUser?.organization_name ?? 'Your Organization';
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [receptionistData, setReceptionistData] = useState({
@@ -151,7 +153,7 @@ const Launch = () => {
 
   // Fetch assistants and phone numbers on component mount, but only if user is authenticated
   useEffect(() => {
-    if (user) {
+    if (currentUser) {
       fetchAssistants();
       fetchPhoneNumbers();
     } else {
@@ -160,10 +162,10 @@ const Launch = () => {
       setAssistants(fallbackAssistants);
       setPhoneNumbers(fallbackPhoneNumbers);
     }
-  }, [user]);
+  }, [currentUser]);
 
   const fetchAssistants = async () => {
-    if (!user) {
+    if (!currentUser) {
       console.warn('Cannot fetch assistants: User not authenticated');
       return;
     }
@@ -196,7 +198,7 @@ const Launch = () => {
   };
 
   const fetchPhoneNumbers = async () => {
-    if (!user) {
+    if (!currentUser) {
       console.warn('Cannot fetch phone numbers: User not authenticated');
       return;
     }
@@ -280,10 +282,6 @@ const Launch = () => {
       .join(' ');
   };
   
-  const organizationName = getFormattedOrganizationName(
-    user?.organization_name || user?.organizationName || 'Your Organization'
-  );
-
   // Get unique assistants for filter dropdown (if needed in future)
   const availableAssistants = [...new Set(receptionists.map(r => r.assistant).filter(Boolean))];
 
@@ -440,6 +438,11 @@ const Launch = () => {
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2 px-2">
               Welcome to <span className="gradient-primary-text">{organizationName}</span>
             </h1>
+            {currentUser && (
+              <p className="text-sm text-muted-foreground mb-1 px-2">
+                Logged in as {`${currentUser.first_name ?? ''} ${currentUser.last_name ?? ''}`.trim()} • {currentUser.email}
+              </p>
+            )}
             <p className="text-base sm:text-lg text-muted-foreground px-2">
               Manage your AI receptionists and launch new ones
             </p>

@@ -54,22 +54,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
         setUser(user)
       } else if (authService.isAuthenticated()) {
-        // Fallback to legacy auth service
-        const verifyResult = await authService.verifyToken()
-        
-        if (verifyResult.success) {
-          const userResult = await authService.getCurrentUser()
-          
-          if (userResult.success && userResult.user) {
-            setUser(userResult.user)
-          } else {
-            authService.removeTokens()
-            setUser(null)
-          }
+        // JWT-based auth (OTP flow)
+        const userResult = await authService.getCurrentUser()
+
+        if (userResult.success && userResult.user) {
+          setUser(userResult.user)
         } else {
+          // token invalid
           authService.removeTokens()
           setUser(null)
         }
+      }
+
+      // Final fallback: if still no user but we have JWT, fetch /auth/me
+      if (!user && authService.isAuthenticated()) {
+        const me = await authService.getCurrentUser()
+        if (me.success && me.user) setUser(me.user)
       }
       setLoading(false)
     }
@@ -179,12 +179,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }
 
   const verifyOTPAndSignup = async (email: string, otp: string, organizationName: string, firstName: string, lastName: string): Promise<AuthResponse> => {
-    // For now backend just returns success; once backend creates user we can extend
-    return authService.verifyEmailOtp(email, otp)
+    const result = await authService.verifyEmailOtp(email, otp)
+    if (result.success && authService.isAuthenticated()) {
+      const me = await authService.getCurrentUser()
+      if (me.success && me.user) setUser(me.user)
+    }
+    return result
   }
 
   const verifyOTPAndLogin = async (email: string, otp: string): Promise<AuthResponse> => {
-    return authService.verifyEmailOtp(email, otp)
+    const result = await authService.verifyEmailOtp(email, otp)
+    if (result.success && authService.isAuthenticated()) {
+      const me = await authService.getCurrentUser()
+      if (me.success && me.user) setUser(me.user)
+    }
+    return result
   }
 
   const value: AuthContextType = {

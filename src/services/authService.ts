@@ -292,12 +292,15 @@ class AuthService {
         body: JSON.stringify({ email, otp })
       })
 
-      // Backend does not return user yet; it only confirms verification
-      if (response.message) {
-        return { success: true, message: response.message }
+      if (response.access_token) {
+        this.setToken(response.access_token)
       }
 
-      return { success: true }
+      return {
+        success: true,
+        access_token: response.access_token,
+        message: response.message
+      }
     } catch (error) {
       return {
         success: false,
