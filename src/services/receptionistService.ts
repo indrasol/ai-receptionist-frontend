@@ -184,6 +184,18 @@ class ReceptionistService {
       return { error: error instanceof Error ? error.message : 'Failed to create receptionist' };
     }
   }
+
+  async deleteReceptionist(id: string): Promise<ApiResponse<any>> {
+    try {
+      const data = await this.makeRequest(API_ENDPOINTS.RECEPTIONIST.DELETE(id), {
+        method: 'DELETE',
+      });
+      return { data, message: 'Receptionist deleted' };
+    } catch (error) {
+      console.error('Error deleting receptionist:', error);
+      return { error: error instanceof Error ? error.message : 'Failed to delete receptionist' };
+    }
+  }
 }
 
 export const receptionistService = new ReceptionistService();

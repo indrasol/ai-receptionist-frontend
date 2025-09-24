@@ -100,14 +100,7 @@ const Launch = () => {
 
   // Initialize receptionists from localStorage or use mock data
   const [receptionists, setReceptionists] = useState<Receptionist[]>([]);
-
-  // Save initial data to localStorage on first load
-  useEffect(() => {
-    const saved = localStorage.getItem('receptionists');
-    if (!saved) {
-      localStorage.setItem('receptionists', JSON.stringify(getInitialReceptionists()));
-    }
-  }, []); // Empty dependency array - only run once on mount
+  const [isCreating, setIsCreating] = useState(false);
 
   // Fetch assistants and phone numbers on component mount, but only if user is authenticated
   useEffect(() => {
@@ -330,7 +323,8 @@ const Launch = () => {
     if (!receptionistData.name || !receptionistData.description) return;
 
     try {
-      const { error } = await receptionistService.createReceptionist({
+      setIsCreating(true);
+      const { data, error } = await receptionistService.createReceptionist({
         name: receptionistData.name,
         description: receptionistData.description,
         assistant_voice: receptionistData.assistant,
@@ -343,23 +337,39 @@ const Launch = () => {
       }
 
       toast.success('Receptionist created');
-      // Refresh list later (TODO: fetch from API). For now local state add
-      setReceptionists(prev => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          name: receptionistData.name,
-          description: receptionistData.description,
-          assistant: receptionistData.assistant,
-          phoneNumber: receptionistData.phoneNumber,
-          createdAt: new Date().toISOString(),
-        },
-      ]);
+      if (data) {
+        // Map backend fields to card model
+        const rec: Receptionist = {
+          id: data.id,
+          name: data.name,
+          description: data.description || '',
+          assistant: data.assistant_voice || '',
+          phoneNumber: data.phone_number || '',
+          createdAt: data.created_at || new Date().toISOString(),
+        };
+        setReceptionists(prev => [...prev, rec]);
+      } else {
+        // Fallback: refetch list
+        const { data: listData } = await receptionistService.getReceptionists();
+        if (listData) {
+          const mapped = listData.receptionists.map((r: any) => ({
+            id: r.id,
+            name: r.name,
+            description: r.description || '',
+            assistant: r.assistant_voice || '',
+            phoneNumber: r.phone_number || '',
+            createdAt: r.created_at,
+          }));
+          setReceptionists(mapped);
+        }
+      }
 
       setIsModalOpen(false);
       setReceptionistData({ name: '', description: '', assistant: '', phoneNumber: '' });
     } catch (e) {
       toast.error('Failed to create receptionist');
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -381,14 +391,17 @@ const Launch = () => {
     // In a real app, you'd have edit functionality
   };
 
-  const handleDeleteReceptionist = (e: React.MouseEvent, receptionistId: string) => {
-    e.stopPropagation(); // Prevent card click
-    if (confirm('Are you sure you want to delete this receptionist?')) {
-      const updatedReceptionists = receptionists.filter(r => r.id !== receptionistId);
-      setReceptionists(updatedReceptionists);
-      // Save to localStorage
-      localStorage.setItem('receptionists', JSON.stringify(updatedReceptionists));
+  const handleDeleteReceptionist = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+
+    const { error } = await receptionistService.deleteReceptionist(id);
+    if (error) {
+      toast.error(error);
+      return;
     }
+
+    toast.success('Receptionist deleted');
+    setReceptionists(prev => prev.filter(r => r.id !== id));
   };
 
   const handleSignOut = async () => {
@@ -848,8 +861,9 @@ const Launch = () => {
                 <Button 
                   onClick={handleCreateReceptionist}
                   className="w-full"
-                  disabled={!receptionistData.name || !receptionistData.description}
+                  disabled={isCreating || !receptionistData.name || !receptionistData.description}
                 >
+                  {isCreating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Create Receptionist
                 </Button>
               </div>
