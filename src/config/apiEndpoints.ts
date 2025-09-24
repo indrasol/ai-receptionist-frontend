@@ -42,6 +42,7 @@ export const API_ENDPOINTS = {
       CREATE: `${API_BASE_URL}/create_receptionist/`,
       GET_RECEPTIONISTS: `${API_BASE_URL}/create_receptionist/get_receptionists`,
       DELETE: (id: string) => `${API_BASE_URL}/create_receptionist/${id}`,
+      UPDATE: (id: string) => `${API_BASE_URL}/create_receptionist/${id}`,
     },
   };
   

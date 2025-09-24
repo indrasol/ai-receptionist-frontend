@@ -101,6 +101,12 @@ const Launch = () => {
   // Initialize receptionists from localStorage or use mock data
   const [receptionists, setReceptionists] = useState<Receptionist[]>([]);
   const [isCreating, setIsCreating] = useState(false);
+  const [editingReceptionist, setEditingReceptionist] = useState<Receptionist | null>(null);
+  const isDirty = editingReceptionist && (
+    receptionistData.name !== editingReceptionist.name ||
+    receptionistData.description !== editingReceptionist.description ||
+    receptionistData.assistant !== editingReceptionist.assistant ||
+    receptionistData.phoneNumber !== editingReceptionist.phoneNumber);
 
   // Fetch assistants and phone numbers on component mount, but only if user is authenticated
   useEffect(() => {
@@ -373,6 +379,21 @@ const Launch = () => {
     }
   };
 
+  const handleUpdateReceptionist = async () => {
+    if (!editingReceptionist) return;
+    setIsCreating(true);
+    const { error, data } = await receptionistService.updateReceptionist(editingReceptionist.id, {
+      name: receptionistData.name,
+      description: receptionistData.description,
+      assistant_voice: receptionistData.assistant,
+      phone_number: receptionistData.phoneNumber,
+    });
+    setIsCreating(false);
+    if (error) { toast.error(error); return; }
+    setReceptionists(prev => prev.map(r => r.id===editingReceptionist.id ? {...r, name: receptionistData.name, description: receptionistData.description, assistant: receptionistData.assistant, phoneNumber: receptionistData.phoneNumber} : r));
+    setIsModalOpen(false); setEditingReceptionist(null);
+  }
+
   const handleReceptionistClick = (receptionistId: string) => {
     navigate(`/knowledge/${receptionistId}`);
   };
@@ -386,6 +407,7 @@ const Launch = () => {
       assistant: receptionist.assistant || '',
       phoneNumber: receptionist.phoneNumber || ''
     });
+    setEditingReceptionist(receptionist);
     setIsModalOpen(true);
     // For now, we'll delete the old one when a new one is created
     // In a real app, you'd have edit functionality
@@ -859,12 +881,12 @@ const Launch = () => {
                 </div>
 
                 <Button 
-                  onClick={handleCreateReceptionist}
+                  onClick={editingReceptionist ? handleUpdateReceptionist : handleCreateReceptionist}
                   className="w-full"
-                  disabled={isCreating || !receptionistData.name || !receptionistData.description}
+                  disabled={isCreating || (editingReceptionist ? !isDirty : !receptionistData.name)}
                 >
                   {isCreating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Create Receptionist
+                  {editingReceptionist ? 'Update Receptionist' : 'Create Receptionist'}
                 </Button>
               </div>
             </DialogContent>
@@ -937,7 +959,7 @@ const Launch = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={(e) => handleEditReceptionist(e, receptionist)}
+                            onClick={(e) => { e.stopPropagation(); setEditingReceptionist(receptionist); setReceptionistData({name: receptionist.name, description: receptionist.description, assistant: receptionist.assistant||'', phoneNumber: receptionist.phoneNumber||''}); setIsModalOpen(true);} }
                             className="h-8 w-8 p-0 hover:bg-primary/10"
                           >
                             <Edit className="w-4 h-4" />

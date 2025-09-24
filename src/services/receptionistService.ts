@@ -196,6 +196,18 @@ class ReceptionistService {
       return { error: error instanceof Error ? error.message : 'Failed to delete receptionist' };
     }
   }
+
+  async updateReceptionist(id: string, payload: any): Promise<ApiResponse<any>> {
+    try {
+      const data = await this.makeRequest(API_ENDPOINTS.RECEPTIONIST.UPDATE(id), {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      });
+      return { data };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Failed to update receptionist' };
+    }
+  }
 }
 
 export const receptionistService = new ReceptionistService();
