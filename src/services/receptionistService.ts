@@ -139,6 +139,24 @@ class ReceptionistService {
       };
     }
   }
+
+  async createReceptionist(payload: {
+    name: string;
+    description?: string;
+    assistant_voice?: string;
+    phone_number?: string;
+  }): Promise<ApiResponse<any>> {
+    try {
+      const data = await this.makeRequest(API_ENDPOINTS.RECEPTIONIST.CREATE, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+      return { data, message: 'Receptionist created' };
+    } catch (error) {
+      console.error('Error creating receptionist:', error);
+      return { error: error instanceof Error ? error.message : 'Failed to create receptionist' };
+    }
+  }
 }
 
 export const receptionistService = new ReceptionistService();

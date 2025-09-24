@@ -339,33 +339,40 @@ const Launch = () => {
       }
     });
 
-  const handleCreateReceptionist = () => {
-    if (receptionistData.name && receptionistData.description) {
-      // Create new receptionist object
-      const newReceptionist: Receptionist = {
-        id: Date.now().toString(), // Generate unique ID
+  const handleCreateReceptionist = async () => {
+    if (!receptionistData.name || !receptionistData.description) return;
+
+    try {
+      const { error } = await receptionistService.createReceptionist({
         name: receptionistData.name,
         description: receptionistData.description,
-        assistant: receptionistData.assistant,
-        phoneNumber: receptionistData.phoneNumber,
-        createdAt: new Date().toISOString().split('T')[0] // Today's date in YYYY-MM-DD format
-      };
-
-      // Add to receptionists list
-      const updatedReceptionists = [...receptionists, newReceptionist];
-      setReceptionists(updatedReceptionists);
-      
-      // Save to localStorage to share with other pages
-      localStorage.setItem('receptionists', JSON.stringify(updatedReceptionists));
-      
-      // Close modal and reset form
-      setIsModalOpen(false);
-      setReceptionistData({
-        name: '',
-        description: '',
-        assistant: '',
-        phoneNumber: ''
+        assistant_voice: receptionistData.assistant,
+        phone_number: receptionistData.phoneNumber,
       });
+
+      if (error) {
+        toast.error(error);
+        return;
+      }
+
+      toast.success('Receptionist created');
+      // Refresh list later (TODO: fetch from API). For now local state add
+      setReceptionists(prev => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          name: receptionistData.name,
+          description: receptionistData.description,
+          assistant: receptionistData.assistant,
+          phoneNumber: receptionistData.phoneNumber,
+          createdAt: new Date().toISOString(),
+        },
+      ]);
+
+      setIsModalOpen(false);
+      setReceptionistData({ name: '', description: '', assistant: '', phoneNumber: '' });
+    } catch (e) {
+      toast.error('Failed to create receptionist');
     }
   };
 
