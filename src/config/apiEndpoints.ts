@@ -48,6 +48,7 @@ export const API_ENDPOINTS = {
       DOC_UPLOAD: `${API_BASE_URL}/documents/process-document`,
       URL_SCRAPE: `${API_BASE_URL}/scraper/scrape-url`,
       TEXT_PROCESS: `${API_BASE_URL}/documents/process-text`,
+      LIST_CHUNKS: (id: string) => `${API_BASE_URL}/chunks/chunks?receptionist_id=${id}`,
     },
   };
   

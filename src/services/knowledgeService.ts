@@ -36,4 +36,13 @@ export const knowledgeService = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text, name, description, receptionist_id: receptionistId }),
     }),
+
+  async listChunks(receptionistId: string) {
+    try {
+      const data = await authedFetch(API_ENDPOINTS.KNOWLEDGE.LIST_CHUNKS(receptionistId));
+      return { data };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Failed to load chunks' };
+    }
+  },
 };

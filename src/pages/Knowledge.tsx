@@ -147,52 +147,31 @@ const Knowledge = () => {
     return null;
   }
 
-  const [knowledgeEntries, setKnowledgeEntries] = useState<KnowledgeEntry[]>([
-    {
-      id: '1',
-      type: 'document',
-      name: 'Customer Service Guidelines.pdf',
-      source: 'uploaded',
-      content: 'Comprehensive guidelines for handling customer inquiries, complaints, and providing excellent service standards...',
-      isSelected: true,
-      uploadedAt: '2024-01-15T10:30:00Z',
-      size: '2.4 MB',
-      status: 'processed'
-    },
-    {
-      id: '2',
-      type: 'url',
-      name: 'Company FAQ Page',
-      source: 'https://example.com/faq',
-      content: 'Frequently asked questions about our products and services, including pricing, features, and support information...',
-      isSelected: true,
-      uploadedAt: '2024-01-14T14:20:00Z',
-      size: '1.2 MB',
-      status: 'processed'
-    },
-    {
-      id: '3',
-      type: 'document',
-      name: 'Product Catalog.pdf',
-      source: 'uploaded',
-      content: 'Complete product specifications, pricing, and feature comparisons for all available products and services...',
-      isSelected: false,
-      uploadedAt: '2024-01-12T09:15:00Z',
-      size: '5.1 MB',
-      status: 'processing'
-    },
-    {
-      id: '4',
-      type: 'text',
-      name: 'Business Hours & Contact Info',
-      source: 'text',
-      content: 'We are open Monday through Friday from 9 AM to 6 PM EST. For urgent matters, please call our emergency line at (555) 123-4567.',
-      isSelected: true,
-      uploadedAt: '2024-01-13T16:45:00Z',
-      size: '0.1 KB',
-      status: 'processed'
-    }
-  ]);
+  const [knowledgeEntries, setKnowledgeEntries] = useState<KnowledgeEntry[]>([]);
+
+  // fetch chunks for receptionist
+  useEffect(() => {
+    if (!receptionistId || !user) return;
+    (async () => {
+      const { data, error } = await knowledgeService.listChunks(receptionistId);
+      if (error) {
+        toast.error(error);
+        return;
+      }
+      const mapped: KnowledgeEntry[] = (data?.chunks || []).map((c: any) => ({
+        id: c.id,
+        type: c.source_type,
+        name: c.name,
+        source: c.source_id,
+        content: c.content,
+        isSelected: true,
+        uploadedAt: c.created_at,
+        size: '',
+        status: 'processed',
+      }));
+      setKnowledgeEntries(mapped);
+    })();
+  }, [receptionistId, user]);
 
   const organizationName = user?.organization_name || user?.organizationName || user?.name || 'Your Organization';
 
@@ -310,8 +289,7 @@ const Knowledge = () => {
       {knowledgeEntries.map((entry) => (
         <Card key={entry.id} className="group hover:shadow-lg transition-shadow flex flex-col">
           <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <div className="flex items-start gap-2">
                 {entry.type === 'document' ? (
                   <FileText className="w-4 h-4 text-blue-500" />
                 ) : entry.type === 'url' ? (
@@ -319,15 +297,14 @@ const Knowledge = () => {
                 ) : (
                   <Type className="w-4 h-4 text-purple-500" />
                 )}
-                <CardTitle className="text-sm font-medium truncate" title={entry.name}>
+                <CardTitle className="text-sm font-medium break-words flex-1" title={entry.name}>
                   {entry.name}
                 </CardTitle>
-              </div>
-              <Switch
-                checked={entry.isSelected}
-                onCheckedChange={() => toggleKnowledgeSelection(entry.id)}
-                className="data-[state=checked]:bg-primary"
-              />
+                <Switch
+                  checked={entry.isSelected}
+                  onCheckedChange={() => toggleKnowledgeSelection(entry.id)}
+                  className="ml-auto flex-shrink-0 data-[state=checked]:bg-primary"
+                />
             </div>
           </CardHeader>
           <CardContent className="pt-0 flex-1 flex flex-col">
