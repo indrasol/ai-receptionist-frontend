@@ -44,5 +44,10 @@ export const API_ENDPOINTS = {
       DELETE: (id: string) => `${API_BASE_URL}/create_receptionist/${id}`,
       UPDATE: (id: string) => `${API_BASE_URL}/create_receptionist/${id}`,
     },
+    KNOWLEDGE: {
+      DOC_UPLOAD: `${API_BASE_URL}/documents/process-document`,
+      URL_SCRAPE: `${API_BASE_URL}/scraper/scrape-url`,
+      TEXT_PROCESS: `${API_BASE_URL}/documents/process-text`,
+    },
   };
   
