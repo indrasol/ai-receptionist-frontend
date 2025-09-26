@@ -1,14 +1,15 @@
-
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle, Loader2, PhoneIncoming, PhoneOutgoing, RefreshCw, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { DashboardResponse, inboundService } from '@/services/inboundService';
+import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { useEffect, useState } from 'react';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { PhoneIncoming, PhoneOutgoing, TrendingUp, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
-import { inboundService, DashboardResponse } from '@/services/inboundService';
+import { useParams } from 'react-router-dom';
 
 const Dashboard = () => {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
@@ -36,6 +37,8 @@ const Dashboard = () => {
     return 'Good evening';
   };
 
+  const { id: receptionistId } = useParams<{ id: string }>();
+
   // Fetch dashboard data from API
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -48,12 +51,12 @@ const Dashboard = () => {
         setLoading(true);
         setError(null);
         
-        const response = await inboundService.getDashboardStats();
+        const { data, error } = await inboundService.getDashboardStats(receptionistId ? [receptionistId] : []);
         
-        if (response.success && response.data) {
-          setDashboardData(response.data);
+        if (data) {
+          setDashboardData(data);
         } else {
-          setError(response.error || 'Failed to fetch dashboard statistics');
+          setError(error || 'Failed to fetch dashboard statistics');
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unexpected error occurred');
@@ -63,7 +66,7 @@ const Dashboard = () => {
     };
 
     fetchDashboardData();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, receptionistId]);
 
   // Animate KPI numbers when dashboard data is loaded
   useEffect(() => {
