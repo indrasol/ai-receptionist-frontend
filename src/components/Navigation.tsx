@@ -97,6 +97,14 @@ const Navigation = () => {
             >
               {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
+            <Link to="/register">
+              <Button 
+                variant="outline"
+                className="font-medium border-primary text-primary hover:bg-primary hover:text-white transition-colors"
+              >
+                Login
+              </Button>
+            </Link>
             <Button 
               className="gradient-primary hover-glow text-white font-medium"
               onClick={handleContactClick}
@@ -131,6 +139,15 @@ const Navigation = () => {
       {isOpen && (
         <div className="md:hidden glass-card border-t animate-slide-in-right">
           <div className="px-4 py-6 space-y-4">
+            <Link to="/register" className="block">
+              <Button 
+                variant="outline"
+                className="w-full font-medium border-primary text-primary hover:bg-primary hover:text-white transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                Login
+              </Button>
+            </Link>
             <Button 
               className="w-full gradient-primary hover-glow text-white font-medium"
               onClick={handleContactClick}

@@ -1,5 +1,5 @@
 // src/config/env.ts
-// This file provides typed access to environment variables
+// This file provides typed access to environment variables.
 
 interface EnvConfig {
     APP_ENV: string;
@@ -21,8 +21,8 @@ interface EnvConfig {
     SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL || '',
     SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_SERVICE_KEY || '',
     SUPABASE_SERVICE_KEY: import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY || '',
-    BASE_API_URL: import.meta.env.VITE_BASE_API_URL || 'http://localhost:8000/api/v1',
-    DEV_BASE_API_URL: import.meta.env.VITE_DEV_BASE_API_URL || 'http://localhost:8000/api/v1',
+    BASE_API_URL: import.meta.env.VITE_BASE_API_URL || 'http://localhost:8001/api/v1',
+    DEV_BASE_API_URL: import.meta.env.VITE_DEV_BASE_API_URL || 'http://localhost:8001/api/v1',
   };
   
   // Useful getters for determining environment and feature flags

@@ -123,9 +123,10 @@ class InboundService {
     return data
   }
 
-  async getCalls(): Promise<ApiResponse<InboundCall[]>> {
+  async getCalls(receptionistId: string, page = 1, pageSize = 50): Promise<ApiResponse<InboundCall[]>> {
     try {
-      const response = await this.makeRequest(API_ENDPOINTS.INBOUND.GET_CALLS, {
+      const url = `${API_ENDPOINTS.INBOUND.GET_CALLS}?receptionist_id=${receptionistId}&page=${page}&page_size=${pageSize}`
+      const response = await this.makeRequest(url, {
         method: 'GET',
       })
 
@@ -160,9 +161,12 @@ class InboundService {
     }
   }
 
-  async getDashboardStats(): Promise<ApiResponse<DashboardResponse>> {
+  async getDashboardStats(receptionistIds?: string[]): Promise<ApiResponse<DashboardResponse>> {
     try {
-      const response = await this.makeRequest(API_ENDPOINTS.INBOUND.DASHBOARD_STATS, {
+      const qs = receptionistIds && receptionistIds.length > 0 ? receptionistIds.map(id => `receptionist_ids=${id}`).join('&') : '';
+      const url = qs ? `${API_ENDPOINTS.INBOUND.DASHBOARD_STATS}?${qs}` : API_ENDPOINTS.INBOUND.DASHBOARD_STATS;
+
+      const response = await this.makeRequest(url, {
         method: 'GET',
       })
 

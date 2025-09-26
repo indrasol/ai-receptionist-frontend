@@ -1,37 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Switch } from '@/components/ui/switch';
-import { Progress } from '@/components/ui/progress';
-import { useAuth } from '@/contexts/AuthContext';
 import {
-  Upload,
-  Globe,
-  FileText,
-  Link,
-  Trash2,
-  Download,
-  Plus,
   ArrowLeft,
   Bot,
-  Type,
-  Maximize2,
-  Grid3X3,
-  List,
   Calendar,
-  Eye,
-  RefreshCw,
+  Download,
   Edit,
-  Save
+  Eye,
+  FileText,
+  Globe,
+  Grid3X3,
+  Link,
+  List,
+  Loader2,
+  Maximize2,
+  Plus,
+  RefreshCw,
+  Save,
+  Trash2,
+  Type,
+  Upload
 } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import React, { useEffect, useState } from 'react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useNavigate, useParams } from 'react-router-dom';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
+import { Switch } from '@/components/ui/switch';
+import { knowledgeService } from '@/services/knowledgeService';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface KnowledgeEntry {
   id: string;
@@ -59,6 +63,42 @@ const Knowledge = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editContent, setEditContent] = useState('');
   const [isTrainingModalOpen, setIsTrainingModalOpen] = useState(false);
+  // loading states for async actions
+  const [urlLoading, setUrlLoading] = useState(false);
+  const [textLoading, setTextLoading] = useState(false);
+
+  /* -------------------- handlers --------------------- */
+  const handleDocumentSelect = async (file: File) => {
+    if (!receptionistId) return;
+    setIsUploading(true);
+    const { error, data } = await knowledgeService.uploadDocument(receptionistId, file);
+    setIsUploading(false);
+    if (error) return toast.error(error);
+    toast.success(`Added ${data?.chunks_generated ?? 0} chunks from document`);
+  };
+
+  const handleAddDomainUrl = async () => {
+    if (!domainUrl || !receptionistId) return;
+    setUrlLoading(true);
+    const { error, data } = await knowledgeService.scrapeUrl(receptionistId, domainUrl);
+    setUrlLoading(false);
+    if (error) return toast.error(error);
+    toast.success(`Added ${data?.chunks_generated ?? 0} chunks from url`);
+  };
+
+  const handleAddTextKnowledge = async () => {
+    if (!textKnowledge || !receptionistId) return;
+    setTextLoading(true);
+    const { error, data } = await knowledgeService.processText(
+      receptionistId,
+      textKnowledge,
+      'Custom text',
+      'Added via UI'
+    );
+    setTextLoading(false);
+    if (error) return toast.error(error);
+    toast.success(`Added ${data?.chunks_generated ?? 0} text chunks`);
+  };
 
   // Get receptionist data from localStorage or use mock data
   const getReceptionistById = (id: string) => {
@@ -107,52 +147,31 @@ const Knowledge = () => {
     return null;
   }
 
-  const [knowledgeEntries, setKnowledgeEntries] = useState<KnowledgeEntry[]>([
-    {
-      id: '1',
-      type: 'document',
-      name: 'Customer Service Guidelines.pdf',
-      source: 'uploaded',
-      content: 'Comprehensive guidelines for handling customer inquiries, complaints, and providing excellent service standards...',
-      isSelected: true,
-      uploadedAt: '2024-01-15T10:30:00Z',
-      size: '2.4 MB',
-      status: 'processed'
-    },
-    {
-      id: '2',
-      type: 'url',
-      name: 'Company FAQ Page',
-      source: 'https://example.com/faq',
-      content: 'Frequently asked questions about our products and services, including pricing, features, and support information...',
-      isSelected: true,
-      uploadedAt: '2024-01-14T14:20:00Z',
-      size: '1.2 MB',
-      status: 'processed'
-    },
-    {
-      id: '3',
-      type: 'document',
-      name: 'Product Catalog.pdf',
-      source: 'uploaded',
-      content: 'Complete product specifications, pricing, and feature comparisons for all available products and services...',
-      isSelected: false,
-      uploadedAt: '2024-01-12T09:15:00Z',
-      size: '5.1 MB',
-      status: 'processing'
-    },
-    {
-      id: '4',
-      type: 'text',
-      name: 'Business Hours & Contact Info',
-      source: 'text',
-      content: 'We are open Monday through Friday from 9 AM to 6 PM EST. For urgent matters, please call our emergency line at (555) 123-4567.',
-      isSelected: true,
-      uploadedAt: '2024-01-13T16:45:00Z',
-      size: '0.1 KB',
-      status: 'processed'
-    }
-  ]);
+  const [knowledgeEntries, setKnowledgeEntries] = useState<KnowledgeEntry[]>([]);
+
+  // fetch chunks for receptionist
+  useEffect(() => {
+    if (!receptionistId || !user) return;
+    (async () => {
+      const { data, error } = await knowledgeService.listChunks(receptionistId);
+      if (error) {
+        toast.error(error);
+        return;
+      }
+      const mapped: KnowledgeEntry[] = (data?.chunks || []).map((c: any) => ({
+        id: c.id,
+        type: c.source_type,
+        name: c.name,
+        source: c.source_id,
+        content: c.content,
+        isSelected: true,
+        uploadedAt: c.created_at,
+        size: '',
+        status: 'processed',
+      }));
+      setKnowledgeEntries(mapped);
+    })();
+  }, [receptionistId, user]);
 
   const organizationName = user?.organization_name || user?.organizationName || user?.name || 'Your Organization';
 
@@ -193,66 +212,6 @@ const Knowledge = () => {
     setIsUploading(false);
     // Reset file input
     event.target.value = '';
-  };
-
-    const handleAddDomainUrl = () => {
-    if (!domainUrl.trim()) return;
-
-    const newEntry: KnowledgeEntry = {
-      id: Date.now().toString(),
-      type: 'url',
-      name: `Content from ${new URL(domainUrl).hostname}`,
-      source: domainUrl,
-      content: `Web content scraped from ${domainUrl}. This includes pages, articles, and information from the website...`,
-      isSelected: true,
-      uploadedAt: new Date().toISOString(),
-      size: '2.1 MB',
-      status: 'processing'
-    };
-
-    setKnowledgeEntries(prev => [...prev, newEntry]);
-    setDomainUrl('');
-
-    // Simulate processing
-    setTimeout(() => {
-      setKnowledgeEntries(prev => 
-        prev.map(entry => 
-          entry.id === newEntry.id 
-            ? { ...entry, status: 'processed' as const }
-            : entry
-        )
-      );
-    }, 3000);
-  };
-
-  const handleAddTextKnowledge = () => {
-    if (!textKnowledge.trim()) return;
-
-    const newEntry: KnowledgeEntry = {
-      id: Date.now().toString(),
-      type: 'text',
-      name: `Text Knowledge - ${textKnowledge.substring(0, 30)}${textKnowledge.length > 30 ? '...' : ''}`,
-      source: 'text',
-      content: textKnowledge,
-      isSelected: true,
-      uploadedAt: new Date().toISOString(),
-      size: `${(textKnowledge.length / 1024).toFixed(1)} KB`,
-      status: 'processing'
-    };
-
-    setKnowledgeEntries(prev => [...prev, newEntry]);
-    setTextKnowledge('');
-
-    // Simulate processing
-    setTimeout(() => {
-      setKnowledgeEntries(prev => 
-        prev.map(entry => 
-          entry.id === newEntry.id 
-            ? { ...entry, status: 'processed' as const }
-            : entry
-        )
-      );
-    }, 2000);
   };
 
   const toggleKnowledgeSelection = (id: string) => {
@@ -330,8 +289,7 @@ const Knowledge = () => {
       {knowledgeEntries.map((entry) => (
         <Card key={entry.id} className="group hover:shadow-lg transition-shadow flex flex-col">
           <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <div className="flex items-start gap-2">
                 {entry.type === 'document' ? (
                   <FileText className="w-4 h-4 text-blue-500" />
                 ) : entry.type === 'url' ? (
@@ -339,15 +297,14 @@ const Knowledge = () => {
                 ) : (
                   <Type className="w-4 h-4 text-purple-500" />
                 )}
-                <CardTitle className="text-sm font-medium truncate" title={entry.name}>
+                <CardTitle className="text-sm font-medium break-words flex-1" title={entry.name}>
                   {entry.name}
                 </CardTitle>
-              </div>
-              <Switch
-                checked={entry.isSelected}
-                onCheckedChange={() => toggleKnowledgeSelection(entry.id)}
-                className="data-[state=checked]:bg-primary"
-              />
+                <Switch
+                  checked={entry.isSelected}
+                  onCheckedChange={() => toggleKnowledgeSelection(entry.id)}
+                  className="ml-auto flex-shrink-0 data-[state=checked]:bg-primary"
+                />
             </div>
           </CardHeader>
           <CardContent className="pt-0 flex-1 flex flex-col">

@@ -1,13 +1,14 @@
- import React, { useState } from 'react';
+import { AlertCircle, ArrowLeft, Building2, Loader2, Mail, User } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Loader2, Mail, User, Building2, AlertCircle } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 // Using uploaded AI receptionist image
 
 type AuthStep = 'form' | 'otp';
@@ -270,7 +271,7 @@ const Register = () => {
             </h1>
             <p className="text-muted-foreground">
               {currentStep === 'form' 
-                ? "Let's get started. It's totally free." 
+                ? "Let's get started." 
                 : `We've sent a verification code to ${activeTab === 'signup' ? signupData.email : loginData.email}`
               }
             </p>

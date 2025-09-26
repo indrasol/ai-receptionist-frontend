@@ -1,5 +1,6 @@
+import { AuthResponse, User, authService } from '@/services/authService'
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { authService, User, AuthResponse } from '@/services/authService'
+
 import { supabase } from '@/lib/supabase'
 
 interface AuthContextType {
@@ -53,22 +54,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
         setUser(user)
       } else if (authService.isAuthenticated()) {
-        // Fallback to legacy auth service
-        const verifyResult = await authService.verifyToken()
-        
-        if (verifyResult.success) {
-          const userResult = await authService.getCurrentUser()
-          
-          if (userResult.success && userResult.user) {
-            setUser(userResult.user)
-          } else {
-            authService.removeTokens()
-            setUser(null)
-          }
+        // JWT-based auth (OTP flow)
+        const userResult = await authService.getCurrentUser()
+
+        if (userResult.success && userResult.user) {
+          setUser(userResult.user)
         } else {
+          // token invalid
           authService.removeTokens()
           setUser(null)
         }
+      }
+
+      // Final fallback: if still no user but we have JWT, fetch /auth/me
+      if (!user && authService.isAuthenticated()) {
+        const me = await authService.getCurrentUser()
+        if (me.success && me.user) setUser(me.user)
       }
       setLoading(false)
     }
@@ -170,203 +171,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // OTP-based authentication methods
   const sendOTPForSignup = async (email: string, organizationName: string, firstName: string, lastName: string): Promise<AuthResponse> => {
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: email,
-        options: {
-          data: {
-            organization_name: organizationName,
-            first_name: firstName,
-            last_name: lastName,
-            signup_flow: true
-          }
-        }
-      })
-
-      if (error) {
-        return {
-          success: false,
-          error: error.message
-        }
-      }
-
-      return {
-        success: true,
-        message: 'OTP sent successfully! Please check your email.'
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to send OTP'
-      }
-    }
+    return authService.requestEmailOtp(email, organizationName, firstName, lastName)
   }
 
   const sendOTPForLogin = async (email: string): Promise<AuthResponse> => {
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: email,
-        options: {
-          shouldCreateUser: false, // do NOT create a new user on login attempt
-          data: {
-            signup_flow: false
-          }
-        }
-      })
-
-      if (error) {
-        // If the user doesn't exist yet, ask them to sign up first
-        if (error.message?.includes('User not found') || error.code === 'otp_disabled' || error.message?.includes('Signups not allowed for otp')) {
-          return {
-            success: false,
-            error: 'USER_NOT_FOUND',
-            message: 'No account found with this email. Please sign up first.'
-          }
-        }
-
-        return {
-          success: false,
-          error: error.message
-        }
-      }
-
-      return {
-        success: true,
-        message: 'OTP sent successfully! Please check your email.'
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to send OTP'
-      }
-    }
+    return authService.requestEmailOtp(email)
   }
 
   const verifyOTPAndSignup = async (email: string, otp: string, organizationName: string, firstName: string, lastName: string): Promise<AuthResponse> => {
-    try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        email: email,
-        token: otp,
-        type: 'email'
-      })
-
-      if (error) {
-        return {
-          success: false,
-          error: error.message
-        }
-      }
-
-      if (data.user) {
-        // Update user metadata with organization and name info
-        const { error: updateError } = await supabase.auth.updateUser({
-          data: {
-            organization_name: organizationName,
-            first_name: firstName,
-            last_name: lastName,
-            full_name: `${firstName} ${lastName}`
-          }
-        })
-
-        if (updateError) {
-          console.warn('Failed to update user metadata:', updateError)
-        }
-
-        // Create user object
-        const user: User = {
-          id: data.user.id,
-          email: data.user.email || email,
-          name: `${firstName} ${lastName}`,
-          organization_name: organizationName,
-          first_name: firstName,
-          last_name: lastName
-        }
-
-        setUser(user)
-
-        return {
-          success: true,
-          user: user,
-          message: 'Account created and verified successfully!'
-        }
-      }
-
-      return {
-        success: false,
-        error: 'Verification failed'
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'OTP verification failed'
-      }
+    const result = await authService.verifyEmailOtp(email, otp)
+    if (result.success && authService.isAuthenticated()) {
+      const me = await authService.getCurrentUser()
+      if (me.success && me.user) setUser(me.user)
     }
+    return result
   }
 
   const verifyOTPAndLogin = async (email: string, otp: string): Promise<AuthResponse> => {
-    try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        email: email,
-        token: otp,
-        type: 'email'
-      })
-
-      if (error) {
-        // Check if user doesn't exist
-        if (error.message.includes('User not found') || error.message.includes('Invalid login credentials')) {
-          return {
-            success: false,
-            error: 'USER_NOT_FOUND',
-            message: 'No account found with this email. Please sign up first.'
-          }
-        }
-        return {
-          success: false,
-          error: error.message
-        }
-      }
-
-      if (data.user) {
-        // Ensure the user has completed signup_flow (i.e., they actually signed up before)
-        if (!data.user.user_metadata?.signup_flow) {
-          // The user was created via login OTP without proper signup
-          await supabase.auth.signOut() // ensure they are logged out immediately
-          return {
-            success: false,
-            error: 'USER_NOT_FOUND',
-            message: 'No account found with this email. Please sign up first.'
-          }
-        }
-
-        // Create user object from Supabase user data
-        const user: User = {
-          id: data.user.id,
-          email: data.user.email || email,
-          name: data.user.user_metadata?.full_name || data.user.user_metadata?.first_name || 'User',
-          organization_name: data.user.user_metadata?.organization_name,
-          first_name: data.user.user_metadata?.first_name,
-          last_name: data.user.user_metadata?.last_name
-        }
-
-        setUser(user)
-
-        return {
-          success: true,
-          user: user,
-          message: 'Login successful!'
-        }
-      }
-
-      return {
-        success: false,
-        error: 'Login verification failed'
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'OTP verification failed'
-      }
+    const result = await authService.verifyEmailOtp(email, otp)
+    if (result.success && authService.isAuthenticated()) {
+      const me = await authService.getCurrentUser()
+      if (me.success && me.user) setUser(me.user)
     }
+    return result
   }
 
   const value: AuthContextType = {

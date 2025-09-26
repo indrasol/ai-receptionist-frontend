@@ -1,21 +1,7 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { Bot, PhoneCall, FileText, Search, Calendar, Building2, Loader2, AlertCircle } from "lucide-react";
-import { inboundService, InboundCall } from "@/services/inboundService";
-import { useAuth } from "@/contexts/AuthContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { AlertCircle, Bot, Calendar, FileText, Loader2, PhoneCall, Search } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { InboundCall, inboundService } from "@/services/inboundService";
 import {
   Pagination,
   PaginationContent,
@@ -24,11 +10,29 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
 
 const InboundLogs = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   
+  // URL param
+  const { id: receptionistId } = useParams<{ id: string }>();
+
   // API data states
   const [inboundCalls, setInboundCalls] = useState<InboundCall[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,7 +60,11 @@ const InboundLogs = () => {
         setLoading(true);
         setError(null);
         
-        const response = await inboundService.getCalls();
+        if (!receptionistId) {
+          setError('Invalid receptionist id');
+          return;
+        }
+        const response = await inboundService.getCalls(receptionistId);
         
         if (response.success && response.data) {
           setInboundCalls(response.data);
@@ -71,7 +79,7 @@ const InboundLogs = () => {
     };
 
     fetchInboundCalls();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, receptionistId]);
 
   // Helper function to format call time from ISO date
   const formatCallTime = (dateString: string) => {
@@ -133,9 +141,9 @@ const InboundLogs = () => {
   };
 
   // Call resetPagination when filters change
-  useState(() => {
+  useEffect(() => {
     resetPagination();
-  });
+  }, [currentPage, totalPages]);
 
   const handleSummaryClick = async (callId: string) => {
     try {
@@ -156,7 +164,7 @@ const InboundLogs = () => {
           transcript: call.call_transcript || "No transcript available for this call.",
           recordingUrl: call.call_recording_url || undefined
         };
-        navigate(`call-summary/${call.id}`, { state: { resource } });
+        navigate(`./call-summary/${call.id}`, { state: { resource } });
       } else {
         // Show error - could use a toast library here, but for now we'll use alert
         setError(`Failed to load call details: ${response.error}`);
