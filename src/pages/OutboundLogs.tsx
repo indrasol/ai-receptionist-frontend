@@ -1,4 +1,4 @@
-import { AlertCircle, Bot, Building2, CalendarIcon, Circle, Clock, Link2, Loader2, Minus, Phone, PhoneCall, Plus, Search, Upload } from "lucide-react";
+import { AlertCircle, Bot, CalendarIcon, Circle, Clock, Link2, Loader2, Minus, Phone, PhoneCall, Plus, Search, Upload } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Lead, VoiceAssistant, outboundService } from "@/services/outboundService";
@@ -18,6 +18,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import React from "react";
@@ -79,6 +80,13 @@ const CallLogs = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { id: receptionistId } = useParams<{ id: string }>();
+
+  // Quick call modal state
+  const [dialOpen,setDialOpen] = useState(false);
+  const [dialNumber,setDialNumber] = useState("");
+  const [qcFirst,setQcFirst] = useState("");
+  const [qcLast,setQcLast] = useState("");
+  const [qcPhone,setQcPhone] = useState("");
 
   // Google Sheets URL validation function
   const isValidGoogleSheetsUrl = (url: string): boolean => {
@@ -593,6 +601,14 @@ const CallLogs = () => {
     resetPagination();
   });
 
+  const addDigit = (digit: string) => {
+    if (digit === '⌫') {
+      setQcPhone(p => p.slice(0, -1));
+    } else {
+      setQcPhone(p => p + digit);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="space-y-8">
@@ -610,9 +626,9 @@ const CallLogs = () => {
           </div>
         )}
 
-        {/* Top Section - Two Panels */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Upload File Panel */}
+        {/* Top action grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Upload file card – existing markup remains */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -655,7 +671,7 @@ const CallLogs = () => {
             </CardContent>
           </Card>
 
-          {/* Add URL Panel */}
+          {/* Add URL card – existing markup remains */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -694,6 +710,37 @@ const CallLogs = () => {
               </Button>
             </CardContent>
           </Card>
+
+          {/* Quick Call card */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Call</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Input placeholder="First name" value={qcFirst} onChange={e=>setQcFirst(e.target.value)} />
+              <Input placeholder="Last name"  value={qcLast} onChange={e=>setQcLast(e.target.value)} />
+              <Input value={qcPhone} onChange={e=>setQcPhone(e.target.value)} placeholder="+ number" />
+              <div className="grid grid-cols-3 gap-2">
+                {['1','2','3','4','5','6','7','8','9','+','0','⌫'].map(d=>(
+                  <Button key={d} variant="outline" onClick={()=>addDigit(d)}>{d}</Button>
+                ))}
+              </div>
+              {/* Assistant selector hidden for now - using default voice */}
+              <Button disabled={!qcPhone}
+                onClick={async ()=>{
+                  const res = await outboundService.callNumber({receptionist_id: receptionistId!, phone: qcPhone, first_name: qcFirst, last_name: qcLast});
+                  if(res.success){
+                    toast({title:'Call initiated'});
+                    setQcFirst(''); setQcLast(''); setQcPhone('');
+                    loadExistingLeads();
+                  }else{
+                    toast({variant:'destructive', title:'Error', description: res.error});
+                  }
+                }}>
+                Call Now
+              </Button>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Leads Calls Info Table */}
@@ -713,28 +760,11 @@ const CallLogs = () => {
               <div className="flex items-center justify-between">
                 <CardTitle>Leads Outbound Calls Info</CardTitle>
                 <div className="flex items-center gap-3">
-                  <Select value={selectedAssistant} onValueChange={setSelectedAssistant}>
-                    <SelectTrigger className="w-auto min-w-[180px]">
-                      <Bot className="h-4 w-4 mr-2" />
-                      <SelectValue placeholder="Select Assistant" />
-                    </SelectTrigger>
-                    <SelectContent className="min-w-[200px]">
-                      {voiceAssistants && voiceAssistants.length > 0 ? (
-                        voiceAssistants.map((assistant) => (
-                          <SelectItem key={assistant.display_name} value={assistant.display_name}>
-                            <div className="flex flex-col">
-                              <span className="font-medium">{assistant.display_name}</span>
-                              <span className="text-xs text-muted-foreground">{assistant.description}</span>
-                            </div>
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="no-assistants" disabled>
-                          No assistants available
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
+                  {/* Assistant selector hidden for now */}
+                  {/*<Select value={selectedStatus} onValueChange={setSelectedStatus} disabled={loading}>*/}
+                  {/*  ...*/}
+                  {/*</Select>*/}
+                  <input type="hidden" />
                   <Button 
                     onClick={handleCallSelected} 
                     className="flex items-center gap-2"
@@ -989,6 +1019,37 @@ const CallLogs = () => {
               <Button onClick={handleScheduleCall}>
                 Schedule
               </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Quick Call Dialog */}
+        <Dialog open={dialOpen} onOpenChange={setDialOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Quick Call</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3">
+              <Input placeholder="First name" value={qcFirst} onChange={e=>setQcFirst(e.target.value)} />
+              <Input placeholder="Last name" value={qcLast} onChange={e=>setQcLast(e.target.value)} />
+              <div className="border rounded px-3 py-2 text-xl tracking-wider text-center">{dialNumber || '+ number'}</div>
+              <div className="grid grid-cols-3 gap-2">
+                {['1','2','3','4','5','6','7','8','9','+','0','⌫'].map(ch=>(
+                  <Button key={ch} variant="secondary" onClick={()=>{
+                    if(ch==='⌫') setDialNumber(p=>p.slice(0,-1));
+                    else setDialNumber(p=>p+ch);
+                  }}>{ch}</Button>
+                ))}
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="ghost" onClick={()=>setDialOpen(false)}>Cancel</Button>
+              <Button disabled={!dialNumber} onClick={async ()=>{
+                const res = await outboundService.callNumber({phone:dialNumber,firstName:qcFirst,lastName:qcLast,voiceId:selectedAssistant});
+                if(res.success) toast({title:'Call initiated'}); else toast({variant:'destructive',title:'Error',description:res.error});
+                setDialOpen(false);
+                loadExistingLeads();
+              }}>Call Now</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

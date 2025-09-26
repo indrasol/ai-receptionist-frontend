@@ -14,7 +14,7 @@ const sidebarItems = [
   // { icon: Mic, label: 'Voice Routing', path: 'voice-routing' },
   // { icon: Calendar, label: 'Appointments', path: 'appointments' },
   // { icon: BookOpen, label: 'Knowledge Base', path: 'knowledge-base' },
-  { icon: Settings, label: 'Settings', path: 'settings' },
+  // { icon: Settings, label: 'Settings', path: 'settings' },
 ];
 
 const ConsoleLayout = () => {

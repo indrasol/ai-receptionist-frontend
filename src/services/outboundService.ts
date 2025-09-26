@@ -397,6 +397,18 @@ class OutboundService {
       }
     }
   }
+
+  async callNumber(payload:{ receptionist_id:string; phone:string; first_name?:string; last_name?:string }):Promise<ApiResponse<any>>{
+    try{
+      const response = await this.makeRequest(API_ENDPOINTS.OUTBOUND.CALL_NUMBER,{
+        method:'POST',
+        body: JSON.stringify(payload)
+      });
+      return { success:true, data:response };
+    }catch(err){
+      return { success:false, error: err instanceof Error? err.message: 'Failed to call number' };
+    }
+  }
 }
 
 export const outboundService = new OutboundService()

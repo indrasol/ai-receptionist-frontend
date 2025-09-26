@@ -29,6 +29,7 @@ export const API_ENDPOINTS = {
       GET_LEADS: `${API_BASE_URL}/outbound/get_leads`,
       GET_SUMMARY_BY_ID: `${API_BASE_URL}/outbound/get_summary_by_lead_id`,
       CALL_LEADS: `${API_BASE_URL}/outbound/call_leads`,
+      CALL_NUMBER: `${API_BASE_URL}/outbound/call_number`,
       GET_ASSISTANTS: `${API_BASE_URL}/outbound/get_assistants`,
     },
     INBOUND: {
