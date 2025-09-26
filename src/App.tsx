@@ -1,35 +1,35 @@
-
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Layout from "./components/Layout";
-import Home from "./pages/Home";
-import Features from "./pages/Features";
-import Pricing from "./pages/Pricing";
-import WhiteLabel from "./pages/WhiteLabel";
-import Integrations from "./pages/Integrations";
-import Tutorials from "./pages/Tutorials";
-import StartFree from "./pages/StartFree";
+
+import Appointments from "./pages/console/Appointments";
+import CallSummary from "./pages/CallSummary";
+import ConsoleLayout from "./components/console/ConsoleLayout";
 import Contact from "./pages/Contact";
+import Dashboard from "./pages/console/Dashboard";
+import Features from "./pages/Features";
+import ForgotPassword from "./pages/ForgotPassword";
+import Home from "./pages/Home";
+import InboundLogs from "./pages/InboundLogs";
+import Integrations from "./pages/Integrations";
+import Knowledge from "./pages/Knowledge";
+import KnowledgeBase from "./pages/console/KnowledgeBase";
+import Launch from "./pages/Launch";
+import Layout from "./components/Layout";
+import Login from "./pages/Login";
+import { Navigate } from "react-router-dom";
 import NotFound from "./pages/NotFound";
 import Onboard from "./pages/Onboard";
-import ConsoleLayout from "./components/console/ConsoleLayout";
-import Dashboard from "./pages/console/Dashboard";
-import VoiceRouting from "./pages/console/VoiceRouting";
-import Appointments from "./pages/console/Appointments";
-import KnowledgeBase from "./pages/console/KnowledgeBase";
-import Settings from "./pages/console/Settings";
 import OutboundLogs from "./pages/OutboundLogs";
-import InboundLogs from "./pages/InboundLogs";
-import CallSummary from "./pages/CallSummary";
+import Pricing from "./pages/Pricing";
 import Register from "./pages/Register";
-import Login from "./pages/Login";
-import ForgotPassword from "./pages/ForgotPassword";
-import Launch from "./pages/Launch";
-import Knowledge from "./pages/Knowledge";
-import { Navigate } from "react-router-dom";
+import Settings from "./pages/console/Settings";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import StartFree from "./pages/StartFree";
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import Tutorials from "./pages/Tutorials";
+import VoiceRouting from "./pages/console/VoiceRouting";
+import WhiteLabel from "./pages/WhiteLabel";
 
 const queryClient = new QueryClient();
 
@@ -57,7 +57,7 @@ const App = () => (
           <Route path="/out-bound" element={<Layout><OutboundLogs /></Layout>} />
           <Route path="/in-bound" element={<Layout><InboundLogs /></Layout>} />
           <Route path="/call-logs" element={<Navigate to="/out-bound" replace />} />
-          <Route path="/call-summary/:id" element={<Layout><CallSummary /></Layout>} />
+          <Route path="/call-summary/:callId" element={<Layout><CallSummary /></Layout>} />
           
           {/* Onboarding - no main layout */}
           <Route path="/onboard" element={<Onboard />} />
@@ -70,9 +70,9 @@ const App = () => (
             <Route index element={<Dashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="out-bound" element={<OutboundLogs />} />
-            <Route path="out-bound/call-summary/:id" element={<CallSummary />} />
+            <Route path="out-bound/call-summary/:callId" element={<CallSummary />} />
             <Route path="in-bound" element={<InboundLogs />} />
-            <Route path="in-bound/call-summary/:id" element={<CallSummary />} />
+            <Route path="in-bound/call-summary/:callId" element={<CallSummary />} />
             <Route path="voice-routing" element={<VoiceRouting />} />
             <Route path="appointments" element={<Appointments />} />
             <Route path="knowledge-base" element={<KnowledgeBase />} />
@@ -84,9 +84,9 @@ const App = () => (
             <Route index element={<Dashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="out-bound" element={<OutboundLogs />} />
-            <Route path="out-bound/call-summary/:id" element={<CallSummary />} />
+            <Route path="out-bound/call-summary/:callId" element={<CallSummary />} />
             <Route path="in-bound" element={<InboundLogs />} />
-            <Route path="in-bound/call-summary/:id" element={<CallSummary />} />
+            <Route path="in-bound/call-summary/:callId" element={<CallSummary />} />
             <Route path="voice-routing" element={<VoiceRouting />} />
             <Route path="appointments" element={<Appointments />} />
             <Route path="knowledge-base" element={<KnowledgeBase />} />

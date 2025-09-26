@@ -321,11 +321,13 @@ class OutboundService {
     }
   }
 
-  async getLeads(): Promise<ApiResponse<Lead[]>> {
+  async getLeads(receptionistId?: string): Promise<ApiResponse<Lead[]>> {
     try {
-      const response = await this.makeRequest(API_ENDPOINTS.OUTBOUND.GET_LEADS, {
-        method: 'GET',
-      })
+      const url = receptionistId
+        ? `${API_ENDPOINTS.OUTBOUND.GET_LEADS}?receptionist_id=${receptionistId}`
+        : API_ENDPOINTS.OUTBOUND.GET_LEADS
+
+      const response = await this.makeRequest(url, { method: 'GET' })
 
       return {
         success: true,
@@ -380,7 +382,7 @@ class OutboundService {
 
   async getAssistants(): Promise<ApiResponse<GetAssistantsResponse>> {
     try {
-      const response = await this.makeRequest(API_ENDPOINTS.OUTBOUND.GET_ASSISTANTS, {
+      const response = await this.makeRequest(API_ENDPOINTS.RECEPTIONIST.GET_ASSISTANTS, {
         method: 'GET',
       })
 

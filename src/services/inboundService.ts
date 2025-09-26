@@ -123,9 +123,10 @@ class InboundService {
     return data
   }
 
-  async getCalls(): Promise<ApiResponse<InboundCall[]>> {
+  async getCalls(receptionistId: string, page = 1, pageSize = 50): Promise<ApiResponse<InboundCall[]>> {
     try {
-      const response = await this.makeRequest(API_ENDPOINTS.INBOUND.GET_CALLS, {
+      const url = `${API_ENDPOINTS.INBOUND.GET_CALLS}?receptionist_id=${receptionistId}&page=${page}&page_size=${pageSize}`
+      const response = await this.makeRequest(url, {
         method: 'GET',
       })
 

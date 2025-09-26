@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import React from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 interface ProjectResource {
@@ -77,6 +78,7 @@ const CallLogs = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { id: receptionistId } = useParams<{ id: string }>();
 
   // Google Sheets URL validation function
   const isValidGoogleSheetsUrl = (url: string): boolean => {
@@ -96,7 +98,7 @@ const CallLogs = () => {
       }
 
       setIsTableLoading(true);
-      const result = await outboundService.getLeads();
+      const result = await outboundService.getLeads(receptionistId);
       
       if (result.success && result.data) {
         const transformedResources: ProjectResource[] = result.data.map((item: Lead) => ({
@@ -529,7 +531,7 @@ const CallLogs = () => {
   };
 
   const handleSummaryView = (resource: ProjectResource) => {
-    navigate(`call-summary/${resource.id.toString()}`, { 
+    navigate(`./call-summary/${resource.id.toString()}`, { 
       state: { resource } 
     });
   };
