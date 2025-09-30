@@ -167,6 +167,16 @@ class ReceptionistService {
     }
   }
 
+  async getReceptionistById(id: string): Promise<ApiResponse<ReceptionistRecord>> {
+    try {
+      const data = await this.makeRequest(API_ENDPOINTS.RECEPTIONIST.GET_BY_ID(id));
+      return { data, message: 'Successfully fetched receptionist' };
+    } catch (error) {
+      console.error('Error fetching receptionist:', error);
+      return { error: error instanceof Error ? error.message : 'Failed to fetch receptionist' };
+    }
+  }
+
   async createReceptionist(payload: {
     name: string;
     description?: string;

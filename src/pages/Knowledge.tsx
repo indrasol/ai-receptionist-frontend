@@ -34,6 +34,7 @@ import { Progress } from '@/components/ui/progress';
 import { Switch } from '@/components/ui/switch';
 import { knowledgeService } from '@/services/knowledgeService';
 import { motion } from 'framer-motion';
+import { receptionistService } from '@/services/receptionistService';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -66,6 +67,7 @@ const Knowledge = () => {
   // loading states for async actions
   const [urlLoading, setUrlLoading] = useState(false);
   const [textLoading, setTextLoading] = useState(false);
+  const [receptionistLoading, setReceptionistLoading] = useState(true);
 
   /* -------------------- handlers --------------------- */
   const handleDocumentSelect = async (file: File) => {
@@ -100,46 +102,45 @@ const Knowledge = () => {
     toast.success(`Added ${data?.chunks_generated ?? 0} text chunks`);
   };
 
-  // Get receptionist data from localStorage or use mock data
-  const getReceptionistById = (id: string) => {
-    // Try to get from localStorage first (shared with Launch page)
-    const saved = localStorage.getItem('receptionists');
-    let allReceptionists = [];
-    
-    if (saved) {
-      allReceptionists = JSON.parse(saved);
-    } else {
-      // Fallback to mock data
-      allReceptionists = [
-        {
-          id: '1',
-          name: 'Customer Service Bot',
-          description: 'Handles customer inquiries and support requests with friendly, professional responses.',
-          useCase: 'Customer Support',
-        },
-        {
-          id: '2',
-          name: 'Appointment Scheduler',
-          description: 'Manages appointment bookings, cancellations, and reminders for healthcare practices.',
-          useCase: 'Healthcare',
-        }
-      ];
-    }
-    
-    // Find the receptionist by ID
-    const found = allReceptionists.find(r => r.id === id);
-    if (found) return found;
-    
-    // For newly created receptionists that somehow weren't saved, create a placeholder
-    return {
-      id,
-      name: `Receptionist ${id}`,
-      description: 'A newly created AI receptionist',
-      useCase: 'General'
-    };
-  };
+  const [currentReceptionist, setCurrentReceptionist] = useState<any>(null);
 
-  const currentReceptionist = receptionistId ? getReceptionistById(receptionistId) : null;
+  // Fetch receptionist data from API
+  useEffect(() => {
+    const fetchReceptionist = async () => {
+      if (!receptionistId || !user) return;
+      
+      setReceptionistLoading(true);
+      try {
+        const { data, error } = await receptionistService.getReceptionistById(receptionistId);
+        if (error) {
+          toast.error(error);
+          // Fallback to a default name if API fails
+          setCurrentReceptionist({
+            id: receptionistId,
+            name: 'CSA San Francisco Chapter Receptionist',
+            description: 'AI receptionist for CSA San Francisco Chapter',
+            useCase: 'Non-profit Organization'
+          });
+        } else {
+          setCurrentReceptionist(data);
+        }
+      } catch (error) {
+        console.error('Error fetching receptionist:', error);
+        toast.error('Failed to load receptionist information');
+        // Fallback to a default name if API fails
+        setCurrentReceptionist({
+          id: receptionistId,
+          name: 'CSA San Francisco Chapter Receptionist',
+          description: 'AI receptionist for CSA San Francisco Chapter',
+          useCase: 'Non-profit Organization'
+        });
+      } finally {
+        setReceptionistLoading(false);
+      }
+    };
+
+    fetchReceptionist();
+  }, [receptionistId, user]);
 
   // If no receptionist ID is provided, redirect to launch page
   if (!receptionistId) {
