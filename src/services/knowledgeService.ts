@@ -29,13 +29,19 @@ export const knowledgeService = {
     receptionistId: string,
     text: string,
     name: string,
-    description: string
-  ) =>
-    authedFetch(API_ENDPOINTS.KNOWLEDGE.TEXT_PROCESS, {
+    description: string,
+    useAiEnhancement: boolean = true
+  ) => {
+    const endpoint = useAiEnhancement 
+      ? API_ENDPOINTS.KNOWLEDGE.TEXT_PROCESS 
+      : API_ENDPOINTS.KNOWLEDGE.TEXT_PROCESS_SIMPLE;
+    
+    return authedFetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text, name, description, receptionist_id: receptionistId }),
-    }),
+    });
+  },
 
   async listChunks(receptionistId: string) {
     try {
