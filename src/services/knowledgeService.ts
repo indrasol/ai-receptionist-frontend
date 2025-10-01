@@ -101,4 +101,44 @@ export const knowledgeService = {
       return { error: error instanceof Error ? error.message : 'Failed to load chunks' };
     }
   },
+
+  async updateChunk(chunkId: string, updates: any) {
+    try {
+      const data = await authedFetch(API_ENDPOINTS.KNOWLEDGE.UPDATE_CHUNK(chunkId), {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      });
+      return { data };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Failed to update chunk' };
+    }
+  },
+
+  async deleteChunk(chunkId: string) {
+    try {
+      const data = await authedFetch(API_ENDPOINTS.KNOWLEDGE.DELETE_CHUNK(chunkId), {
+        method: "DELETE",
+      });
+      return { data };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Failed to delete chunk' };
+    }
+  },
+
+  async batchToggleChunks(receptionistId: string, chunks: Array<{chunk_id: string, is_attached: boolean}>) {
+    try {
+      const data = await authedFetch(API_ENDPOINTS.KNOWLEDGE.BATCH_TOGGLE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          receptionist_id: receptionistId,
+          chunks: chunks,
+        }),
+      });
+      return { data };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Failed to batch toggle chunks' };
+    }
+  },
 };
