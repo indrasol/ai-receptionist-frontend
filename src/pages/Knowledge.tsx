@@ -211,36 +211,13 @@ const Knowledge = () => {
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (!files) return;
+    if (!files || !receptionistId) return;
 
     setIsUploading(true);
 
-    // Simulate file upload process
+    // Process each file
     for (const file of Array.from(files)) {
-      const newEntry: KnowledgeEntry = {
-        id: Date.now().toString() + Math.random(),
-        type: 'document',
-        name: file.name,
-        source: 'uploaded',
-        content: `Document content from ${file.name}. This file contains important information for the AI receptionist training...`,
-        isSelected: true,
-        uploadedAt: new Date().toISOString(),
-        size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-        status: 'processing'
-      };
-
-      setKnowledgeEntries(prev => [...prev, newEntry]);
-
-      // Simulate processing delay
-      setTimeout(() => {
-        setKnowledgeEntries(prev =>
-          prev.map(entry =>
-            entry.id === newEntry.id
-              ? { ...entry, status: 'processed' as const }
-              : entry
-          )
-        );
-      }, 2000);
+      await handleDocumentSelect(file);
     }
 
     setIsUploading(false);
