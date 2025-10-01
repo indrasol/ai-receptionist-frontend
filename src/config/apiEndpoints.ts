@@ -52,6 +52,9 @@ export const API_ENDPOINTS = {
       TEXT_PROCESS: `${API_BASE_URL}/documents/process-text`,
       TEXT_PROCESS_SIMPLE: `${API_BASE_URL}/documents/process-text-simple`,
       LIST_CHUNKS: (id: string) => `${API_BASE_URL}/chunks/chunks?receptionist_id=${id}`,
+      UPDATE_CHUNK: (id: string) => `${API_BASE_URL}/chunks/chunks/${id}`,
+      DELETE_CHUNK: (id: string) => `${API_BASE_URL}/chunks/chunks/${id}`,
+      BATCH_TOGGLE: `${API_BASE_URL}/chunks/chunks/batch-toggle`,
     },
   };
   

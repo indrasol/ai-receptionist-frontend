@@ -174,6 +174,9 @@ const Knowledge = () => {
   }
 
   const [knowledgeEntries, setKnowledgeEntries] = useState<KnowledgeEntry[]>([]);
+  const [originalToggleStates, setOriginalToggleStates] = useState<Record<string, boolean>>({});
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isUpdatingToggles, setIsUpdatingToggles] = useState(false);
 
   // Function to fetch chunks from API
   const fetchChunks = async () => {
@@ -190,12 +193,20 @@ const Knowledge = () => {
         name: c.name,
         source: c.source_id,
         content: c.content,
-        isSelected: true,
+        isSelected: !c.deleted && c.vapi_file_id != null, // Attached if not deleted AND has vapi_file_id
         uploadedAt: c.created_at,
         size: '',
         status: 'processed',
       }));
       setKnowledgeEntries(mapped);
+      
+      // Store original toggle states
+      const originalStates: Record<string, boolean> = {};
+      mapped.forEach(entry => {
+        originalStates[entry.id] = entry.isSelected;
+      });
+      setOriginalToggleStates(originalStates);
+      setHasUnsavedChanges(false);
     } catch (error) {
       console.error('Error fetching chunks:', error);
       toast.error('Failed to load knowledge entries');
@@ -226,15 +237,67 @@ const Knowledge = () => {
   };
 
   const toggleKnowledgeSelection = (id: string) => {
-    setKnowledgeEntries(prev =>
-      prev.map(entry =>
+    setKnowledgeEntries(prev => {
+      const updated = prev.map(entry =>
         entry.id === id ? { ...entry, isSelected: !entry.isSelected } : entry
-      )
-    );
+      );
+      
+      // Check if there are unsaved changes
+      const hasChanges = updated.some(entry => entry.isSelected !== originalToggleStates[entry.id]);
+      setHasUnsavedChanges(hasChanges);
+      
+      return updated;
+    });
   };
 
-  const removeKnowledgeEntry = (id: string) => {
-    setKnowledgeEntries(prev => prev.filter(entry => entry.id !== id));
+  const handleBatchUpdateToggles = async () => {
+    if (!receptionistId) return;
+    
+    setIsUpdatingToggles(true);
+    
+    // Find all chunks that have changed
+    const changedChunks = knowledgeEntries
+      .filter(entry => entry.isSelected !== originalToggleStates[entry.id])
+      .map(entry => ({
+        chunk_id: entry.id,
+        is_attached: entry.isSelected
+      }));
+    
+    if (changedChunks.length === 0) {
+      toast.info('No changes to update');
+      setIsUpdatingToggles(false);
+      return;
+    }
+    
+    const { error, data } = await knowledgeService.batchToggleChunks(receptionistId, changedChunks);
+    setIsUpdatingToggles(false);
+    
+    if (error) {
+      toast.error(error);
+      return;
+    }
+    
+    // Refresh chunks to get updated state
+    await fetchChunks();
+    
+    toast.success(data?.message || `Updated ${changedChunks.length} chunks`);
+  };
+
+  const removeKnowledgeEntry = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this knowledge entry? This will remove it from the AI assistant.')) {
+      return;
+    }
+    
+    const { error } = await knowledgeService.deleteChunk(id);
+    
+    if (error) {
+      toast.error(error);
+      return;
+    }
+    
+    // Refresh the list
+    await fetchChunks();
+    toast.success('Knowledge entry deleted successfully');
   };
 
   const handleViewContent = (entry: KnowledgeEntry) => {
@@ -250,19 +313,29 @@ const Knowledge = () => {
     setIsContentModalOpen(true);
   };
 
-  const handleSaveContent = () => {
-    if (selectedEntry) {
-      // Update the knowledge entry with edited content
-      setKnowledgeEntries(prev => 
-        prev.map(entry => 
-          entry.id === selectedEntry.id 
-            ? { ...entry, content: editContent }
-            : entry
-        )
-      );
-      setIsEditMode(false);
-      console.log('Content saved for entry:', selectedEntry.id);
+  const handleSaveContent = async () => {
+    if (!selectedEntry) return;
+    
+    // Update via API
+    const { error } = await knowledgeService.updateChunk(selectedEntry.id, {
+      content: editContent
+    });
+    
+    if (error) {
+      toast.error(error);
+      return;
     }
+    
+    // Update local state
+    setKnowledgeEntries(prev => 
+      prev.map(entry => 
+        entry.id === selectedEntry.id 
+          ? { ...entry, content: editContent }
+          : entry
+      )
+    );
+    setIsEditMode(false);
+    toast.success('Content updated and synced with AI');
   };
 
   const selectedCount = knowledgeEntries.filter(entry => entry.isSelected).length;
@@ -637,22 +710,25 @@ const Knowledge = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <Button
-                      onClick={() => {
-                        // Update the training with selected knowledge sources
-                        const selectedEntries = knowledgeEntries.filter(e => e.isSelected);
-                        console.log('Updating training with selected sources:', selectedEntries);
-                        console.log(`Training updated with ${selectedEntries.length} sources and ${selectedEntries.reduce((total, entry) => total + (entry.content?.length || 0), 0).toLocaleString()} characters`);
-                        // Here you would typically make an API call to update the training
-                        // For now, we'll show a success indication
-                        alert(`Training updated successfully with ${selectedEntries.length} selected sources!`);
-                      }}
-                      disabled={selectedCount === 0}
+                      onClick={handleBatchUpdateToggles}
+                      disabled={!hasUnsavedChanges || isUpdatingToggles}
                       size="sm"
-                      className="h-8"
-                      title="Update training with selected sources"
+                      className={`h-8 ${hasUnsavedChanges ? 'bg-orange-600 hover:bg-orange-700' : ''}`}
+                      title={hasUnsavedChanges ? "Save toggle changes and sync with AI" : "No changes to update"}
                     >
-                      <RefreshCw className="w-4 h-4 mr-1" />
-                      <span className="hidden sm:inline">Update</span>
+                      {isUpdatingToggles ? (
+                        <RefreshCw className="w-4 h-4 mr-1 animate-spin" />
+                      ) : (
+                        <RefreshCw className="w-4 h-4 mr-1" />
+                      )}
+                      <span className="hidden sm:inline">
+                        {hasUnsavedChanges ? 'Update' : 'Update'}
+                      </span>
+                      {hasUnsavedChanges && (
+                        <span className="ml-1 bg-white text-orange-600 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                          !
+                        </span>
+                      )}
                     </Button>
                     <div className="flex border rounded-md">
                       <Button
