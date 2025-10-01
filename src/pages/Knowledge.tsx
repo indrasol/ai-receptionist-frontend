@@ -34,6 +34,7 @@ import { Progress } from '@/components/ui/progress';
 import { Switch } from '@/components/ui/switch';
 import { knowledgeService } from '@/services/knowledgeService';
 import { motion } from 'framer-motion';
+import { receptionistService } from '@/services/receptionistService';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -66,6 +67,10 @@ const Knowledge = () => {
   // loading states for async actions
   const [urlLoading, setUrlLoading] = useState(false);
   const [textLoading, setTextLoading] = useState(false);
+  const [receptionistLoading, setReceptionistLoading] = useState(true);
+  
+  // AI enhancement disabled for now due to issues
+  const useAiEnhancement = false;
 
   /* -------------------- handlers --------------------- */
   const handleDocumentSelect = async (file: File) => {
@@ -74,7 +79,12 @@ const Knowledge = () => {
     const { error, data } = await knowledgeService.uploadDocument(receptionistId, file);
     setIsUploading(false);
     if (error) return toast.error(error);
-    toast.success(`Added ${data?.chunks_generated ?? 0} chunks from document`);
+    
+    // Refresh the chunks list to show newly added chunks
+    await fetchChunks();
+    
+    // Use the API response message
+    toast.success(data?.message || `Added ${data?.chunks_generated ?? 0} chunks from document`);
   };
 
   const handleAddDomainUrl = async () => {
@@ -83,7 +93,15 @@ const Knowledge = () => {
     const { error, data } = await knowledgeService.scrapeUrl(receptionistId, domainUrl);
     setUrlLoading(false);
     if (error) return toast.error(error);
-    toast.success(`Added ${data?.chunks_generated ?? 0} chunks from url`);
+    
+    // Refresh the chunks list to show newly added chunks
+    await fetchChunks();
+    
+    // Clear the URL field after successful addition
+    setDomainUrl('');
+    
+    // Use the API response message
+    toast.success(data?.message || `Added ${data?.chunks_generated ?? 0} chunks from URL`);
   };
 
   const handleAddTextKnowledge = async () => {
@@ -93,53 +111,61 @@ const Knowledge = () => {
       receptionistId,
       textKnowledge,
       'Custom text',
-      'Added via UI'
+      'Added via UI',
+      useAiEnhancement
     );
     setTextLoading(false);
     if (error) return toast.error(error);
-    toast.success(`Added ${data?.chunks_generated ?? 0} text chunks`);
+    
+    // Fix 1: Refresh the chunks list to show newly added chunk
+    await fetchChunks();
+    
+    // Fix 2: Clear the text field after successful addition
+    setTextKnowledge('');
+    
+    // Fix 3: Use the API response message instead of custom message
+    toast.success(data?.message || 'Knowledge added successfully');
   };
 
-  // Get receptionist data from localStorage or use mock data
-  const getReceptionistById = (id: string) => {
-    // Try to get from localStorage first (shared with Launch page)
-    const saved = localStorage.getItem('receptionists');
-    let allReceptionists = [];
-    
-    if (saved) {
-      allReceptionists = JSON.parse(saved);
-    } else {
-      // Fallback to mock data
-      allReceptionists = [
-        {
-          id: '1',
-          name: 'Customer Service Bot',
-          description: 'Handles customer inquiries and support requests with friendly, professional responses.',
-          useCase: 'Customer Support',
-        },
-        {
-          id: '2',
-          name: 'Appointment Scheduler',
-          description: 'Manages appointment bookings, cancellations, and reminders for healthcare practices.',
-          useCase: 'Healthcare',
+  const [currentReceptionist, setCurrentReceptionist] = useState<any>(null);
+
+  // Fetch receptionist data from API
+  useEffect(() => {
+    const fetchReceptionist = async () => {
+      if (!receptionistId || !user) return;
+      
+      setReceptionistLoading(true);
+      try {
+        const { data, error } = await receptionistService.getReceptionistById(receptionistId);
+        if (error) {
+          toast.error(error);
+          // Fallback to a default name if API fails
+          setCurrentReceptionist({
+            id: receptionistId,
+            name: 'CSA San Francisco Chapter Receptionist',
+            description: 'AI receptionist for CSA San Francisco Chapter',
+            useCase: 'Non-profit Organization'
+          });
+        } else {
+          setCurrentReceptionist(data);
         }
-      ];
-    }
-    
-    // Find the receptionist by ID
-    const found = allReceptionists.find(r => r.id === id);
-    if (found) return found;
-    
-    // For newly created receptionists that somehow weren't saved, create a placeholder
-    return {
-      id,
-      name: `Receptionist ${id}`,
-      description: 'A newly created AI receptionist',
-      useCase: 'General'
+      } catch (error) {
+        console.error('Error fetching receptionist:', error);
+        toast.error('Failed to load receptionist information');
+        // Fallback to a default name if API fails
+        setCurrentReceptionist({
+          id: receptionistId,
+          name: 'CSA San Francisco Chapter Receptionist',
+          description: 'AI receptionist for CSA San Francisco Chapter',
+          useCase: 'Non-profit Organization'
+        });
+      } finally {
+        setReceptionistLoading(false);
+      }
     };
-  };
 
-  const currentReceptionist = receptionistId ? getReceptionistById(receptionistId) : null;
+    fetchReceptionist();
+  }, [receptionistId, user]);
 
   // If no receptionist ID is provided, redirect to launch page
   if (!receptionistId) {
@@ -149,10 +175,10 @@ const Knowledge = () => {
 
   const [knowledgeEntries, setKnowledgeEntries] = useState<KnowledgeEntry[]>([]);
 
-  // fetch chunks for receptionist
-  useEffect(() => {
+  // Function to fetch chunks from API
+  const fetchChunks = async () => {
     if (!receptionistId || !user) return;
-    (async () => {
+    try {
       const { data, error } = await knowledgeService.listChunks(receptionistId);
       if (error) {
         toast.error(error);
@@ -170,43 +196,28 @@ const Knowledge = () => {
         status: 'processed',
       }));
       setKnowledgeEntries(mapped);
-    })();
+    } catch (error) {
+      console.error('Error fetching chunks:', error);
+      toast.error('Failed to load knowledge entries');
+    }
+  };
+
+  // fetch chunks for receptionist
+  useEffect(() => {
+    fetchChunks();
   }, [receptionistId, user]);
 
   const organizationName = user?.organization_name || user?.organizationName || user?.name || 'Your Organization';
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (!files) return;
+    if (!files || !receptionistId) return;
 
     setIsUploading(true);
 
-    // Simulate file upload process
+    // Process each file
     for (const file of Array.from(files)) {
-      const newEntry: KnowledgeEntry = {
-        id: Date.now().toString() + Math.random(),
-        type: 'document',
-        name: file.name,
-        source: 'uploaded',
-        content: `Document content from ${file.name}. This file contains important information for the AI receptionist training...`,
-        isSelected: true,
-        uploadedAt: new Date().toISOString(),
-        size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-        status: 'processing'
-      };
-
-      setKnowledgeEntries(prev => [...prev, newEntry]);
-
-      // Simulate processing delay
-      setTimeout(() => {
-        setKnowledgeEntries(prev =>
-          prev.map(entry =>
-            entry.id === newEntry.id
-              ? { ...entry, status: 'processed' as const }
-              : entry
-          )
-        );
-      }, 2000);
+      await handleDocumentSelect(file);
     }
 
     setIsUploading(false);
@@ -465,6 +476,19 @@ const Knowledge = () => {
                       </p>
                     </label>
                   </div>
+                  
+                  {/* Processing Info */}
+                  <div className="p-3 bg-muted/50 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div>
+                        <p className="text-sm font-medium">Automatic Reading</p>
+                        <p className="text-xs text-muted-foreground">
+                          Your documents are automatically read and organized so the AI can understand them better
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -492,6 +516,20 @@ const Knowledge = () => {
                       onChange={(e) => setDomainUrl(e.target.value)}
                     />
                   </div>
+                  
+                  {/* Website Reading Info */}
+                  <div className="p-3 bg-muted/50 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div>
+                        <p className="text-sm font-medium">Smart Reading</p>
+                        <p className="text-xs text-muted-foreground">
+                          Automatically reads and learns from your website content to help answer questions
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
                   <Button
                     onClick={handleAddDomainUrl}
                     className="w-full"
@@ -527,6 +565,8 @@ const Knowledge = () => {
                       onChange={(e) => setTextKnowledge(e.target.value)}
                     />
                   </div>
+                  
+                  
                   <Button
                     onClick={handleAddTextKnowledge}
                     className="w-full"

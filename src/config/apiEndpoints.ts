@@ -42,6 +42,7 @@ export const API_ENDPOINTS = {
       GET_PHONE_NUMBERS: `${API_BASE_URL}/create_receptionist/get_available_phoneNumber`,
       CREATE: `${API_BASE_URL}/create_receptionist/`,
       GET_RECEPTIONISTS: `${API_BASE_URL}/create_receptionist/get_receptionists`,
+      GET_BY_ID: (id: string) => `${API_BASE_URL}/receptionists/${id}`,
       DELETE: (id: string) => `${API_BASE_URL}/create_receptionist/${id}`,
       UPDATE: (id: string) => `${API_BASE_URL}/create_receptionist/${id}`,
     },
@@ -49,6 +50,7 @@ export const API_ENDPOINTS = {
       DOC_UPLOAD: `${API_BASE_URL}/documents/process-document`,
       URL_SCRAPE: `${API_BASE_URL}/scraper/scrape-url`,
       TEXT_PROCESS: `${API_BASE_URL}/documents/process-text`,
+      TEXT_PROCESS_SIMPLE: `${API_BASE_URL}/documents/process-text-simple`,
       LIST_CHUNKS: (id: string) => `${API_BASE_URL}/chunks/chunks?receptionist_id=${id}`,
     },
   };
