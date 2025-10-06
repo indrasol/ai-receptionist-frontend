@@ -58,12 +58,12 @@ export const knowledgeService = {
 
   async scrapeUrl(receptionistId: string, url: string) {
     try {
-      const data = await authedFetch(API_ENDPOINTS.KNOWLEDGE.URL_SCRAPE, {
+      const { data } = await authedFetch(API_ENDPOINTS.KNOWLEDGE.URL_SCRAPE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url, receptionist_id: receptionistId }),
       });
-      return { data };
+      return { data }; // note: backend now returns {task_id,status}
     } catch (error) {
       return { error: error instanceof Error ? error.message : 'Failed to scrape URL' };
     }

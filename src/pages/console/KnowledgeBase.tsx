@@ -1,19 +1,62 @@
-
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { AlertCircle, CheckCircle, Clock, Download, FileText, Link, Trash2, Upload } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useCallback, useEffect, useState } from 'react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import { Upload, FileText, Link, Trash2, Download, CheckCircle, AlertCircle, Clock } from 'lucide-react';
-import { mockDocuments } from '@/data/mockData';
+import { knowledgeService } from '@/services/knowledgeService';
+import { motion } from 'framer-motion';
+
+interface Chunk {
+  id: string;
+  name: string;
+  source_type: 'website' | 'file' | 'text';
+  source_id: string;
+  content: string;
+  description?: string;
+  created_at?: string;
+}
+
+interface FetchState {
+  chunks: Chunk[];
+  loading: boolean;
+  error?: string;
+}
+
+interface DocumentItem {
+  id: string;
+  name: string;
+  size?: string;
+  uploadedAt?: string;
+  status?: string;
+}
+
+const documents: DocumentItem[] = []; // Placeholder until document upload integration
+
+// Placeholder receptionistId – in a real console route this should come from router params or context
+const receptionistId = '';
 
 const KnowledgeBase = () => {
   const [dragActive, setDragActive] = useState(false);
   const [newUrl, setNewUrl] = useState('');
+  const [state, setState] = useState<FetchState>({ chunks: [], loading: true });
+
+  const fetchChunks = useCallback(async () => {
+    setState((s) => ({ ...s, loading: true }));
+    const { data, error } = await knowledgeService.listChunks(receptionistId);
+    if (error) {
+      setState({ chunks: [], loading: false, error });
+    } else {
+      setState({ chunks: data?.chunks || [], loading: false });
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchChunks();
+  }, [fetchChunks]);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -62,8 +105,11 @@ const KnowledgeBase = () => {
     }
   };
 
-  const documents = mockDocuments.filter(doc => doc.type !== 'url');
-  const urls = mockDocuments.filter(doc => doc.type === 'url');
+  const urls = state.chunks.filter((c) => c.source_type === 'website');
+
+  const totalSources = documents.length + urls.length;
+  const readyCount = urls.length; // For now all fetched chunks are considered ready
+  const processingCount = 0; // Could be derived from chunk metadata later
 
   return (
     <div className="space-y-6">
@@ -91,7 +137,7 @@ const KnowledgeBase = () => {
               <CardTitle className="text-base">Total Sources</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{mockDocuments.length}</div>
+              <div className="text-2xl font-bold">{totalSources}</div>
               <p className="text-xs text-gray-500">documents & URLs</p>
             </CardContent>
           </Card>
@@ -108,7 +154,7 @@ const KnowledgeBase = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">
-                {mockDocuments.filter(doc => doc.status === 'ready').length}
+                {readyCount}
               </div>
               <p className="text-xs text-gray-500">processed & searchable</p>
             </CardContent>
@@ -126,7 +172,7 @@ const KnowledgeBase = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-yellow-600">
-                {mockDocuments.filter(doc => doc.status === 'processing').length}
+                {processingCount}
               </div>
               <p className="text-xs text-gray-500">being vectorized</p>
             </CardContent>
@@ -271,16 +317,19 @@ const KnowledgeBase = () => {
                       <Link className="w-8 h-8 text-green-500" />
                       <div>
                         <p className="font-medium">{url.name}</p>
-                        <p className="text-sm text-gray-500">{url.url}</p>
-                        <p className="text-xs text-gray-400">
-                          Added {new Date(url.uploadedAt).toLocaleDateString()}
-                        </p>
+                        <p className="text-sm text-gray-500 truncate max-w-xs">{url.source_id}</p>
+                        {url.created_at && (
+                          <p className="text-xs text-gray-400">
+                            Added {new Date(url.created_at).toLocaleDateString()}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <Badge variant={getStatusColor(url.status)} className="flex items-center gap-1">
-                        {getStatusIcon(url.status)}
-                        {url.status}
+                      {/* All chunks considered ready */}
+                      <Badge variant="default" className="flex items-center gap-1">
+                        {getStatusIcon('ready')}
+                        ready
                       </Badge>
                       <div className="flex space-x-1">
                         <Button variant="ghost" size="sm">

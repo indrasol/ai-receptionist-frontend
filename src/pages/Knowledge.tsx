@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -31,12 +31,14 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
+import { ProgressPanel } from '@/components/ProgressPanel';
 import { Switch } from '@/components/ui/switch';
 import { knowledgeService } from '@/services/knowledgeService';
 import { motion } from 'framer-motion';
 import { receptionistService } from '@/services/receptionistService';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { useScrapeTask } from '@/hooks/useScrapeTask';
 
 interface KnowledgeEntry {
   id: string;
@@ -64,10 +66,16 @@ const Knowledge = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editContent, setEditContent] = useState('');
   const [isTrainingModalOpen, setIsTrainingModalOpen] = useState(false);
-  // loading states for async actions
-  const [urlLoading, setUrlLoading] = useState(false);
-  const [textLoading, setTextLoading] = useState(false);
   const [receptionistLoading, setReceptionistLoading] = useState(true);
+  const [textLoading, setTextLoading] = useState(false);
+  const [knowledgeEntries, setKnowledgeEntries] = useState<KnowledgeEntry[]>([]);
+  const [originalToggleStates, setOriginalToggleStates] = useState<Record<string, boolean>>({});
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isUpdatingToggles, setIsUpdatingToggles] = useState(false);
+  const [currentReceptionist, setCurrentReceptionist] = useState<any>(null);
+
+  // Hook to track background scrape task and live logs
+  const { task, logs, startScrape, clearTask } = useScrapeTask(receptionistId);
   
   // AI enhancement disabled for now due to issues
   const useAiEnhancement = false;
@@ -87,21 +95,10 @@ const Knowledge = () => {
     toast.success(data?.message || `Added ${data?.chunks_generated ?? 0} chunks from document`);
   };
 
-  const handleAddDomainUrl = async () => {
-    if (!domainUrl || !receptionistId) return;
-    setUrlLoading(true);
-    const { error, data } = await knowledgeService.scrapeUrl(receptionistId, domainUrl);
-    setUrlLoading(false);
-    if (error) return toast.error(error);
-    
-    // Refresh the chunks list to show newly added chunks
-    await fetchChunks();
-    
-    // Clear the URL field after successful addition
+  const handleAddDomainUrl = () => {
+    if (!domainUrl.trim()) return;
+    startScrape(domainUrl);
     setDomainUrl('');
-    
-    // Use the API response message
-    toast.success(data?.message || `Added ${data?.chunks_generated ?? 0} chunks from URL`);
   };
 
   const handleAddTextKnowledge = async () => {
@@ -126,8 +123,6 @@ const Knowledge = () => {
     // Fix 3: Use the API response message instead of custom message
     toast.success(data?.message || 'Knowledge added successfully');
   };
-
-  const [currentReceptionist, setCurrentReceptionist] = useState<any>(null);
 
   // Fetch receptionist data from API
   useEffect(() => {
@@ -173,13 +168,8 @@ const Knowledge = () => {
     return null;
   }
 
-  const [knowledgeEntries, setKnowledgeEntries] = useState<KnowledgeEntry[]>([]);
-  const [originalToggleStates, setOriginalToggleStates] = useState<Record<string, boolean>>({});
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [isUpdatingToggles, setIsUpdatingToggles] = useState(false);
-
   // Function to fetch chunks from API
-  const fetchChunks = async () => {
+  const fetchChunks = useCallback(async () => {
     if (!receptionistId || !user) return;
     try {
       const { data, error } = await knowledgeService.listChunks(receptionistId);
@@ -211,14 +201,12 @@ const Knowledge = () => {
       console.error('Error fetching chunks:', error);
       toast.error('Failed to load knowledge entries');
     }
-  };
+  }, [receptionistId, user]);
 
   // fetch chunks for receptionist
   useEffect(() => {
     fetchChunks();
-  }, [receptionistId, user]);
-
-  const organizationName = user?.organization_name || user?.organizationName || user?.name || 'Your Organization';
+  }, [fetchChunks]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -603,14 +591,61 @@ const Knowledge = () => {
                     </div>
                   </div>
                   
-                  <Button
-                    onClick={handleAddDomainUrl}
-                    className="w-full"
-                    disabled={!domainUrl.trim()}
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add URL
-                  </Button>
+                  <div className="space-y-2">
+                    <Button
+                      onClick={handleAddDomainUrl}
+                      className="w-full"
+                      disabled={!domainUrl.trim() || (task && task.status !== 'completed' && task.status !== 'failed')}
+                    >
+                      {task && task.status !== 'completed' && task.status !== 'failed' ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Scraping in progress...
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add URL
+                        </>
+                      )}
+                    </Button>
+                    
+                    {/* Debug section - always visible */}
+                    <div className="p-2 bg-gray-50 rounded text-xs">
+                      <div className="flex justify-between items-center">
+                        <span>Task Status: {task ? `${task.id} (${task.status})` : 'None'}</span>
+                        <Button 
+                          onClick={clearTask}
+                          size="sm"
+                          variant="outline"
+                          className="text-red-600 hover:text-red-700 border-red-300"
+                        >
+                          Clear Task
+                        </Button>
+                      </div>
+                      <div className="text-gray-500 mt-1">
+                        Logs: {logs.length} | LocalStorage: {localStorage.getItem("SCRAPE_TASK_ID") || 'None'}
+                      </div>
+                    </div>
+                  </div>
+                  {task && task.status !== 'completed' && task.status !== 'failed' && (
+                    <div className="mt-4">
+                      <ProgressPanel logs={logs} />
+                      <div className="mt-2 flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">
+                          Task ID: {task.id}
+                        </span>
+                        <Button 
+                          onClick={clearTask}
+                          size="sm"
+                          variant="outline"
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          Clear Task
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
