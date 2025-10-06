@@ -33,6 +33,37 @@ import WhiteLabel from "./pages/WhiteLabel";
 
 const queryClient = new QueryClient();
 
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+  }
+}
+
+function App() {
+  const location = useLocation();
+
+  // Track page view on route change
+  useEffect(() => {
+    if (window.gtag) {
+      window.gtag('config', 'G-XQZTDC47SR', {
+        page_path: location.pathname,
+      });
+    }
+  }, [location]);
+
+  return (
+    <div>
+      {/* Your app content / Routes */}
+    </div>
+  );
+}
+
+export default App;
+
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
