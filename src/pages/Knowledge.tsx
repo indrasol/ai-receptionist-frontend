@@ -38,7 +38,7 @@ import { motion } from 'framer-motion';
 import { receptionistService } from '@/services/receptionistService';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { useScrapeTask } from '@/hooks/useScrapeTask';
+import { useScrapeContext } from '@/contexts/ScrapeContext';
 
 interface KnowledgeEntry {
   id: string;
@@ -75,7 +75,7 @@ const Knowledge = () => {
   const [currentReceptionist, setCurrentReceptionist] = useState<any>(null);
 
   // Hook to track background scrape task and live logs
-  const { task, logs, startScrape, clearTask } = useScrapeTask(receptionistId);
+  const { task, logs, startScrape, clearTask, setReceptionistId } = useScrapeContext();
   
   // AI enhancement disabled for now due to issues
   const useAiEnhancement = false;
@@ -96,10 +96,24 @@ const Knowledge = () => {
   };
 
   const handleAddDomainUrl = () => {
-    if (!domainUrl.trim()) return;
+    if (!domainUrl.trim() || !receptionistId) return;
     startScrape(domainUrl);
-    setDomainUrl('');
+    // Don't clear immediately to prevent boxes from changing, will clear when task completes
   };
+
+  // Set receptionist ID in context when available
+  useEffect(() => {
+    if (receptionistId) {
+      setReceptionistId(receptionistId);
+    }
+  }, [receptionistId, setReceptionistId]);
+
+  // Clear URL when scraping completes
+  useEffect(() => {
+    if (task && (task.status === 'completed' || task.status === 'failed')) {
+      setDomainUrl('');
+    }
+  }, [task]);
 
   const handleAddTextKnowledge = async () => {
     if (!textKnowledge || !receptionistId) return;
@@ -168,6 +182,22 @@ const Knowledge = () => {
     return null;
   }
 
+  // Function to map API source_type to frontend type
+  const mapSourceTypeToType = (sourceType: string): 'document' | 'url' | 'text' => {
+    switch (sourceType) {
+      case 'file':
+      case 'document':
+        return 'document';
+      case 'website':
+      case 'url':
+        return 'url';
+      case 'text':
+      case 'custom':
+      default:
+        return 'text';
+    }
+  };
+
   // Function to fetch chunks from API
   const fetchChunks = useCallback(async () => {
     if (!receptionistId || !user) return;
@@ -177,17 +207,22 @@ const Knowledge = () => {
         toast.error(error);
         return;
       }
-      const mapped: KnowledgeEntry[] = (data?.chunks || []).map((c: any) => ({
-        id: c.id,
-        type: c.source_type,
-        name: c.name,
-        source: c.source_id,
-        content: c.content,
-        isSelected: !c.deleted && c.vapi_file_id != null, // Attached if not deleted AND has vapi_file_id
-        uploadedAt: c.created_at,
-        size: '',
-        status: 'processed',
-      }));
+      const mapped: KnowledgeEntry[] = (data?.chunks || []).map((c: any) => {
+        // Debug logging to see what source_type values we're getting
+        console.log('API chunk:', { id: c.id, source_type: c.source_type, name: c.name });
+        
+        return {
+          id: c.id,
+          type: mapSourceTypeToType(c.source_type),
+          name: c.name,
+          source: c.source_id,
+          content: c.content,
+          isSelected: !c.deleted && c.vapi_file_id != null, // Attached if not deleted AND has vapi_file_id
+          uploadedAt: c.created_at,
+          size: '',
+          status: 'processed',
+        };
+      });
       setKnowledgeEntries(mapped);
       
       // Store original toggle states
@@ -330,30 +365,41 @@ const Knowledge = () => {
 
   // Calculate progress based on selected entries
   const totalCount = knowledgeEntries.length;
-  const progressPercentage = totalCount > 0 ? Math.round((selectedCount / totalCount) * 100) : 0;
+  const selectionProgressPercentage = totalCount > 0 ? Math.round((selectedCount / totalCount) * 100) : 0;
 
   // Calculate total character count from all knowledge entries
   const totalCharacters = knowledgeEntries.reduce((total, entry) => {
     return total + (entry.content ? entry.content.length : 0);
   }, 0);
 
-  // Handle refresh when all entries are selected (100% progress)
-  useEffect(() => {
-    if (progressPercentage === 100 && totalCount > 0 && selectedCount === totalCount && !isRefreshing) {
-      const timer = setTimeout(() => {
-        setIsRefreshing(true);
-        // Simulate content refresh and training completion
-        setTimeout(() => {
-          setIsRefreshing(false);
-          // Here you could trigger actual content refresh logic
-          console.log('Knowledge base training completed and refreshed!');
-          console.log(`Training completed with ${selectedCount} sources and ${totalCharacters.toLocaleString()} characters`);
-        }, 2000);
-      }, 500);
+  // Calculate progress based on character usage (for display)
+  const characterProgressPercentage = Math.min(100, (totalCharacters / 1000000) * 100);
+  
+  // Format percentage with appropriate decimal places
+  const formatPercentage = (percentage: number) => {
+    if (percentage === 0) return '0';
+    if (percentage < 1) return percentage.toFixed(2);
+    if (percentage < 10) return percentage.toFixed(1);
+    return Math.round(percentage).toString();
+  };
+
+  // Handle refresh when all entries are selected (100% progress) - DISABLED for character-based progress
+  // useEffect(() => {
+  //   if (selectionProgressPercentage === 100 && totalCount > 0 && selectedCount === totalCount && !isRefreshing) {
+  //     const timer = setTimeout(() => {
+  //       setIsRefreshing(true);
+  //       // Simulate content refresh and training completion
+  //       setTimeout(() => {
+  //         setIsRefreshing(false);
+  //         // Here you could trigger actual content refresh logic
+  //         console.log('Knowledge base training completed and refreshed!');
+  //         console.log(`Training completed with ${selectedCount} sources and ${totalCharacters.toLocaleString()} characters`);
+  //       }, 2000);
+  //     }, 500);
       
-      return () => clearTimeout(timer);
-    }
-  }, [progressPercentage, totalCount, selectedCount, totalCharacters, isRefreshing]);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [selectionProgressPercentage, totalCount, selectedCount, totalCharacters, isRefreshing]);
 
   // Grid View Component
   const renderGridView = () => (
@@ -609,43 +655,7 @@ const Knowledge = () => {
                         </>
                       )}
                     </Button>
-                    
-                    {/* Debug section - always visible */}
-                    <div className="p-2 bg-gray-50 rounded text-xs">
-                      <div className="flex justify-between items-center">
-                        <span>Task Status: {task ? `${task.id} (${task.status})` : 'None'}</span>
-                        <Button 
-                          onClick={clearTask}
-                          size="sm"
-                          variant="outline"
-                          className="text-red-600 hover:text-red-700 border-red-300"
-                        >
-                          Clear Task
-                        </Button>
-                      </div>
-                      <div className="text-gray-500 mt-1">
-                        Logs: {logs.length} | LocalStorage: {localStorage.getItem("SCRAPE_TASK_ID") || 'None'}
-                      </div>
-                    </div>
                   </div>
-                  {task && task.status !== 'completed' && task.status !== 'failed' && (
-                    <div className="mt-4">
-                      <ProgressPanel logs={logs} />
-                      <div className="mt-2 flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">
-                          Task ID: {task.id}
-                        </span>
-                        <Button 
-                          onClick={clearTask}
-                          size="sm"
-                          variant="outline"
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          Clear Task
-                        </Button>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </CardContent>
             </Card>
@@ -714,28 +724,23 @@ const Knowledge = () => {
                       <div className="flex items-center gap-3 flex-1 max-w-md">
                         <div className="flex-1">
                           <Progress 
-                            value={progressPercentage} 
+                            value={characterProgressPercentage} 
                             className="h-2 bg-muted"
                           />
                         </div>
                         <div className="flex items-center gap-3 text-sm font-medium">
-                          {isRefreshing ? (
-                            <>
-                              <RefreshCw className="w-4 h-4 animate-spin text-primary" />
-                              <span className="text-primary">Training...</span>
-                            </>
-                          ) : selectedCount === 0 ? (
-                            <span className="text-yellow-600 text-xs">Select sources to begin training</span>
-                          ) : (
-                            <>
-                              <span className={progressPercentage === 100 ? "text-green-600" : "text-primary"}>
-                                {progressPercentage}%
-                              </span>
-                              {progressPercentage === 100 && (
-                                <span className="text-green-600 text-xs ml-1">Training Complete!</span>
-                              )}
-                            </>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {isRefreshing && <RefreshCw className="w-3 h-3 animate-spin text-primary" />}
+                            <span className={characterProgressPercentage >= 100 ? "text-red-600" : characterProgressPercentage > 80 ? "text-yellow-600" : "text-primary"}>
+                              {formatPercentage(characterProgressPercentage)}%
+                            </span>
+                            {characterProgressPercentage >= 100 && (
+                              <span className="text-red-600 text-xs ml-1">Limit Reached!</span>
+                            )}
+                            {isRefreshing && (
+                              <span className="text-primary text-xs ml-1">Training...</span>
+                            )}
+                          </div>
                           <span className="text-muted-foreground text-xs">
                             ({totalCharacters.toLocaleString()}/1,000,000) characters
                           </span>
