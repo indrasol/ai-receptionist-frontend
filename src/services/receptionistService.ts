@@ -60,7 +60,7 @@ export interface ApiResponse<T = any> {
 }
 
 class ReceptionistService {
-  private async makeRequest(url: string, options: RequestInit = {}): Promise<any> {
+  public async makeRequest(url: string, options: RequestInit = {}): Promise<any> {
     // First try to get Supabase token
     let token: string | null = null;
     
@@ -218,6 +218,7 @@ class ReceptionistService {
       return { error: error instanceof Error ? error.message : 'Failed to update receptionist' };
     }
   }
+
 }
 
 export const receptionistService = new ReceptionistService();

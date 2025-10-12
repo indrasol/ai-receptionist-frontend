@@ -8,6 +8,7 @@ import Contact from "./pages/Contact";
 import Dashboard from "./pages/console/Dashboard";
 import Features from "./pages/Features";
 import ForgotPassword from "./pages/ForgotPassword";
+import { GlobalDebugToast } from "./components/GlobalDebugToast";
 import Home from "./pages/Home";
 import InboundLogs from "./pages/InboundLogs";
 import Integrations from "./pages/Integrations";
@@ -22,6 +23,7 @@ import Onboard from "./pages/Onboard";
 import OutboundLogs from "./pages/OutboundLogs";
 import Pricing from "./pages/Pricing";
 import Register from "./pages/Register";
+import { ScrapeProvider } from "./contexts/ScrapeContext";
 import Settings from "./pages/console/Settings";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import StartFree from "./pages/StartFree";
@@ -36,9 +38,11 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
+      <ScrapeProvider>
+        <Toaster />
+        <Sonner />
+        <GlobalDebugToast />
+        <BrowserRouter>
         <Routes>
           {/* Auth routes - no layout */}
           <Route path="/register" element={<Register />} />
@@ -96,7 +100,8 @@ const App = () => (
           {/* Catch-all route */}
           <Route path="*" element={<Layout><NotFound /></Layout>} />
         </Routes>
-      </BrowserRouter>
+        </BrowserRouter>
+      </ScrapeProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
