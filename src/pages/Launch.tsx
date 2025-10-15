@@ -856,9 +856,6 @@ const Launch = () => {
                                 
                                 {/* Details */}
                                 <div className="flex flex-wrap gap-2 mb-1">
-                                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                                    {phone.provider}
-                                  </span>
                                   <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
                                     {phone.country}
                                   </span>
